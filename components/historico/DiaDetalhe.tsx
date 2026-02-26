@@ -1,5 +1,5 @@
 import { Modal, Pressable, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { ProgressBar } from "@/components/checklist/ProgressBar";
 import type { HistoricoDia } from "@/stores/useHistoryStore";
@@ -67,7 +67,7 @@ export function DiaDetalhe({ historico, visible, onClose }: DiaDetalheProps) {
               {formatDisplayDate(historico.data)}
             </Text>
             <Pressable onPress={onClose} className="p-1">
-              <Ionicons
+              <MaterialCommunityIcons
                 name="close"
                 size={22}
                 color={theme.colors.text.muted}
@@ -77,10 +77,10 @@ export function DiaDetalhe({ historico, visible, onClose }: DiaDetalheProps) {
 
           {/* Status */}
           <View className="mb-4 flex-row items-center gap-2">
-            <Ionicons
+            <MaterialCommunityIcons
               name={
                 historico.completados >= historico.total
-                  ? "checkmark-circle"
+                  ? "check-circle"
                   : "alert-circle"
               }
               size={20}
@@ -102,7 +102,7 @@ export function DiaDetalhe({ historico, visible, onClose }: DiaDetalheProps) {
           {historico.itensPerdidos.length > 0 && (
             <View className="gap-2">
               <View className="flex-row items-center gap-2">
-                <Ionicons
+                <MaterialCommunityIcons
                   name="close-circle-outline"
                   size={16}
                   color={theme.colors.semantic.error}
@@ -128,7 +128,7 @@ export function DiaDetalhe({ historico, visible, onClose }: DiaDetalheProps) {
           {historico.itensPerdidos.length === 0 &&
             historico.completados >= historico.total && (
               <View className="items-center gap-2 rounded-lg bg-bg-elevated py-4">
-                <Ionicons
+                <MaterialCommunityIcons
                   name="trophy-outline"
                   size={28}
                   color={theme.colors.semantic.success}

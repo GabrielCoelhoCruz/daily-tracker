@@ -1,5 +1,5 @@
 import { ScrollView, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { getTreinoDoDia } from "@/utils/diaUtils";
 import { useDayStore } from "@/stores/useDayStore";
@@ -30,8 +30,8 @@ export default function TreinoScreen() {
         contentInsetAdjustmentBehavior="automatic"
         contentContainerClassName="flex-1 items-center justify-center px-8"
       >
-        <Ionicons
-          name="moon-outline"
+        <MaterialCommunityIcons
+          name="moon-waning-crescent"
           size={64}
           color={theme.colors.text.muted}
         />

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import * as Haptics from "expo-haptics";
 import { theme } from "@/constants/theme";
 import { plano } from "@/data/plano";
@@ -136,8 +136,8 @@ export default function HojeScreen() {
                 : theme.colors.bg.elevated,
             }}
           >
-            <Ionicons
-              name={diaOffManual ? "moon" : "moon-outline"}
+            <MaterialCommunityIcons
+              name="moon-waning-crescent"
               size={16}
               color={
                 diaOffManual
@@ -161,8 +161,8 @@ export default function HojeScreen() {
             onPress={() => router.push("/config")}
             hitSlop={8}
           >
-            <Ionicons
-              name="settings-outline"
+            <MaterialCommunityIcons
+              name="cog-outline"
               size={22}
               color={theme.colors.text.muted}
             />
@@ -174,8 +174,8 @@ export default function HojeScreen() {
 
       {treino && !refeicaoLivreUsada && (
         <View className="flex-row items-center gap-2">
-          <Ionicons
-            name="restaurant-outline"
+          <MaterialCommunityIcons
+            name="food-apple-outline"
             size={16}
             color={theme.colors.accent.DEFAULT}
           />
@@ -189,8 +189,8 @@ export default function HojeScreen() {
       {treino && refeicaoLivreUsada && (
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-2">
-            <Ionicons
-              name="restaurant-outline"
+            <MaterialCommunityIcons
+              name="food-apple-outline"
               size={16}
               color={theme.colors.semantic.success}
             />
@@ -207,8 +207,8 @@ export default function HojeScreen() {
               backgroundColor: theme.colors.semantic.error + "15",
             }}
           >
-            <Ionicons
-              name="arrow-undo-outline"
+            <MaterialCommunityIcons
+              name="undo"
               size={14}
               color={theme.colors.semantic.error}
             />
@@ -235,8 +235,8 @@ export default function HojeScreen() {
                   backgroundColor: theme.colors.accent.DEFAULT + "10",
                 }}
               >
-                <Ionicons
-                  name="restaurant-outline"
+                <MaterialCommunityIcons
+                  name="food-apple-outline"
                   size={14}
                   color={theme.colors.accent.DEFAULT}
                 />

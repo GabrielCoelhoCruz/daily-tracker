@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { dicas } from "@/data/dicas";
 import type { Dica } from "@/data/plano";
@@ -44,8 +44,8 @@ function filterDicas(categoria: DicasSectionProps["categoria"]): Dica[] {
 function DicaItem({ dica }: { dica: Dica }) {
   return (
     <View className="flex-row gap-3 rounded-lg bg-bg-elevated p-3">
-      <Ionicons
-        name="information-circle-outline"
+      <MaterialCommunityIcons
+        name="information-outline"
         size={20}
         color={theme.colors.accent.DEFAULT}
         style={{ marginTop: 2 }}
@@ -99,8 +99,8 @@ export function DicasSection({ categoria }: DicasSectionProps) {
         className="flex-row items-center justify-between p-4"
       >
         <View className="flex-row items-center gap-2">
-          <Ionicons
-            name={categoria === "nutricao" ? "nutrition-outline" : "barbell-outline"}
+          <MaterialCommunityIcons
+            name={categoria === "nutricao" ? "food-apple" : "dumbbell"}
             size={20}
             color={theme.colors.accent.DEFAULT}
           />
@@ -112,7 +112,7 @@ export function DicasSection({ categoria }: DicasSectionProps) {
           </Text>
         </View>
 
-        <Ionicons
+        <MaterialCommunityIcons
           name={expanded ? "chevron-up" : "chevron-down"}
           size={18}
           color={theme.colors.text.muted}

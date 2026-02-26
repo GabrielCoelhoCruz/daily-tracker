@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, Switch, Text, TextInput, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useConfigStore } from "@/stores/useConfigStore";
@@ -101,8 +101,8 @@ export default function ConfigScreen() {
       {/* Period Notifications */}
       <Card className="gap-2">
         <View className="flex-row items-center gap-2 pb-1">
-          <Ionicons
-            name="notifications-outline"
+          <MaterialCommunityIcons
+            name="bell-outline"
             size={20}
             color={theme.colors.accent.DEFAULT}
           />
@@ -130,7 +130,7 @@ export default function ConfigScreen() {
       {/* Hydration Reminders */}
       <Card className="gap-3">
         <View className="flex-row items-center gap-2 pb-1">
-          <Ionicons
+          <MaterialCommunityIcons
             name="water-outline"
             size={20}
             color={theme.colors.accent.DEFAULT}

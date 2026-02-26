@@ -16,7 +16,8 @@ Feature: UI/UX Overhaul
 - NativeWind `className` for static layout styles, inline `style` for dynamic colors and typography
 - expo-haptics already used in CheckItem, HidratacaoCard, CardioCard, index.tsx (Light impact)
 - Tab bar: NativeTabs from `expo-router/unstable-native-tabs` with SF Symbols via `Icon` component
-- Current icons: Ionicons (12+ files) still in screens — FontAwesome fully removed
+- All icons now use `MaterialCommunityIcons` from `@expo/vector-icons/MaterialCommunityIcons` (default import)
+- Import style: `import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"` (NOT named import)
 - Route structure: `app/(tabs)/(hoje)/index.tsx`, `(treino)/index.tsx`, `(historico)/index.tsx`, `(historico)/dia-detalhe.tsx`
 - All screens use ScrollView as first child with `contentInsetAdjustmentBehavior="automatic"`
 - react-native-reanimated installed but NOT used anywhere
@@ -63,4 +64,19 @@ Feature: UI/UX Overhaul
   - Empty state screens also need ScrollView as first child for proper tab bar transparency
   - NativeTabs automatically handles headerShown — no need for explicit `headerShown: false` on triggers
   - `contentContainerClassName` works with NativeWind for ScrollView content padding (same as contentContainerStyle)
+---
+
+## 2026-02-26 - US-003
+- Replaced ALL FontAwesome and Ionicons imports with MaterialCommunityIcons across 14 files
+- FontAwesome: removed from `app/_layout.tsx` (font loading), replaced with MaterialCommunityIcons.font
+- Ionicons: replaced in 13 files (4 route files, 9 component files)
+- Icon name mapping applied: checkmark→check, checkmark-circle→check-circle, moon/moon-outline→moon-waning-crescent, settings-outline→cog-outline, restaurant-outline→food-apple/food-apple-outline, bicycle-outline→run-fast, notifications-outline→bell-outline, information-circle-outline→information-outline, nutrition-outline→food-apple, barbell-outline→dumbbell, chevron-back→chevron-left, chevron-forward→chevron-right, stats-chart→chart-bar, flame→fire, calendar-outline→calendar-month-outline, calendar→calendar-month, arrow-undo-outline→undo
+- Zero remaining FontAwesome or Ionicons imports (grep confirmed)
+- Typecheck passes clean
+- Files changed: `app/_layout.tsx`, `app/config.tsx`, `app/(tabs)/(hoje)/index.tsx`, `app/(tabs)/(treino)/index.tsx`, `app/(tabs)/(historico)/index.tsx`, `app/(tabs)/(historico)/dia-detalhe.tsx`, `components/checklist/CheckItem.tsx`, `components/checklist/PeriodoSection.tsx`, `components/hidratacao/HidratacaoCard.tsx`, `components/cardio/CardioCard.tsx`, `components/dicas/DicasSection.tsx`, `components/historico/Calendario.tsx`, `components/historico/StatsCard.tsx`, `components/historico/DiaDetalhe.tsx`
+- **Learnings for future iterations:**
+  - Use default import `import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"` — NOT `import { MaterialCommunityIcons } from "@expo/vector-icons"`
+  - When using sed for icon replacement, ternary expressions (e.g., `condition ? "iconA" : "iconB"`) won't match `name="iconA"` patterns — need separate handling
+  - MaterialCommunityIcons type reference: `keyof typeof MaterialCommunityIcons.glyphMap` for typed icon props
+  - Icon names between Ionicons and MCI often differ subtly: Ionicons `checkmark-circle` → MCI `check-circle`, Ionicons `flame` → MCI `fire`
 ---

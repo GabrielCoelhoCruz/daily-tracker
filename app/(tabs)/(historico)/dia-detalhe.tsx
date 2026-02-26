@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { ProgressBar } from "@/components/checklist/ProgressBar";
 import { useHistoryStore } from "@/stores/useHistoryStore";
@@ -36,7 +36,7 @@ export default function DiaDetalheScreen() {
   if (!historico) {
     return (
       <View className="flex-1 items-center justify-center bg-bg-card px-8">
-        <Ionicons
+        <MaterialCommunityIcons
           name="calendar-outline"
           size={48}
           color={theme.colors.text.muted}
@@ -60,10 +60,10 @@ export default function DiaDetalheScreen() {
 
       {/* Status */}
       <View className="mb-4 flex-row items-center gap-2">
-        <Ionicons
+        <MaterialCommunityIcons
           name={
             historico.completados >= historico.total
-              ? "checkmark-circle"
+              ? "check-circle"
               : "alert-circle"
           }
           size={20}
@@ -85,7 +85,7 @@ export default function DiaDetalheScreen() {
       {historico.itensPerdidos.length > 0 && (
         <View className="gap-2">
           <View className="flex-row items-center gap-2">
-            <Ionicons
+            <MaterialCommunityIcons
               name="close-circle-outline"
               size={16}
               color={theme.colors.semantic.error}
@@ -111,7 +111,7 @@ export default function DiaDetalheScreen() {
       {historico.itensPerdidos.length === 0 &&
         historico.completados >= historico.total && (
           <View className="items-center gap-2 rounded-lg bg-bg-elevated py-4">
-            <Ionicons
+            <MaterialCommunityIcons
               name="trophy-outline"
               size={28}
               color={theme.colors.semantic.success}

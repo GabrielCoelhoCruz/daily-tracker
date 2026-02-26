@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useHistoryStore, type HistoricoDia } from "@/stores/useHistoryStore";
@@ -102,7 +102,7 @@ function StatRow({
   value,
   color,
 }: {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap;
   label: string;
   value: string;
   color: string;
@@ -110,7 +110,7 @@ function StatRow({
   return (
     <View className="flex-row items-center justify-between">
       <View className="flex-row items-center gap-2">
-        <Ionicons name={icon} size={16} color={color} />
+        <MaterialCommunityIcons name={icon} size={16} color={color} />
         <Text className="text-sm text-txt-secondary">{label}</Text>
       </View>
       <Text className="text-sm font-semibold" style={{ color }}>
@@ -147,8 +147,8 @@ export function StatsCard() {
   return (
     <Card className="gap-3">
       <View className="flex-row items-center gap-2">
-        <Ionicons
-          name="stats-chart"
+        <MaterialCommunityIcons
+          name="chart-bar"
           size={20}
           color={theme.colors.accent.DEFAULT}
         />
@@ -158,7 +158,7 @@ export function StatsCard() {
       </View>
 
       <StatRow
-        icon="flame"
+        icon="fire"
         label="Streak"
         value={`${streak} dia${streak !== 1 ? "s" : ""} consecutivo${streak !== 1 ? "s" : ""} 100%`}
         color={
@@ -171,7 +171,7 @@ export function StatsCard() {
       <View className="h-px bg-border" />
 
       <StatRow
-        icon="calendar-outline"
+        icon="calendar-month-outline"
         label="Aderência semanal"
         value={weeklyAdherence !== null ? `${weeklyAdherence}%` : "—"}
         color={
@@ -184,7 +184,7 @@ export function StatsCard() {
       />
 
       <StatRow
-        icon="calendar"
+        icon="calendar-month"
         label="Aderência mensal"
         value={monthlyAdherence !== null ? `${monthlyAdherence}%` : "—"}
         color={
@@ -202,7 +202,7 @@ export function StatsCard() {
 
           <View className="gap-2">
             <View className="flex-row items-center gap-2">
-              <Ionicons
+              <MaterialCommunityIcons
                 name="alert-circle-outline"
                 size={16}
                 color={theme.colors.semantic.error}

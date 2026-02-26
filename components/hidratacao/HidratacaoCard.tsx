@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from "react-native";
 import * as Haptics from "expo-haptics";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useDayStore } from "@/stores/useDayStore";
@@ -46,7 +46,7 @@ function HidratacaoSection({
     <View className="gap-2">
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <Ionicons
+          <MaterialCommunityIcons
             name="water-outline"
             size={16}
             color={isComplete ? theme.colors.semantic.success : theme.colors.accent.DEFAULT}
@@ -55,8 +55,8 @@ function HidratacaoSection({
         </View>
         <View className="flex-row items-center gap-1.5">
           {isComplete && (
-            <Ionicons
-              name="checkmark-circle"
+            <MaterialCommunityIcons
+              name="check-circle"
               size={16}
               color={theme.colors.semantic.success}
             />
@@ -138,7 +138,7 @@ export function HidratacaoCard() {
   return (
     <Card className="gap-4">
       <View className="flex-row items-center gap-2">
-        <Ionicons
+        <MaterialCommunityIcons
           name="water"
           size={20}
           color={theme.colors.accent.DEFAULT}

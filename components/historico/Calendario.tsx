@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Pressable, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { useAppFocusRefresh } from "@/utils/useAppFocusRefresh";
@@ -123,8 +123,8 @@ export function Calendario({ onDayPress }: CalendarioProps) {
       {/* Month navigation header */}
       <View className="mb-4 flex-row items-center justify-between">
         <Pressable onPress={goToPrevMonth} className="p-2">
-          <Ionicons
-            name="chevron-back"
+          <MaterialCommunityIcons
+            name="chevron-left"
             size={20}
             color={theme.colors.text.primary}
           />
@@ -133,8 +133,8 @@ export function Calendario({ onDayPress }: CalendarioProps) {
           {MONTH_NAMES[viewMonth]} {viewYear}
         </Text>
         <Pressable onPress={goToNextMonth} className="p-2">
-          <Ionicons
-            name="chevron-forward"
+          <MaterialCommunityIcons
+            name="chevron-right"
             size={20}
             color={theme.colors.text.primary}
           />

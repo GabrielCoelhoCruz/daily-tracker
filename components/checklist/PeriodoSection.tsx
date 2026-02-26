@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Badge } from "@/components/ui/Badge";
 import { CheckItem } from "@/components/checklist/CheckItem";
@@ -78,7 +78,7 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
                 : theme.colors.accent.DEFAULT
             }
           />
-          <Ionicons
+          <MaterialCommunityIcons
             name={expanded ? "chevron-up" : "chevron-down"}
             size={18}
             color={theme.colors.text.muted}
@@ -90,8 +90,8 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
         <View className="gap-1 px-4 pb-4">
           {isRefeicaoLivre ? (
             <View className="items-center rounded-lg bg-bg-elevated py-4">
-              <Ionicons
-                name="restaurant-outline"
+              <MaterialCommunityIcons
+                name="food-apple"
                 size={24}
                 color={theme.colors.semantic.success}
               />

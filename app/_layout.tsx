@@ -1,4 +1,4 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
@@ -26,7 +26,7 @@ export default function RootLayout() {
 
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-    ...FontAwesome.font,
+    ...MaterialCommunityIcons.font,
   });
 
   useEffect(() => {

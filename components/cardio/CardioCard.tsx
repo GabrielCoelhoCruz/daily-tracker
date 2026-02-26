@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useDayStore } from "@/stores/useDayStore";
@@ -43,8 +43,8 @@ export function CardioCard() {
     <Card className="gap-4">
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <Ionicons
-            name="bicycle-outline"
+          <MaterialCommunityIcons
+            name="run-fast"
             size={20}
             color={theme.colors.accent.DEFAULT}
           />
@@ -53,8 +53,8 @@ export function CardioCard() {
           </Text>
         </View>
         {isComplete && (
-          <Ionicons
-            name="checkmark-circle"
+          <MaterialCommunityIcons
+            name="check-circle"
             size={20}
             color={theme.colors.semantic.success}
           />
@@ -104,7 +104,7 @@ export function CardioCard() {
                 onPress={() => handleRemoveSessao(index)}
                 hitSlop={8}
               >
-                <Ionicons
+                <MaterialCommunityIcons
                   name="close-circle"
                   size={18}
                   color={theme.colors.text.muted}

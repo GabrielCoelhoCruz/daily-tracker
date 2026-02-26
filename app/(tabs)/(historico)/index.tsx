@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Calendario } from "@/components/historico/Calendario";
 import { StatsCard } from "@/components/historico/StatsCard";
@@ -35,8 +35,8 @@ export default function HistoricoScreen() {
         </>
       ) : (
         <View className="items-center gap-3 py-16">
-          <Ionicons
-            name="calendar-outline"
+          <MaterialCommunityIcons
+            name="calendar-month-outline"
             size={48}
             color={theme.colors.text.muted}
           />

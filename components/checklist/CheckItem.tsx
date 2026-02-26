@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from "react-native";
 import * as Haptics from "expo-haptics";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Badge } from "@/components/ui/Badge";
 import { useDayStore } from "@/stores/useDayStore";
@@ -56,7 +56,7 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
         }}
       >
         {isChecked && (
-          <Ionicons name="checkmark" size={14} color={theme.colors.bg.primary} />
+          <MaterialCommunityIcons name="check" size={14} color={theme.colors.bg.primary} />
         )}
       </View>
 
