@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Platform, Pressable, ScrollView, Text, View } from "react-native";
+import { LayoutAnimation, Platform, Pressable, ScrollView, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import * as Haptics from "expo-haptics";
 import { theme } from "@/constants/theme";
@@ -97,17 +97,26 @@ export default function HojeScreen() {
   );
 
   function handleToggleDiaOff() {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (process.env.EXPO_OS === "ios") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setDiaOff(!diaOffManual);
   }
 
   function handleRefeicaoLivre(periodoId: string) {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (process.env.EXPO_OS === "ios") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     usarRefeicaoLivre(periodoId);
   }
 
   function handleDesfazerRefeicaoLivre() {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (process.env.EXPO_OS === "ios") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     desfazerRefeicaoLivre();
   }
 

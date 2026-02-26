@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from "react-native";
+import { LayoutAnimation, Pressable, Text, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
@@ -19,7 +19,10 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
   const hasSubItens = item.subItens && item.subItens.length > 0;
 
   function handlePress() {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (process.env.EXPO_OS === "ios") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     toggleCheck(item.id);
   }
 

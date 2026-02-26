@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { LayoutAnimation, Pressable, Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
@@ -23,13 +23,19 @@ export function CardioCard() {
     const minutos = parseInt(inputMinutos, 10);
     if (isNaN(minutos) || minutos <= 0 || minutos > 240) return;
 
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (process.env.EXPO_OS === "ios") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     addSessaoCardio(minutos);
     setInputMinutos("");
   }
 
   function handleRemoveSessao(index: number) {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (process.env.EXPO_OS === "ios") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     removeSessaoCardio(index);
   }
 

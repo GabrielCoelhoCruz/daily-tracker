@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from "react-native";
+import { LayoutAnimation, Pressable, Text, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
@@ -33,12 +33,18 @@ function HidratacaoSection({
   const isComplete = currentMl >= metaMl;
 
   function handleAdd(ml: number) {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (process.env.EXPO_OS === "ios") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onAdd(ml);
   }
 
   function handleRemove(ml: number) {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (process.env.EXPO_OS === "ios") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onRemove(ml);
   }
 

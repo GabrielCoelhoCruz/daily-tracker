@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { LayoutAnimation, Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
@@ -105,7 +105,10 @@ export function DicasSection({ categoria }: DicasSectionProps) {
   return (
     <Card className="p-0">
       <Pressable
-        onPress={() => setExpanded((prev) => !prev)}
+        onPress={() => {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+          setExpanded((prev) => !prev);
+        }}
         className="flex-row items-center justify-between p-4"
       >
         <View className="flex-row items-center gap-2">

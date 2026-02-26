@@ -1,4 +1,5 @@
-import { Text, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { LayoutAnimation, Text, View } from "react-native";
 
 type ProgressBarProps = {
   completados: number;
@@ -12,6 +13,14 @@ export function ProgressBar({
   className = "",
 }: ProgressBarProps) {
   const percentage = total > 0 ? Math.round((completados / total) * 100) : 0;
+  const prevPercentage = useRef(percentage);
+
+  useEffect(() => {
+    if (prevPercentage.current !== percentage) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      prevPercentage.current = percentage;
+    }
+  }, [percentage]);
 
   return (
     <View className={`gap-1.5 ${className}`}>

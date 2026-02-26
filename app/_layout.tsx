@@ -6,8 +6,16 @@ import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef } from "react";
-import { Platform, View } from "react-native";
+import { Platform, UIManager, View } from "react-native";
 import "react-native-reanimated";
+
+// Enable LayoutAnimation on Android
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 import "../global.css";
 import { useConfigStore } from "@/stores/useConfigStore";
 import { scheduleNotificacoes } from "@/utils/notificationUtils";
