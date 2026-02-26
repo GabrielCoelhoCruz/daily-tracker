@@ -280,3 +280,15 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - Future dates are determined by simple string comparison (`dateStr > todayStr`) since YYYY-MM-DD format sorts chronologically
   - `onDayPress` only fires for days with history data — prevents meaningless taps on empty/future days
 ---
+
+## 2026-02-26 - US-019
+- What was implemented: Created `components/historico/StatsCard.tsx` — a statistics card with 4 sections: streak (consecutive 100% days counting backwards from today), weekly adherence (current week Mon-Sun percentage), monthly adherence (current month percentage), and top 3 most missed items (aggregated from all history with miss count and percentage). Uses `Card` wrapper, `Ionicons`, and `theme` colors. All calculations use `useMemo` for performance. Adherence color-coded: green >=80%, amber >=50%, muted otherwise. Streak counts backwards from yesterday (today may be in-progress) but includes today if it's 100% complete.
+- Files changed:
+  - `components/historico/StatsCard.tsx` - New file: StatsCard with streak, adherence, top missed items
+- **Learnings for future iterations:**
+  - Streak calculation should start from yesterday (today is still in-progress) but include today if it has a 100% complete entry
+  - Week bounds (Mon-Sun) calculated via `getDay()` offset from current date — Sunday=0 needs special handling (diffToMon = -6)
+  - `calcAdherence` uses a filter function pattern to reuse logic for both weekly and monthly — sum completados/total across matching days
+  - `topMissed` aggregates `itensPerdidos` across all history entries — percentage is relative to total days with history, not total days possible
+  - YYYY-MM-DD string comparison works for date range filtering (week bounds) since the format sorts chronologically
+---
