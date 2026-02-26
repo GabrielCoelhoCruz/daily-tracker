@@ -158,3 +158,18 @@ Feature: UI/UX Overhaul
   - Circular number badges: use exact width/height + borderRadius = half for a perfect circle, with accent color at 20% opacity background
   - Keep `className` for flexbox layout (flex-row, gap, items-center) and `style` for visual design (borderRadius, borderCurve, colors)
 ---
+
+## 2026-02-26 - US-008
+- Redesigned Calendario: larger cells (padding 3 vs 2), bolder today indicator (borderWidth 2.5, fontWeight 800), larger borderRadius 10, larger font size 14
+- Redesigned StatsCard: replaced vertical StatRow layout with horizontal MetricColumn layout — three columns (streak, weekly, monthly) each showing icon (20px) + value (title3 style) + label (caption style) stacked vertically
+- Changed streak display from verbose "X dias consecutivos 100%" to clean number-only display
+- Used `calendar-week` icon for weekly adherence to differentiate from monthly `calendar-month`
+- Empty state already correctly implemented: calendar-month-outline at 48px + "Nenhum dado ainda" text
+- DiaDetalhe route already renders correctly with date param, progress bar, and missed items (implemented in US-001)
+- Typecheck passes clean
+- Files changed (2): `components/historico/Calendario.tsx`, `components/historico/StatsCard.tsx`
+- **Learnings for future iterations:**
+  - `calendar-week` is a valid MaterialCommunityIcons name — useful to distinguish weekly from monthly calendar icons
+  - Horizontal metric layouts work well with `flex-1 items-center gap-1` on each column and `flex-row` on the parent
+  - The `MetricColumn` pattern (icon + big number + small label) is a clean way to display dashboard-style stats
+---
