@@ -39,6 +39,9 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - Items with `subItens` are group headers (not checkable) — only render checkmarks on leaf items
 - Cardio component in `components/cardio/CardioCard.tsx` — uses `plano.metaCardioMin` (80min) for goal; sessions stored as `SessaoCardio[]` with `minutos` + `timestamp`
 - Dicas component in `components/dicas/DicasSection.tsx` — accepts `categoria` prop ('nutricao' | 'treino'), filters tips from `data/dicas.ts`, collapsed by default. Training section includes series legend (WS/TS/BS/CS)
+- Tab Hoje screen (`app/(tabs)/index.tsx`) assembles all components: ProgressBar, PeriodoSection (filtered), HidratacaoCard, CardioCard, DicasSection. Uses `contentContainerClassName` for ScrollView content styling
+- `useRouter` from expo-router for programmatic navigation (e.g. `router.push("/config")`)
+- Refeição livre button only shown on periods with `refeicao` category items — filter with `periodo.itens.some(i => i.categoria === "refeicao")`
 
 ---
 
@@ -233,4 +236,17 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - Helper functions (`filterDicas`) and sub-components (`DicaItem`, `SeriesLegend`) are defined outside the main component, not exported — keeps component pure
   - Constants (`SERIES_LEGEND`, `SECTION_TITLES`) defined at module level, not inside components
   - DicasSection component lives in `components/dicas/` directory
+---
+
+## 2026-02-26 - US-016
+- What was implemented: Built the Tab Hoje main screen (`app/(tabs)/index.tsx`) assembling all previously created components into a full daily checklist view. The screen is a ScrollView with: formatted date header (day name + date in Portuguese), "Dia Off" toggle button with moon icon, gear icon linking to config modal, ProgressBar showing completados/total (excluding optional items), refeição livre indicator (0/1 or 1/1 badge) visible only on training days, PeriodoSection for each filtered period, "Usar Refeição Livre" button per meal period (only when available and not yet used), HidratacaoCard, CardioCard, and DicasSection with categoria='nutricao' collapsed by default. Calls `checkAndReset()` on mount for 4am daily reset.
+- Files changed:
+  - `app/(tabs)/index.tsx` - Complete rewrite from placeholder to full Hoje screen with all components assembled
+- **Learnings for future iterations:**
+  - `contentContainerClassName` on ScrollView works with NativeWind for styling the scroll content container (gap, padding)
+  - `countCheckedNonOptional` helper counts checked items across all periods, handling sub-items and refeição livre — same counting pattern as `contarItens` but checks against store state
+  - Refeição livre button only appears on periods that contain `refeicao` category items — use `periodo.itens.some(i => i.categoria === "refeicao")` to filter
+  - `useMemo` for `filtrarItensDoDia` and `contarItens` since they depend only on `dayOfWeek` and `diaOffManual` — avoids recalculating on every check toggle
+  - `useRouter` from expo-router for navigation to config modal: `router.push("/config")`
+  - Portuguese date formatting: use `toLocaleDateString("pt-BR", { month: "long" })` for month name + manual DAY_NAMES array for day of week
 ---
