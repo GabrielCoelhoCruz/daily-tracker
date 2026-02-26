@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import { theme } from "@/constants/theme";
 
 export default function TreinoLayout() {
   return (
@@ -11,7 +12,7 @@ export default function TreinoLayout() {
         headerLargeTitleShadowVisible: false,
         headerLargeStyle: { backgroundColor: "transparent" },
         headerBlurEffect: "none",
-        headerTintColor: "#fafaf9",
+        headerTintColor: theme.colors.text.primary,
       }}
     />
   );

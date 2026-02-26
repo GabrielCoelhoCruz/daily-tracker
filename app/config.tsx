@@ -122,11 +122,11 @@ function PeriodoNotificacao({
                 width: 72,
                 paddingHorizontal: 8,
                 paddingVertical: 4,
-                borderRadius: 8,
+                borderRadius: theme.radius.md,
                 borderCurve: "continuous",
                 backgroundColor: theme.colors.bg.elevated,
                 color: theme.colors.text.primary,
-                fontSize: 15,
+                ...theme.typography.body,
                 textAlign: "center",
                 fontVariant: ["tabular-nums"],
               }}
@@ -200,7 +200,7 @@ export default function ConfigScreen() {
             <View
               className="flex-row"
               style={{
-                borderRadius: 8,
+                borderRadius: theme.radius.md,
                 borderCurve: "continuous",
                 overflow: "hidden",
               }}
@@ -211,6 +211,8 @@ export default function ConfigScreen() {
                   <Pressable
                     key={horas}
                     onPress={() => setIntervalo(horas)}
+                    accessibilityLabel={`Intervalo de ${horas} hora${horas > 1 ? "s" : ""}`}
+                    accessibilityState={{ selected: isActive }}
                     className="flex-1 items-center justify-center"
                     style={{
                       paddingVertical: 8,
@@ -223,7 +225,7 @@ export default function ConfigScreen() {
                   >
                     <Text
                       style={{
-                        fontSize: 14,
+                        ...theme.typography.footnote,
                         fontWeight: "600",
                         color: isActive
                           ? theme.colors.bg.primary

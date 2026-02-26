@@ -16,9 +16,13 @@ export default function HojeLayout() {
         headerLargeTitleShadowVisible: false,
         headerLargeStyle: { backgroundColor: "transparent" },
         headerBlurEffect: "none",
-        headerTintColor: "#fafaf9",
+        headerTintColor: theme.colors.text.primary,
         headerRight: () => (
-          <Pressable onPress={() => router.push("/config")} hitSlop={8}>
+          <Pressable
+            onPress={() => router.push("/config")}
+            accessibilityLabel="Configurações"
+            hitSlop={8}
+          >
             <MaterialCommunityIcons
               name="cog"
               size={22}

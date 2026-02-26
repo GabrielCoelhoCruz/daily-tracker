@@ -28,7 +28,7 @@ const MONTH_NAMES = [
 ];
 
 function getAdherenceColor(completados: number, total: number): string {
-  if (total === 0) return "#404040";
+  if (total === 0) return theme.colors.neutral;
   const pct = completados / total;
   if (pct >= 1) return theme.colors.semantic.success;
   if (pct >= 0.5) return theme.colors.accent.DEFAULT;
@@ -58,12 +58,10 @@ function getCalendarDays(year: number, month: number): DayCell[] {
 
   const cells: DayCell[] = [];
 
-  // Empty cells for days before the 1st
   for (let i = 0; i < firstDay; i++) {
     cells.push({ day: 0, dateStr: "", isCurrentMonth: false });
   }
 
-  // Actual days of the month
   for (let d = 1; d <= daysInMonth; d++) {
     cells.push({
       day: d,
@@ -121,9 +119,12 @@ export function Calendario({ onDayPress }: CalendarioProps) {
 
   return (
     <Card>
-      {/* Month navigation header */}
       <View className="mb-4 flex-row items-center justify-between">
-        <Pressable onPress={goToPrevMonth} className="p-2">
+        <Pressable
+          onPress={goToPrevMonth}
+          accessibilityLabel="Mês anterior"
+          className="p-2"
+        >
           <MaterialCommunityIcons
             name="chevron-left"
             size={20}
@@ -133,7 +134,11 @@ export function Calendario({ onDayPress }: CalendarioProps) {
         <Text style={theme.typography.callout}>
           {MONTH_NAMES[viewMonth]} {viewYear}
         </Text>
-        <Pressable onPress={goToNextMonth} className="p-2">
+        <Pressable
+          onPress={goToNextMonth}
+          accessibilityLabel="Próximo mês"
+          className="p-2"
+        >
           <MaterialCommunityIcons
             name="chevron-right"
             size={20}
@@ -142,7 +147,6 @@ export function Calendario({ onDayPress }: CalendarioProps) {
         </Pressable>
       </View>
 
-      {/* Weekday headers */}
       <View className="mb-2 flex-row">
         {WEEKDAY_LABELS.map((label) => (
           <View key={label} className="flex-1 items-center">
@@ -151,7 +155,6 @@ export function Calendario({ onDayPress }: CalendarioProps) {
         ))}
       </View>
 
-      {/* Calendar grid */}
       <View className="flex-row flex-wrap">
         {calendarDays.map((cell, index) => {
           if (!cell.isCurrentMonth) {
@@ -162,7 +165,7 @@ export function Calendario({ onDayPress }: CalendarioProps) {
           const future = isFutureDate(cell.dateStr);
           const isToday = cell.dateStr === todayStr;
 
-          let bgColor = "#404040";
+          let bgColor: string = theme.colors.neutral;
           if (historico && !future) {
             bgColor = getAdherenceColor(
               historico.completados,
@@ -174,6 +177,7 @@ export function Calendario({ onDayPress }: CalendarioProps) {
             <Pressable
               key={cell.dateStr}
               onPress={() => handleDayPress(cell)}
+              accessibilityLabel={`${cell.day} de ${MONTH_NAMES[viewMonth]}${isToday ? ", hoje" : ""}`}
               style={{
                 width: "14.28%",
                 aspectRatio: 1,
@@ -198,7 +202,7 @@ export function Calendario({ onDayPress }: CalendarioProps) {
               >
                 <Text
                   style={{
-                    fontSize: 14,
+                    ...theme.typography.footnote,
                     fontWeight: isToday ? "800" : "500",
                     fontVariant: ["tabular-nums"],
                     color: future

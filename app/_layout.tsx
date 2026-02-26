@@ -17,6 +17,7 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 import "../global.css";
+import { theme } from "@/constants/theme";
 import { useConfigStore } from "@/stores/useConfigStore";
 import { scheduleNotificacoes } from "@/utils/notificationUtils";
 
@@ -94,12 +95,12 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={DarkTheme}>
-      <View style={{ flex: 1, backgroundColor: "#0c0a09" }}>
+      <View style={{ flex: 1, backgroundColor: theme.colors.bg.primary }}>
         <StatusBar style="light" />
         <Stack
           screenOptions={{
             headerShown: false,
-            contentStyle: { backgroundColor: "#0c0a09" },
+            contentStyle: { backgroundColor: theme.colors.bg.primary },
           }}
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -109,8 +110,8 @@ export default function RootLayout() {
               presentation: "modal",
               headerShown: true,
               headerTitle: "Configurações",
-              headerStyle: { backgroundColor: "#1c1917" },
-              headerTintColor: "#fafaf9",
+              headerStyle: { backgroundColor: theme.colors.bg.card },
+              headerTintColor: theme.colors.text.primary,
             }}
           />
         </Stack>

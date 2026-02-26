@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { LayoutAnimation, Pressable, Text, TextInput, View } from "react-native";
-import * as Haptics from "expo-haptics";
+import { Pressable, Text, TextInput, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useDayStore } from "@/stores/useDayStore";
+import { animateWithHaptic } from "@/utils/animationUtils";
 import { plano } from "@/data/plano";
 
 export function CardioCard() {
@@ -23,20 +23,14 @@ export function CardioCard() {
     const minutos = parseInt(inputMinutos, 10);
     if (isNaN(minutos) || minutos <= 0 || minutos > 240) return;
 
-    if (process.env.EXPO_OS === "ios") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    addSessaoCardio(minutos);
-    setInputMinutos("");
+    animateWithHaptic(() => {
+      addSessaoCardio(minutos);
+      setInputMinutos("");
+    });
   }
 
   function handleRemoveSessao(index: number) {
-    if (process.env.EXPO_OS === "ios") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    removeSessaoCardio(index);
+    animateWithHaptic(() => removeSessaoCardio(index));
   }
 
   const totalText =
@@ -117,6 +111,7 @@ export function CardioCard() {
               </Text>
               <Pressable
                 onPress={() => handleRemoveSessao(index)}
+                accessibilityLabel={`Remover sessão de ${sessao.minutos} minutos`}
                 hitSlop={8}
               >
                 <MaterialCommunityIcons
@@ -153,6 +148,7 @@ export function CardioCard() {
         />
         <Pressable
           onPress={handleAddSessao}
+          accessibilityLabel="Adicionar sessão de cardio"
           className="items-center justify-center rounded-xl"
           style={{
             height: 44,

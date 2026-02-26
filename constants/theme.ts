@@ -21,7 +21,14 @@ export const theme = {
       secondary: "#a8a29e",
       muted: "#78716c",
     },
+    neutral: "#404040",
     border: "#292524",
+  },
+  radius: {
+    sm: 6,
+    md: 8,
+    lg: 12,
+    xl: 16,
   },
   typography: {
     caption: {
@@ -55,3 +62,10 @@ export const theme = {
 } as const;
 
 export type Theme = typeof theme;
+
+export function withAlpha(color: string, alpha: number): string {
+  const hex = Math.round(alpha * 255)
+    .toString(16)
+    .padStart(2, "0");
+  return `${color}${hex}`;
+}

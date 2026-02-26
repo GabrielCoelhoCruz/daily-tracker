@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
-import { LayoutAnimation, Platform, Pressable, ScrollView, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import * as Haptics from "expo-haptics";
 import { theme } from "@/constants/theme";
 import { plano } from "@/data/plano";
 import { Badge } from "@/components/ui/Badge";
@@ -11,6 +10,7 @@ import { HidratacaoCard } from "@/components/hidratacao/HidratacaoCard";
 import { CardioCard } from "@/components/cardio/CardioCard";
 import { DicasSection } from "@/components/dicas/DicasSection";
 import { useDayStore } from "@/stores/useDayStore";
+import { animateWithHaptic } from "@/utils/animationUtils";
 import {
   isDiaDeTreino,
   filtrarItensDoDia,
@@ -97,27 +97,15 @@ export default function HojeScreen() {
   );
 
   function handleToggleDiaOff() {
-    if (process.env.EXPO_OS === "ios") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setDiaOff(!diaOffManual);
+    animateWithHaptic(() => setDiaOff(!diaOffManual));
   }
 
   function handleRefeicaoLivre(periodoId: string) {
-    if (process.env.EXPO_OS === "ios") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    usarRefeicaoLivre(periodoId);
+    animateWithHaptic(() => usarRefeicaoLivre(periodoId));
   }
 
   function handleDesfazerRefeicaoLivre() {
-    if (process.env.EXPO_OS === "ios") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    desfazerRefeicaoLivre();
+    animateWithHaptic(() => desfazerRefeicaoLivre());
   }
 
   return (
@@ -132,6 +120,8 @@ export default function HojeScreen() {
 
       <Pressable
         onPress={handleToggleDiaOff}
+        accessibilityRole="button"
+        accessibilityLabel={diaOffManual ? "Desativar Dia Off" : "Ativar Dia Off"}
         className="flex-row items-center justify-between rounded-2xl px-4 py-3"
         style={{
           backgroundColor: diaOffManual
@@ -216,6 +206,7 @@ export default function HojeScreen() {
           </View>
           <Pressable
             onPress={handleDesfazerRefeicaoLivre}
+            accessibilityLabel="Desfazer refeição livre"
             className="flex-row items-center gap-1 rounded-lg px-2.5 py-1"
             style={{
               backgroundColor: theme.colors.semantic.error + "15",
@@ -244,6 +235,7 @@ export default function HojeScreen() {
             periodo.itens.some((i) => i.categoria === "refeicao") && (
               <Pressable
                 onPress={() => handleRefeicaoLivre(periodo.id)}
+                accessibilityLabel={`Usar refeição livre em ${periodo.nome}`}
                 className="flex-row items-center justify-center gap-2 rounded-lg py-2"
                 style={{
                   backgroundColor: theme.colors.accent.DEFAULT + "10",

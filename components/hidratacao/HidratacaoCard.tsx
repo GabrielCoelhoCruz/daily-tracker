@@ -1,9 +1,9 @@
-import { LayoutAnimation, Pressable, Text, View } from "react-native";
-import * as Haptics from "expo-haptics";
+import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useDayStore } from "@/stores/useDayStore";
+import { animateWithHaptic } from "@/utils/animationUtils";
 import { plano } from "@/data/plano";
 
 type HidratacaoSectionProps = {
@@ -33,19 +33,11 @@ function HidratacaoSection({
   const isComplete = currentMl >= metaMl;
 
   function handleAdd(ml: number) {
-    if (process.env.EXPO_OS === "ios") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    onAdd(ml);
+    animateWithHaptic(() => onAdd(ml));
   }
 
   function handleRemove(ml: number) {
-    if (process.env.EXPO_OS === "ios") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    onRemove(ml);
+    animateWithHaptic(() => onRemove(ml));
   }
 
   return (
@@ -104,6 +96,7 @@ function HidratacaoSection({
       <View className="flex-row items-center gap-3">
         <Pressable
           onPress={() => handleRemove(250)}
+          accessibilityLabel={`Remover 250ml de ${label}`}
           hitSlop={4}
           style={{ minHeight: 44, justifyContent: "center" }}
         >
@@ -116,6 +109,7 @@ function HidratacaoSection({
         <View className="flex-1 flex-row items-center gap-2">
           <Pressable
             onPress={() => handleAdd(250)}
+            accessibilityLabel={`Adicionar 250ml de ${label}`}
             className="flex-1 items-center justify-center rounded-lg py-2"
             style={{ backgroundColor: theme.colors.accent.DEFAULT + "15" }}
           >
@@ -128,6 +122,7 @@ function HidratacaoSection({
           </Pressable>
           <Pressable
             onPress={() => handleAdd(500)}
+            accessibilityLabel={`Adicionar 500ml de ${label}`}
             className="flex-1 items-center justify-center rounded-lg py-2"
             style={{ backgroundColor: theme.colors.accent.DEFAULT + "15" }}
           >
@@ -141,6 +136,7 @@ function HidratacaoSection({
         </View>
         <Pressable
           onPress={() => handleAdd(250)}
+          accessibilityLabel={`Adicionar 250ml de ${label}`}
           hitSlop={4}
           style={{ minHeight: 44, justifyContent: "center" }}
         >

@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
-import { LayoutAnimation, Text, View } from "react-native";
+import { Text, View } from "react-native";
+import { theme } from "@/constants/theme";
+import { animateNext } from "@/utils/animationUtils";
 
 type ProgressBarProps = {
   completados: number;
@@ -17,7 +19,7 @@ export function ProgressBar({
 
   useEffect(() => {
     if (prevPercentage.current !== percentage) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      animateNext();
       prevPercentage.current = percentage;
     }
   }, [percentage]);
@@ -37,7 +39,7 @@ export function ProgressBar({
           className="text-sm font-semibold"
           style={{
             fontVariant: ["tabular-nums"],
-            color: percentage === 100 ? "#22c55e" : "#f59e0b",
+            color: percentage === 100 ? theme.colors.semantic.success : theme.colors.accent.DEFAULT,
           }}
         >
           {percentage}%

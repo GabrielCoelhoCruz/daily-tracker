@@ -29,7 +29,7 @@ function SerieBadge({ serie }: { serie: Serie }) {
       >
         <Text
           style={{
-            fontSize: 11,
+            ...theme.typography.caption,
             fontWeight: "700",
             color,
           }}
@@ -70,7 +70,7 @@ export function ExercicioItem({ exercicio, index }: ExercicioItemProps) {
         >
           <Text
             style={{
-              fontSize: 13,
+              ...theme.typography.footnote,
               fontWeight: "700",
               color: theme.colors.accent.DEFAULT,
             }}

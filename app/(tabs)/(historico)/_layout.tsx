@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import { theme } from "@/constants/theme";
 
 export default function HistoricoLayout() {
   return (
@@ -11,7 +12,7 @@ export default function HistoricoLayout() {
         headerLargeTitleShadowVisible: false,
         headerLargeStyle: { backgroundColor: "transparent" },
         headerBlurEffect: "none",
-        headerTintColor: "#fafaf9",
+        headerTintColor: theme.colors.text.primary,
       }}
     >
       <Stack.Screen name="index" />

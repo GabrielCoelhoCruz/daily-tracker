@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { LayoutAnimation, Pressable, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
+import { animateNext } from "@/utils/animationUtils";
 import { dicas } from "@/data/dicas";
 import type { Dica } from "@/data/plano";
 
@@ -69,7 +70,7 @@ function SeriesLegend() {
           <View
             style={{
               marginTop: 2,
-              borderRadius: 6,
+              borderRadius: theme.radius.sm,
               borderCurve: "continuous",
               paddingHorizontal: 6,
               paddingVertical: 2,
@@ -78,7 +79,7 @@ function SeriesLegend() {
           >
             <Text
               style={{
-                fontSize: 11,
+                ...theme.typography.caption,
                 fontWeight: "700",
                 color: theme.colors.accent.DEFAULT,
               }}
@@ -106,9 +107,12 @@ export function DicasSection({ categoria }: DicasSectionProps) {
     <Card className="p-0">
       <Pressable
         onPress={() => {
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+          animateNext();
           setExpanded((prev) => !prev);
         }}
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+        accessibilityLabel={`${title}, ${filteredDicas.length} dicas`}
         className="flex-row items-center justify-between p-4"
       >
         <View className="flex-row items-center gap-2">

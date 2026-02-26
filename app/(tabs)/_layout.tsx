@@ -1,8 +1,9 @@
 import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
+import { theme } from "@/constants/theme";
 
 export default function TabLayout() {
   return (
-    <NativeTabs tintColor="#f59e0b">
+    <NativeTabs tintColor={theme.colors.accent.DEFAULT}>
       <NativeTabs.Trigger name="(hoje)">
         <Icon
           sf={{ default: "checkmark.circle", selected: "checkmark.circle.fill" }}

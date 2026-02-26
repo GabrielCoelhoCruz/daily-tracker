@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { LayoutAnimation, Pressable, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { CheckItem } from "@/components/checklist/CheckItem";
 import { useDayStore } from "@/stores/useDayStore";
+import { animateNext } from "@/utils/animationUtils";
 import type { Periodo, ItemDoPlano } from "@/data/plano";
 
 type PeriodoSectionProps = {
@@ -59,9 +60,12 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
     <Card className="p-0">
       <Pressable
         onPress={() => {
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+          animateNext();
           setExpanded((prev) => !prev);
         }}
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+        accessibilityLabel={`${periodo.nome}, ${checkedItems} de ${totalItems}`}
         className="flex-row items-center justify-between p-4"
       >
         <View className="flex-1 flex-row items-center gap-2">

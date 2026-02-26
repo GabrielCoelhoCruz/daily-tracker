@@ -1,9 +1,9 @@
-import { LayoutAnimation, Pressable, Text, View } from "react-native";
-import * as Haptics from "expo-haptics";
+import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Badge } from "@/components/ui/Badge";
 import { useDayStore } from "@/stores/useDayStore";
+import { animateWithHaptic } from "@/utils/animationUtils";
 import type { ItemDoPlano } from "@/data/plano";
 
 type CheckItemProps = {
@@ -19,11 +19,7 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
   const hasSubItens = item.subItens && item.subItens.length > 0;
 
   function handlePress() {
-    if (process.env.EXPO_OS === "ios") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    toggleCheck(item.id);
+    animateWithHaptic(() => toggleCheck(item.id));
   }
 
   if (hasSubItens) {
@@ -45,6 +41,9 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
   return (
     <Pressable
       onPress={handlePress}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: isChecked }}
+      accessibilityLabel={item.nome}
       className="flex-row items-center gap-3"
       style={{ minHeight: 44, paddingLeft: indented ? 16 : 0 }}
     >
