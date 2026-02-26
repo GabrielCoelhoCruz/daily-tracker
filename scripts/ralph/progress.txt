@@ -45,6 +45,9 @@ Feature: UI/UX Overhaul
 - SerieBadge/pill badges: use inline `style` with `borderCurve: 'continuous'`, `borderRadius: 6` — NativeWind `rounded` doesn't set borderCurve
 - Circular number badges: `width`/`height` + `borderRadius: half` + accent color at `"20"` opacity suffix for background
 - ExercicioItem uses `<Card className="p-0">` with internal p-3 padding sections
+- Haptics: always guard with `process.env.EXPO_OS === "ios"` — not `Platform.OS === "ios"`
+- LayoutAnimation: call `LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)` BEFORE the state change
+- Android LayoutAnimation: `UIManager.setLayoutAnimationEnabledExperimental?.(true)` at module level in `app/_layout.tsx`
 
 ---
 
@@ -193,4 +196,25 @@ Feature: UI/UX Overhaul
   - `StyleSheet.hairlineWidth` is the correct way to get a 1-pixel-device divider line in RN
   - Segmented controls: use a row of Pressables inside a `borderRadius + overflow: hidden` container with `StyleSheet.hairlineWidth` right borders between segments
   - `SettingRow` with `showDivider` prop enables conditional last-item divider control — cleaner than `index > 0` check
+---
+
+## 2026-02-26 - US-010
+- Enabled `UIManager.setLayoutAnimationEnabledExperimental(true)` on Android in `app/_layout.tsx`
+- Added `LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)` before state changes:
+  - PeriodoSection expand/collapse
+  - DicasSection expand/collapse
+  - CheckItem check/uncheck
+  - HidratacaoCard stepper add/remove
+  - CardioCard add/remove sessions
+  - ProgressBar width changes (via useEffect on percentage change)
+  - Hoje screen: Dia Off toggle, refeição livre, desfazer refeição livre
+- Made all haptics (expo-haptics Light impact) iOS-only using `process.env.EXPO_OS === "ios"` guard
+- Verified: no Reanimated entering/exiting animations — lightweight LayoutAnimation only
+- Typecheck passes clean
+- Files changed (8): `app/_layout.tsx`, `app/(tabs)/(hoje)/index.tsx`, `components/checklist/PeriodoSection.tsx`, `components/checklist/CheckItem.tsx`, `components/checklist/ProgressBar.tsx`, `components/dicas/DicasSection.tsx`, `components/hidratacao/HidratacaoCard.tsx`, `components/cardio/CardioCard.tsx`
+- **Learnings for future iterations:**
+  - `process.env.EXPO_OS === "ios"` is the Expo-recommended way to conditionally run iOS-only code (replaces `Platform.OS === "ios"` checks)
+  - `LayoutAnimation.configureNext` must be called BEFORE the state change that triggers the layout shift
+  - For animated progress bars driven by external props, use a `useEffect` + `useRef` to detect percentage changes and call `LayoutAnimation.configureNext`
+  - `UIManager.setLayoutAnimationEnabledExperimental?.(true)` must be called at module level (not inside a component) for Android LayoutAnimation support
 ---
