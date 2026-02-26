@@ -193,4 +193,18 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - Badge color changes based on completion: green (`semantic.success`) when all done, amber (`accent.DEFAULT`) when partial — gives quick visual feedback
   - Refeicao livre state comes from `useDayStore` (`refeicaoLivreUsada` + `refeicaoLivrePeriodoId`) — when active for a period, all items in that period are considered checked
   - Use inline `style` with `theme.colors` for dynamic text colors instead of NativeWind `text-semantic-*` classes — more consistent with existing component patterns
+- Hydration component in `components/hidratacao/HidratacaoCard.tsx` — uses internal `HidratacaoSection` subcomponent for DRY agua/cha sections
+- `plano.metaHidratacao` provides goals (`aguaMl: 4000`, `chaMl: 500`) — import from `data/plano.ts` for meta values
+- `formatLiters()` helper converts ml to liters display (e.g. 2500 → "2.5L", 500 → "500ml") — reusable pattern for volume display
+---
+
+## 2026-02-26 - US-013
+- What was implemented: Created `components/hidratacao/HidratacaoCard.tsx` — a hydration tracking card with two sections (Agua 4000ml goal, Cha de Cavalinha 500ml goal). Each section shows an amber progress bar (turns green when complete), current/meta text with percentage, increment buttons (+250ml, +500ml), and a decrement button (-250ml). All buttons trigger haptic feedback. Uses `HidratacaoSection` internal component for DRY rendering of both water and tea sections. Reads/writes from `useDayStore` (aguaMl, chaMl, addAgua, removeAgua, addCha, removeCha). Meta values from `plano.metaHidratacao`.
+- Files changed:
+  - `components/hidratacao/HidratacaoCard.tsx` - New file: HidratacaoCard with progress bars, increment/decrement buttons, haptic feedback
+- **Learnings for future iterations:**
+  - Internal subcomponents (not exported) work well for DRY patterns within a single file — `HidratacaoSection` avoids duplicating agua/cha logic
+  - Progress bar color changes to green (`semantic.success`) when goal is met — same completion pattern as PeriodoSection badge
+  - Button background uses hex alpha pattern (`accent.DEFAULT + "20"`) consistent with Badge component
+  - `Math.min(100, ...)` caps percentage at 100% even if user exceeds the goal
 ---
