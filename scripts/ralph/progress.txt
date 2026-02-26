@@ -31,6 +31,9 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - History store in `stores/useHistoryStore.ts` — exports `HistoricoDia` type and `useHistoryStore`. Uses `get()` for read-only actions (getDia)
 - For Zustand read-only/getter actions, use `get()` instead of `set()` in the store creator
 - All 3 Zustand stores: `useDayStore` (day-store), `useHistoryStore` (history-store), `useConfigStore` (config-store) — all use persist middleware with AsyncStorage
+- Access Zustand stores outside React: `useDayStore.getState()` / `useDayStore.setState({})` — no hooks needed in utility functions
+- Reset logic in `utils/resetUtils.ts` — `checkAndReset()` uses 4am day boundary; call on app mount to handle day transitions
+- Use `new Date(dateStr + "T12:00:00")` to avoid timezone/DST issues when parsing YYYY-MM-DD strings
 
 ---
 
@@ -151,4 +154,16 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - `setHorarioPeriodo` preserves existing `enabled` state (defaults to `false` if entry doesn't exist yet) — safe to call before toggling
   - Config store is the simplest of the 3 stores — no complex logic, just toggle/set actions with spread updates
   - All 3 stores now complete (day-store, history-store, config-store) — ready for reset logic (US-010) and UI components
+---
+
+## 2026-02-26 - US-010
+- What was implemented: Created `utils/resetUtils.ts` with `checkAndReset()` function that handles daily app reset with 4am cutoff. Uses a `getLogicalDate()` helper that treats times before 4am as the previous day. When the day has changed: calculates completados/total and itensPerdidos from unchecked non-optional items, saves history via `useHistoryStore.salvarDia()`, then calls `useDayStore.resetDay()`. When the week has changed, also resets free meal state (refeicaoLivreUsada, refeicaoLivrePeriodoId, semanaRefeicaoLivre). If the app was closed for multiple days, only the `ultimoReset` date gets a history entry — intermediate days get none.
+- Files changed:
+  - `utils/resetUtils.ts` - New file: exports `checkAndReset()` function with 4am day boundary logic
+- **Learnings for future iterations:**
+  - Access Zustand stores outside React components with `useDayStore.getState()` and `useDayStore.setState()` — no hooks needed for utility functions
+  - The `resetDay()` action in useDayStore already sets `ultimoReset` to today via its `getToday()` helper
+  - `getLogicalDate()` subtracts one day if hour < 4, making the 4am cutoff simple — times at 3:59am are still "yesterday"
+  - Use `new Date(dateStr + "T12:00:00")` to avoid timezone issues when parsing date strings — noon is safe from DST boundary issues
+  - `filtrarItensDoDia` is reused here to get the correct items for the `ultimoReset` date when calculating missed items
 ---
