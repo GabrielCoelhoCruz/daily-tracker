@@ -26,6 +26,8 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - Serie type uses `tipo: "WS" | "TS" | "BS" | "CS"` with `series` count and optional `reps` (number or string like "4+4+4")
 - Treino has `letra` (A-E) and `grupoMuscular` for display; exercises have `observacao` for special notes like "1seg pico de contração"
 - Tips data lives in `data/dicas.ts` — imports `Dica` type from `data/plano.ts`, exports `dicas` array with 25 tips (12 nutricao + 13 treino)
+- Day utilities in `utils/diaUtils.ts` — `isDiaDeTreino`, `getTreinoDoDia`, `filtrarItensDoDia`, `contarItens`. Uses JS dayOfWeek (0=Sun, 1=Mon...6=Sat). Mon-Fri are training days unless `diaOffManual` is true.
+- Item counting: parent items with `subItens` are NOT counted — only their sub-items are counted individually
 
 ---
 
@@ -98,4 +100,15 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - Reused existing `Dica` type from `data/plano.ts` rather than redefining — keeps types centralized
   - Tips use `nut-XX` and `tre-XX` ID convention for easy filtering and referencing
   - Training tips include series type definitions (WS/TS/BS/CS) that the DicasSection component will need to display as a legend
+---
+
+## 2026-02-26 - US-006
+- What was implemented: Created utility functions in `utils/diaUtils.ts` for day logic: `isDiaDeTreino` (checks Mon-Fri with manual override), `getTreinoDoDia` (A-E rotation by day of week), `filtrarItensDoDia` (filters periods and items by day-of-week and training-day rules at period, item, and sub-item levels), `contarItens` (counts checkable items excluding optionals from total).
+- Files changed:
+  - `utils/diaUtils.ts` - New file with 4 exported functions and 1 private helper
+- **Learnings for future iterations:**
+  - Filtering logic must handle 3 levels: period-level `regra` (e.g. Intra Treino), item-level `regra` (e.g. Anastrozol), and sub-item-level `regra` (e.g. Oxandrolona)
+  - `contarItens` skips the parent "Suplementos" item when it has `subItens`, counting each sub-item individually instead
+  - `dayOfWeek` uses JS Date convention: 0=Sunday, 1=Monday, ..., 6=Saturday
+  - Empty periods (all items filtered out) are removed from the result
 ---
