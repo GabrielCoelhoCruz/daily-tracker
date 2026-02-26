@@ -45,6 +45,7 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - Treino components in `components/treino/` (ExercicioItem) — read-only, no store deps, just renders from `data/treinos.ts`
 - History components in `components/historico/` — reads from `useHistoryStore`, calendar uses `14.28%` width for 7-column grid
 - Date strings use `YYYY-MM-DD` format throughout (formatted via `padStart(2, "0")`) — consistent key for history store lookups
+- Bottom sheets use RN `Modal` with `transparent` + `animationType="slide"` + nested `Pressable` with `e.stopPropagation()` for backdrop dismiss — no third-party library needed
 
 ---
 
@@ -291,4 +292,18 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - `calcAdherence` uses a filter function pattern to reuse logic for both weekly and monthly — sum completados/total across matching days
   - `topMissed` aggregates `itensPerdidos` across all history entries — percentage is relative to total days with history, not total days possible
   - YYYY-MM-DD string comparison works for date range filtering (week bounds) since the format sorts chronologically
+---
+
+## 2026-02-26 - US-020
+- What was implemented: Created `components/historico/DiaDetalhe.tsx` — a bottom sheet modal component showing day details when tapping a calendar day. Uses RN `Modal` with `animationType="slide"`, transparent backdrop (tap to dismiss), and a slide-up panel with: drag handle bar, formatted date header (Portuguese long format), close button, status text (Completo/Parcial) with color-coded icon, ProgressBar for completion, list of missed items with bullet points, and a trophy message when all items were completed. Assembled `app/(tabs)/historico.tsx` with Calendario at top, StatsCard below, DiaDetalhe as overlay triggered by day tap, and an empty state ("Nenhum dado ainda") with icon when no history exists.
+- Files changed:
+  - `components/historico/DiaDetalhe.tsx` - New file: bottom sheet modal with day details, progress bar, missed items list
+  - `app/(tabs)/historico.tsx` - Rewritten from placeholder to full Histórico screen with Calendario, StatsCard, DiaDetalhe
+- **Learnings for future iterations:**
+  - RN `Modal` with `transparent` + `animationType="slide"` is sufficient for bottom sheet behavior — no need for a third-party library
+  - Use nested `Pressable` with `e.stopPropagation()` to prevent backdrop taps from closing the modal when tapping on content
+  - `new Date(dateStr + "T12:00:00")` pattern reused for safe date parsing (avoids timezone/DST issues)
+  - `useCallback` for handlers passed as props to memoized children (Calendario `onDayPress`) to avoid unnecessary re-renders
+  - History store `dias` checked with `Object.keys(dias).length > 0` for empty state — simple and clear
+  - DiaDetalhe receives `HistoricoDia | null` — returns null when no historico, Modal only renders when visible + historico exists
 ---
