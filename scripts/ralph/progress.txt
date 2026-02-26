@@ -30,6 +30,7 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - Item counting: parent items with `subItens` are NOT counted — only their sub-items are counted individually
 - History store in `stores/useHistoryStore.ts` — exports `HistoricoDia` type and `useHistoryStore`. Uses `get()` for read-only actions (getDia)
 - For Zustand read-only/getter actions, use `get()` instead of `set()` in the store creator
+- All 3 Zustand stores: `useDayStore` (day-store), `useHistoryStore` (history-store), `useConfigStore` (config-store) — all use persist middleware with AsyncStorage
 
 ---
 
@@ -139,4 +140,15 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - `getDia` uses `get()` from Zustand (not `set`) since it's a read-only action — this is the pattern for computed/getter actions in Zustand
   - `HistoricoDia` type is exported for use by reset logic (US-010) and history UI components (US-018, US-019, US-020)
   - History store follows same pattern as day store: `create<State & Actions>()(persist(...))`
+---
+
+## 2026-02-26 - US-009
+- What was implemented: Created Zustand config store (`stores/useConfigStore.ts`) with notification settings state and actions. State includes `notificacoesPorPeriodo` (Record of period notification toggles with horario) and `hidratacaoLembrete` (toggle + interval in hours). Actions: `toggleNotificacaoPeriodo`, `setHorarioPeriodo`, `toggleHidratacaoLembrete`, `setIntervaloHidratacao`. Persisted via Zustand persist middleware with store name `config-store`.
+- Files changed:
+  - `stores/useConfigStore.ts` - New file: Zustand store with persist middleware for notification config
+- **Learnings for future iterations:**
+  - `toggleNotificacaoPeriodo` initializes missing entries with a default horario of "08:00" when toggling on for the first time — avoids needing to pre-populate all period entries
+  - `setHorarioPeriodo` preserves existing `enabled` state (defaults to `false` if entry doesn't exist yet) — safe to call before toggling
+  - Config store is the simplest of the 3 stores — no complex logic, just toggle/set actions with spread updates
+  - All 3 stores now complete (day-store, history-store, config-store) — ready for reset logic (US-010) and UI components
 ---
