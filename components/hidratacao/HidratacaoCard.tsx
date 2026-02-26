@@ -144,12 +144,12 @@ export function HidratacaoCard() {
           color={theme.colors.accent.DEFAULT}
         />
         <Text className="text-base font-semibold text-txt-primary">
-          Hidratacao
+          Hidratação
         </Text>
       </View>
 
       <HidratacaoSection
-        label="Agua"
+        label="Água"
         currentMl={aguaMl}
         metaMl={metaAgua}
         onAdd={addAgua}
@@ -159,7 +159,7 @@ export function HidratacaoCard() {
       <View className="h-px bg-border" />
 
       <HidratacaoSection
-        label="Cha de Cavalinha"
+        label="Chá de Cavalinha"
         currentMl={chaMl}
         metaMl={metaCha}
         onAdd={addCha}

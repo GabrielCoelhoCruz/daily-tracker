@@ -19,24 +19,8 @@ import {
 } from "@/utils/diaUtils";
 import { checkAndReset } from "@/utils/resetUtils";
 import { cancelHydrationNotificacoes } from "@/utils/notificationUtils";
+import { getLogicalDayOfWeek, formatLogicalDate } from "@/utils/dateUtils";
 
-const DAY_NAMES = [
-  "Domingo",
-  "Segunda-feira",
-  "Terça-feira",
-  "Quarta-feira",
-  "Quinta-feira",
-  "Sexta-feira",
-  "Sábado",
-];
-
-function formatDate(): string {
-  const now = new Date();
-  const day = now.getDate();
-  const month = now.toLocaleDateString("pt-BR", { month: "long" });
-  const dayName = DAY_NAMES[now.getDay()];
-  return `${dayName}, ${day} de ${month}`;
-}
 
 function countCheckedNonOptional(
   periodos: ReturnType<typeof filtrarItensDoDia>,
@@ -93,7 +77,7 @@ export default function HojeScreen() {
     }
   }, [aguaMl]);
 
-  const dayOfWeek = new Date().getDay();
+  const dayOfWeek = getLogicalDayOfWeek(new Date());
   const treino = isDiaDeTreino(dayOfWeek, diaOffManual);
 
   const periodosFiltrados = useMemo(
@@ -131,7 +115,7 @@ export default function HojeScreen() {
       <View className="flex-row items-center justify-between">
         <View className="flex-1">
           <Text className="text-lg font-bold text-txt-primary">
-            {formatDate()}
+            {formatLogicalDate(new Date())}
           </Text>
         </View>
 

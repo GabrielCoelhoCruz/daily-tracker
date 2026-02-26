@@ -29,8 +29,16 @@ function PeriodoNotificacao({
     const cleaned = text.replace(/[^0-9:]/g, "");
 
     if (cleaned.length === 2 && !cleaned.includes(":") && horario.length < cleaned.length) {
+      const hh = parseInt(cleaned, 10);
+      if (hh > 23) return;
       setHorario(periodoId, cleaned + ":");
       return;
+    }
+
+    // Validate complete HH:MM
+    if (cleaned.length === 5 && cleaned.includes(":")) {
+      const [hh, mm] = cleaned.split(":").map(Number);
+      if (hh > 23 || mm > 59) return;
     }
 
     if (cleaned.length <= 5) {

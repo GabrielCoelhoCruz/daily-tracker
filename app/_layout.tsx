@@ -57,19 +57,24 @@ export default function RootLayout() {
     return () => subscription.remove();
   }, [router]);
 
-  // Subscribe to config store changes and reschedule notifications
+  // Subscribe to config store changes and reschedule notifications (debounced)
   useEffect(() => {
     if (Platform.OS === "web") return;
 
     // Schedule on mount
     scheduleNotificacoes();
 
-    // Reschedule when config changes
+    // Reschedule when config changes, debounced to avoid excessive calls
+    let debounceTimer: ReturnType<typeof setTimeout>;
     configUnsubRef.current = useConfigStore.subscribe(() => {
-      scheduleNotificacoes();
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        scheduleNotificacoes();
+      }, 1000);
     });
 
     return () => {
+      clearTimeout(debounceTimer);
       configUnsubRef.current?.();
     };
   }, []);

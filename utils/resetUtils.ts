@@ -2,43 +2,20 @@ import { plano } from "@/data/plano";
 import { useDayStore } from "@/stores/useDayStore";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { filtrarItensDoDia } from "@/utils/diaUtils";
-
-/**
- * Returns the "logical date" string (YYYY-MM-DD) for a given Date,
- * using 4am as the day boundary. Before 4am counts as the previous day.
- */
-function getLogicalDate(date: Date): string {
-  const adjusted = new Date(date);
-  if (adjusted.getHours() < 4) {
-    adjusted.setDate(adjusted.getDate() - 1);
-  }
-  return adjusted.toISOString().split("T")[0];
-}
-
-/**
- * Returns the ISO week ID (e.g. "2026-W09") for a given date string.
- */
-function getWeekIdForDate(dateStr: string): string {
-  const d = new Date(dateStr + "T12:00:00");
-  const year = d.getFullYear();
-  const startOfYear = new Date(year, 0, 1);
-  const diff = d.getTime() - startOfYear.getTime();
-  const weekNumber = Math.ceil(
-    (diff / (1000 * 60 * 60 * 24) + startOfYear.getDay() + 1) / 7
-  );
-  return `${year}-W${weekNumber}`;
-}
+import { getLogicalDate, getWeekIdForDate } from "@/utils/dateUtils";
 
 /**
  * Collects IDs of unchecked non-optional items for the given date's filtered plan.
  */
 function getItensPerdidos(
   checks: Record<string, { checked: boolean; timestamp: number }>,
-  dateStr: string
+  dateStr: string,
+  diaOff: boolean,
+  refeicaoLivreUsada: boolean,
+  refeicaoLivrePeriodoId: string | null
 ): string[] {
   const date = new Date(dateStr + "T12:00:00");
   const dayOfWeek = date.getDay();
-  const diaOff = useDayStore.getState().diaOffManual;
 
   const periodosFiltrados = filtrarItensDoDia(
     plano.periodos,
@@ -49,6 +26,10 @@ function getItensPerdidos(
   const perdidos: string[] = [];
 
   for (const periodo of periodosFiltrados) {
+    const isRefeicaoLivre =
+      refeicaoLivreUsada && refeicaoLivrePeriodoId === periodo.id;
+    if (isRefeicaoLivre) continue;
+
     for (const item of periodo.itens) {
       if (item.subItens && item.subItens.length > 0) {
         for (const sub of item.subItens) {
@@ -90,28 +71,39 @@ export function checkAndReset(): void {
     dayState.diaOffManual
   );
 
+  const { refeicaoLivreUsada, refeicaoLivrePeriodoId } = dayState;
+
   let total = 0;
   let completados = 0;
 
   for (const periodo of periodosFiltrados) {
+    const isRefeicaoLivre =
+      refeicaoLivreUsada && refeicaoLivrePeriodoId === periodo.id;
+
     for (const item of periodo.itens) {
       if (item.subItens && item.subItens.length > 0) {
         for (const sub of item.subItens) {
           if (!sub.opcional) {
             total++;
-            if (checks[sub.id]?.checked) completados++;
+            if (isRefeicaoLivre || checks[sub.id]?.checked) completados++;
           }
         }
       } else {
         if (!item.opcional) {
           total++;
-          if (checks[item.id]?.checked) completados++;
+          if (isRefeicaoLivre || checks[item.id]?.checked) completados++;
         }
       }
     }
   }
 
-  const itensPerdidos = getItensPerdidos(checks, ultimoReset);
+  const itensPerdidos = getItensPerdidos(
+    checks,
+    ultimoReset,
+    dayState.diaOffManual,
+    refeicaoLivreUsada,
+    refeicaoLivrePeriodoId
+  );
 
   useHistoryStore.getState().salvarDia({
     data: ultimoReset,
@@ -120,8 +112,8 @@ export function checkAndReset(): void {
     itensPerdidos,
   });
 
-  // Reset day state
-  useDayStore.getState().resetDay();
+  // Reset day state with logical date (4am boundary)
+  useDayStore.getState().resetDay(logicalToday);
 
   // If new week, also reset free meal
   const currentWeek = getWeekIdForDate(logicalToday);

@@ -99,7 +99,7 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
                 className="mt-1 text-sm font-medium"
                 style={{ color: theme.colors.semantic.success }}
               >
-                Refeicao Livre
+                Refeição Livre
               </Text>
             </View>
           ) : (

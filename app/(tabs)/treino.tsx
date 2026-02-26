@@ -2,6 +2,8 @@ import { ScrollView, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
 import { getTreinoDoDia } from "@/utils/diaUtils";
+import { useDayStore } from "@/stores/useDayStore";
+import { getLogicalDayOfWeek } from "@/utils/dateUtils";
 import { ExercicioItem } from "@/components/treino/ExercicioItem";
 import { DicasSection } from "@/components/dicas/DicasSection";
 
@@ -16,8 +18,9 @@ const DAY_NAMES = [
 ];
 
 export default function TreinoScreen() {
-  const dayOfWeek = new Date().getDay();
-  const treino = getTreinoDoDia(dayOfWeek);
+  const dayOfWeek = getLogicalDayOfWeek(new Date());
+  const diaOffManual = useDayStore((s) => s.diaOffManual);
+  const treino = diaOffManual ? null : getTreinoDoDia(dayOfWeek);
   const dayName = DAY_NAMES[dayOfWeek];
 
   if (!treino) {

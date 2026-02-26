@@ -112,8 +112,8 @@ export function DiaDetalhe({ historico, visible, onClose }: DiaDetalheProps) {
                 </Text>
               </View>
 
-              {historico.itensPerdidos.map((item) => (
-                <View key={item} className="ml-6 flex-row items-center gap-2">
+              {historico.itensPerdidos.map((item, index) => (
+                <View key={`${index}-${item}`} className="ml-6 flex-row items-center gap-2">
                   <View
                     className="h-1.5 w-1.5 rounded-full"
                     style={{ backgroundColor: theme.colors.semantic.error }}

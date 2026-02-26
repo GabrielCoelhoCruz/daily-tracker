@@ -33,7 +33,7 @@ const SERIES_LEGEND: { sigla: string; nome: string; descricao: string }[] = [
 ];
 
 const SECTION_TITLES: Record<DicasSectionProps["categoria"], string> = {
-  nutricao: "Dicas de Nutricao",
+  nutricao: "Dicas de Nutrição",
   treino: "Dicas de Treino",
 };
 
@@ -61,7 +61,7 @@ function SeriesLegend() {
   return (
     <View className="gap-2 rounded-lg bg-bg-elevated p-3">
       <Text className="text-sm font-semibold text-txt-primary">
-        Legenda de Series
+        Legenda de Séries
       </Text>
       {SERIES_LEGEND.map((item) => (
         <View key={item.sigla} className="flex-row items-start gap-2">

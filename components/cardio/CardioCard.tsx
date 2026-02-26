@@ -21,7 +21,7 @@ export function CardioCard() {
 
   function handleAddSessao() {
     const minutos = parseInt(inputMinutos, 10);
-    if (isNaN(minutos) || minutos <= 0) return;
+    if (isNaN(minutos) || minutos <= 0 || minutos > 240) return;
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     addSessaoCardio(minutos);
@@ -94,7 +94,7 @@ export function CardioCard() {
         <View className="gap-2">
           {sessoesCardio.map((sessao, index) => (
             <View
-              key={sessao.timestamp}
+              key={`${index}-${sessao.timestamp}`}
               className="flex-row items-center justify-between rounded-lg bg-bg-elevated px-3 py-2"
             >
               <Text className="text-sm text-txt-primary">

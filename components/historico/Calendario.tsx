@@ -3,6 +3,7 @@ import { Pressable, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
 import { useHistoryStore } from "@/stores/useHistoryStore";
+import { useAppFocusRefresh } from "@/utils/useAppFocusRefresh";
 
 type CalendarioProps = {
   onDayPress?: (dateStr: string) => void;
@@ -79,7 +80,8 @@ export function Calendario({ onDayPress }: CalendarioProps) {
   const [viewMonth, setViewMonth] = useState(now.getMonth());
   const dias = useHistoryStore((s) => s.dias);
 
-  const todayStr = useMemo(() => getTodayStr(), []);
+  const refreshKey = useAppFocusRefresh();
+  const todayStr = useMemo(() => getTodayStr(), [refreshKey]);
 
   const calendarDays = useMemo(
     () => getCalendarDays(viewYear, viewMonth),

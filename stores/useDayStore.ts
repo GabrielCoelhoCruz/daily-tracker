@@ -34,23 +34,10 @@ type DayActions = {
   addSessaoCardio: (min: number) => void;
   removeSessaoCardio: (index: number) => void;
   usarRefeicaoLivre: (periodoId: string) => void;
-  resetDay: () => void;
+  resetDay: (logicalDate?: string) => void;
 };
 
-function getToday(): string {
-  return new Date().toISOString().split("T")[0];
-}
-
-function getWeekId(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const startOfYear = new Date(year, 0, 1);
-  const diff = now.getTime() - startOfYear.getTime();
-  const weekNumber = Math.ceil(
-    (diff / (1000 * 60 * 60 * 24) + startOfYear.getDay() + 1) / 7
-  );
-  return `${year}-W${weekNumber}`;
-}
+import { getLogicalDate, getWeekIdForDate } from "@/utils/dateUtils";
 
 const initialState: DayState = {
   checks: {},
@@ -60,8 +47,8 @@ const initialState: DayState = {
   sessoesCardio: [],
   refeicaoLivreUsada: false,
   refeicaoLivrePeriodoId: null,
-  semanaRefeicaoLivre: getWeekId(),
-  ultimoReset: getToday(),
+  semanaRefeicaoLivre: getWeekIdForDate(getLogicalDate(new Date())),
+  ultimoReset: getLogicalDate(new Date()),
 };
 
 export const useDayStore = create<DayState & DayActions>()(
@@ -116,14 +103,16 @@ export const useDayStore = create<DayState & DayActions>()(
           refeicaoLivrePeriodoId: periodoId,
         }),
 
-      resetDay: () =>
+      // Note: refeicaoLivreUsada/refeicaoLivrePeriodoId/semanaRefeicaoLivre
+      // are intentionally preserved here — free meal is weekly, reset in checkAndReset on week change.
+      resetDay: (logicalDate?: string) =>
         set({
           checks: {},
           diaOffManual: false,
           aguaMl: 0,
           chaMl: 0,
           sessoesCardio: [],
-          ultimoReset: getToday(),
+          ultimoReset: logicalDate ?? getLogicalDate(new Date()),
         }),
     }),
     {
