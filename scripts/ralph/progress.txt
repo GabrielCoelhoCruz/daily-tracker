@@ -183,3 +183,14 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - Use `Ionicons` from `@expo/vector-icons` for icons — already included in Expo
   - Badge component reused for "opcional" indicator with `theme.colors.text.muted` color
 ---
+
+## 2026-02-26 - US-012
+- What was implemented: Created `components/checklist/PeriodoSection.tsx` — a collapsible section component that groups daily items by meal/period. Header shows period name (with optional description), a count badge (checked/total) with color coding (green when complete, amber otherwise), and a chevron icon. Sections default to expanded and toggle on header tap. Renders CheckItem for each item in the period. When "refeicao livre" is active for a period, shows a "Refeicao Livre" indicator with restaurant icon instead of individual items, with count treated as fully checked.
+- Files changed:
+  - `components/checklist/PeriodoSection.tsx` - New file: collapsible period section with count badge, refeicao livre support
+- **Learnings for future iterations:**
+  - Item counting for badge: parent items with `subItens` count their sub-items individually (not the parent), same pattern as `contarItens` in diaUtils
+  - Badge color changes based on completion: green (`semantic.success`) when all done, amber (`accent.DEFAULT`) when partial — gives quick visual feedback
+  - Refeicao livre state comes from `useDayStore` (`refeicaoLivreUsada` + `refeicaoLivrePeriodoId`) — when active for a period, all items in that period are considered checked
+  - Use inline `style` with `theme.colors` for dynamic text colors instead of NativeWind `text-semantic-*` classes — more consistent with existing component patterns
+---
