@@ -43,6 +43,8 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - `useRouter` from expo-router for programmatic navigation (e.g. `router.push("/config")`)
 - Refeição livre button only shown on periods with `refeicao` category items — filter with `periodo.itens.some(i => i.categoria === "refeicao")`
 - Treino components in `components/treino/` (ExercicioItem) — read-only, no store deps, just renders from `data/treinos.ts`
+- History components in `components/historico/` — reads from `useHistoryStore`, calendar uses `14.28%` width for 7-column grid
+- Date strings use `YYYY-MM-DD` format throughout (formatted via `padStart(2, "0")`) — consistent key for history store lookups
 
 ---
 
@@ -263,4 +265,18 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - `SERIE_COLORS` map using `Record<Serie["tipo"], string>` is type-safe against the union type
   - Exercise-level `observacao` (e.g. "1seg pico de contração") renders below the name; serie-level `observacao` (e.g. "10seg pausa") renders inline with the badge — both are displayed
   - Treino screen is entirely read-only — no store dependencies, just data from `getTreinoDoDia`
+---
+
+## 2026-02-26 - US-018
+- What was implemented: Created `components/historico/Calendario.tsx` — a monthly calendar grid component. Renders a 7-column grid (Dom-Sáb) with day cells colored by adherence from `useHistoryStore`: green (#22c55e) for 100%, amber (#f59e0b) for 50-99%, red (#ef4444) for <50%, gray (#404040) for no data or future dates. Month navigation with left/right arrow buttons and month name + year header. Current day highlighted with amber border ring. Tapping a day with history data calls `onDayPress` callback with the date string. Uses `useMemo` for calendar cell generation and today string.
+- Files changed:
+  - `components/historico/Calendario.tsx` - New file: monthly calendar grid with adherence coloring, month navigation, day press callback
+- **Learnings for future iterations:**
+  - Calendar grid uses `width: "14.28%"` (100/7) for 7-column layout with `flex-row flex-wrap` — simpler than FlatList for fixed grid
+  - `aspectRatio: 1` on day cells ensures square proportions regardless of screen width
+  - `borderCurve: "continuous"` on day cells for smoother rounded corners (Apple HIG pattern)
+  - `fontVariant: ["tabular-nums"]` for day numbers ensures consistent alignment across cells
+  - Empty cells before month start use index-based keys (`empty-${index}`) since they have no date identity
+  - Future dates are determined by simple string comparison (`dateStr > todayStr`) since YYYY-MM-DD format sorts chronologically
+  - `onDayPress` only fires for days with history data — prevents meaningless taps on empty/future days
 ---
