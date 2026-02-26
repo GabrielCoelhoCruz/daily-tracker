@@ -95,36 +95,54 @@ function HidratacaoSection({
         />
       </View>
 
-      <View className="flex-row items-center gap-2">
+      <View className="flex-row items-center gap-3">
         <Pressable
           onPress={() => handleRemove(250)}
-          className="items-center justify-center rounded-lg bg-bg-elevated px-3 py-1.5"
+          hitSlop={4}
+          style={{ minHeight: 44, justifyContent: "center" }}
         >
-          <Text className="text-xs font-medium text-txt-secondary">-250ml</Text>
+          <MaterialCommunityIcons
+            name="minus-circle-outline"
+            size={28}
+            color={theme.colors.text.muted}
+          />
         </Pressable>
+        <View className="flex-1 flex-row items-center gap-2">
+          <Pressable
+            onPress={() => handleAdd(250)}
+            className="flex-1 items-center justify-center rounded-lg py-2"
+            style={{ backgroundColor: theme.colors.accent.DEFAULT + "15" }}
+          >
+            <Text
+              className="text-xs font-semibold"
+              style={{ color: theme.colors.accent.DEFAULT }}
+            >
+              +250ml
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => handleAdd(500)}
+            className="flex-1 items-center justify-center rounded-lg py-2"
+            style={{ backgroundColor: theme.colors.accent.DEFAULT + "15" }}
+          >
+            <Text
+              className="text-xs font-semibold"
+              style={{ color: theme.colors.accent.DEFAULT }}
+            >
+              +500ml
+            </Text>
+          </Pressable>
+        </View>
         <Pressable
           onPress={() => handleAdd(250)}
-          className="flex-1 items-center justify-center rounded-lg py-1.5"
-          style={{ backgroundColor: theme.colors.accent.DEFAULT + "20" }}
+          hitSlop={4}
+          style={{ minHeight: 44, justifyContent: "center" }}
         >
-          <Text
-            className="text-xs font-semibold"
-            style={{ color: theme.colors.accent.DEFAULT }}
-          >
-            +250ml
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => handleAdd(500)}
-          className="flex-1 items-center justify-center rounded-lg py-1.5"
-          style={{ backgroundColor: theme.colors.accent.DEFAULT + "20" }}
-        >
-          <Text
-            className="text-xs font-semibold"
-            style={{ color: theme.colors.accent.DEFAULT }}
-          >
-            +500ml
-          </Text>
+          <MaterialCommunityIcons
+            name="plus-circle-outline"
+            size={28}
+            color={theme.colors.accent.DEFAULT}
+          />
         </Pressable>
       </View>
     </View>

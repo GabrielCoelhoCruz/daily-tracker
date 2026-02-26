@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
-import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import * as Haptics from "expo-haptics";
 import { theme } from "@/constants/theme";
@@ -51,7 +50,6 @@ function countCheckedNonOptional(
 }
 
 export default function HojeScreen() {
-  const router = useRouter();
   const checks = useDayStore((s) => s.checks);
   const diaOffManual = useDayStore((s) => s.diaOffManual);
   const setDiaOff = useDayStore((s) => s.setDiaOff);
@@ -119,56 +117,63 @@ export default function HojeScreen() {
       contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="gap-3 px-4 pb-8 pt-4"
     >
-      <View className="flex-row items-center justify-between">
-        <View className="flex-1">
-          <Text style={theme.typography.headline}>
-            {formatLogicalDate(new Date())}
-          </Text>
-        </View>
+      <Text style={theme.typography.footnote}>
+        {formatLogicalDate(new Date())}
+      </Text>
 
+      <Pressable
+        onPress={handleToggleDiaOff}
+        className="flex-row items-center justify-between rounded-2xl px-4 py-3"
+        style={{
+          backgroundColor: diaOffManual
+            ? theme.colors.semantic.error + "15"
+            : theme.colors.bg.card,
+          borderCurve: "continuous",
+        }}
+      >
         <View className="flex-row items-center gap-3">
-          <Pressable
-            onPress={handleToggleDiaOff}
-            className="flex-row items-center gap-1.5 rounded-lg px-3 py-1.5"
-            style={{
-              backgroundColor: diaOffManual
-                ? theme.colors.semantic.error + "20"
-                : theme.colors.bg.elevated,
-            }}
-          >
-            <MaterialCommunityIcons
-              name="moon-waning-crescent"
-              size={16}
-              color={
-                diaOffManual
-                  ? theme.colors.semantic.error
-                  : theme.colors.text.muted
-              }
-            />
+          <MaterialCommunityIcons
+            name="moon-waning-crescent"
+            size={24}
+            color={
+              diaOffManual
+                ? theme.colors.semantic.error
+                : theme.colors.text.muted
+            }
+          />
+          <View>
             <Text
-              className="text-xs font-medium"
               style={{
+                ...theme.typography.callout,
                 color: diaOffManual
                   ? theme.colors.semantic.error
-                  : theme.colors.text.muted,
+                  : theme.colors.text.primary,
               }}
             >
               Dia Off
             </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => router.push("/config")}
-            hitSlop={8}
-          >
-            <MaterialCommunityIcons
-              name="cog-outline"
-              size={22}
-              color={theme.colors.text.muted}
-            />
-          </Pressable>
+            <Text style={theme.typography.caption}>
+              {diaOffManual ? "Treino e dieta pausados" : "Pausar treino e dieta"}
+            </Text>
+          </View>
         </View>
-      </View>
+        <View
+          className="h-7 w-7 items-center justify-center rounded-full"
+          style={{
+            backgroundColor: diaOffManual
+              ? theme.colors.semantic.error
+              : theme.colors.bg.elevated,
+          }}
+        >
+          {diaOffManual && (
+            <MaterialCommunityIcons
+              name="check"
+              size={16}
+              color={theme.colors.text.primary}
+            />
+          )}
+        </View>
+      </Pressable>
 
       <ProgressBar completados={completados} total={total} />
 

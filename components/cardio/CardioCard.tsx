@@ -135,7 +135,8 @@ export function CardioCard() {
 
       <View className="flex-row items-center gap-2">
         <TextInput
-          className="flex-1 rounded-lg bg-bg-elevated px-3 py-2 text-sm text-txt-primary"
+          className="flex-1 rounded-lg bg-bg-elevated px-3 text-sm text-txt-primary"
+          style={{ height: 44 }}
           placeholder="Minutos"
           placeholderTextColor={theme.colors.text.muted}
           keyboardType="number-pad"
@@ -146,15 +147,18 @@ export function CardioCard() {
         />
         <Pressable
           onPress={handleAddSessao}
-          className="items-center justify-center rounded-lg px-4 py-2"
-          style={{ backgroundColor: theme.colors.accent.DEFAULT + "20" }}
+          className="items-center justify-center rounded-xl"
+          style={{
+            height: 44,
+            width: 44,
+            backgroundColor: theme.colors.accent.DEFAULT,
+          }}
         >
-          <Text
-            className="text-sm font-semibold"
-            style={{ color: theme.colors.accent.DEFAULT }}
-          >
-            Adicionar
-          </Text>
+          <MaterialCommunityIcons
+            name="plus"
+            size={24}
+            color={theme.colors.bg.primary}
+          />
         </Pressable>
       </View>
     </Card>

@@ -14,7 +14,7 @@ export function ProgressBar({
   const percentage = total > 0 ? Math.round((completados / total) * 100) : 0;
 
   return (
-    <View className={`gap-1 ${className}`}>
+    <View className={`gap-1.5 ${className}`}>
       <View className="flex-row items-center justify-between">
         <Text
           selectable
@@ -25,13 +25,16 @@ export function ProgressBar({
         </Text>
         <Text
           selectable
-          className="text-sm font-medium text-accent"
-          style={{ fontVariant: ["tabular-nums"] }}
+          className="text-sm font-semibold"
+          style={{
+            fontVariant: ["tabular-nums"],
+            color: percentage === 100 ? "#22c55e" : "#f59e0b",
+          }}
         >
           {percentage}%
         </Text>
       </View>
-      <View className="h-2.5 overflow-hidden rounded-full bg-bg-elevated">
+      <View className="overflow-hidden rounded-full bg-bg-elevated" style={{ height: 12 }}>
         <View
           className="h-full rounded-full bg-accent"
           style={{ width: `${percentage}%` }}

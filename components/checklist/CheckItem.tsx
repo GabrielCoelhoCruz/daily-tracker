@@ -42,23 +42,22 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
   return (
     <Pressable
       onPress={handlePress}
-      className="flex-row items-center gap-3 py-1.5"
-      style={{ paddingLeft: indented ? 16 : 0 }}
+      className="flex-row items-center gap-3"
+      style={{ minHeight: 44, paddingLeft: indented ? 16 : 0 }}
     >
-      <View
-        className="h-6 w-6 items-center justify-center rounded-full"
-        style={{
-          borderWidth: isChecked ? 0 : 1.5,
-          borderColor: isChecked ? "transparent" : theme.colors.text.muted,
-          backgroundColor: isChecked
+      <MaterialCommunityIcons
+        name={
+          isChecked
+            ? "checkbox-marked-circle-outline"
+            : "checkbox-blank-circle-outline"
+        }
+        size={24}
+        color={
+          isChecked
             ? theme.colors.semantic.success
-            : "transparent",
-        }}
-      >
-        {isChecked && (
-          <MaterialCommunityIcons name="check" size={14} color={theme.colors.bg.primary} />
-        )}
-      </View>
+            : theme.colors.text.muted
+        }
+      />
 
       <View className="flex-1 flex-row items-center gap-2">
         <Text
