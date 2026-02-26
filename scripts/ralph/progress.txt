@@ -38,6 +38,7 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - Icons from `@expo/vector-icons` (Ionicons) — pre-installed with Expo, no extra install needed
 - Items with `subItens` are group headers (not checkable) — only render checkmarks on leaf items
 - Cardio component in `components/cardio/CardioCard.tsx` — uses `plano.metaCardioMin` (80min) for goal; sessions stored as `SessaoCardio[]` with `minutos` + `timestamp`
+- Dicas component in `components/dicas/DicasSection.tsx` — accepts `categoria` prop ('nutricao' | 'treino'), filters tips from `data/dicas.ts`, collapsed by default. Training section includes series legend (WS/TS/BS/CS)
 
 ---
 
@@ -220,4 +221,16 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - TextInput with `keyboardType="number-pad"` and `onSubmitEditing` for a native-feeling number input experience
   - Total text only shows the sum breakdown (`30min + 50min = 80min`) when there are 2+ sessions — single session just shows duration
   - `parseInt` with NaN guard prevents adding invalid sessions (empty input, non-numeric)
+---
+
+## 2026-02-26 - US-015
+- What was implemented: Created `components/dicas/DicasSection.tsx` — a collapsible section component for displaying nutrition and training tips. Accepts `categoria` prop to filter tips ('nutricao' or 'treino'). Each tip renders as a card with info icon and text on elevated background. Collapsed by default, expands on header tap. Training tips section includes a series legend (WS, TS, BS, CS definitions with descriptions and rest intervals) displayed at the top before the tips list. Uses Ionicons for category-specific icons (nutrition-outline for nutricao, barbell-outline for treino).
+- Files changed:
+  - `components/dicas/DicasSection.tsx` - New file: collapsible tips section with category filtering, series legend, info icon cards
+- **Learnings for future iterations:**
+  - DicasSection follows PeriodoSection pattern for collapsible header (chevron icon, Pressable, expanded state) but defaults to `collapsed` (false) instead of expanded
+  - Series legend uses same `accent.DEFAULT + "20"` alpha pattern for badge-like styling as Badge and HidratacaoCard buttons
+  - Helper functions (`filterDicas`) and sub-components (`DicaItem`, `SeriesLegend`) are defined outside the main component, not exported — keeps component pure
+  - Constants (`SERIES_LEGEND`, `SECTION_TITLES`) defined at module level, not inside components
+  - DicasSection component lives in `components/dicas/` directory
 ---
