@@ -153,7 +153,8 @@ Feature: UI/UX Overhaul
 - DicasSection already had SeriesLegend at top of training tips — no change needed
 - Files changed (3): `components/treino/ExercicioItem.tsx`, `app/(tabs)/(treino)/index.tsx`, `components/dicas/DicasSection.tsx`
 - **Learnings for future iterations:**
-  - ExercicioItem uses `<Card className="p-0">` since it manages its own padding for the two-section layout (header + series row)
+  - iOS settings page pattern: `SectionHeader` above `<Card className="p-0">` with `SettingRow` components inside, using `StyleSheet.hairlineWidth` for dividers inset 16px from left
+- ExercicioItem uses `<Card className="p-0">` since it manages its own padding for the two-section layout (header + series row)
   - SerieBadge pill styling should use inline `style` with `borderCurve: 'continuous'` for iOS squircle corners — NativeWind `rounded` doesn't set borderCurve
   - Circular number badges: use exact width/height + borderRadius = half for a perfect circle, with accent color at 20% opacity background
   - Keep `className` for flexbox layout (flex-row, gap, items-center) and `style` for visual design (borderRadius, borderCurve, colors)
@@ -172,4 +173,24 @@ Feature: UI/UX Overhaul
   - `calendar-week` is a valid MaterialCommunityIcons name — useful to distinguish weekly from monthly calendar icons
   - Horizontal metric layouts work well with `flex-1 items-center gap-1` on each column and `flex-row` on the parent
   - The `MetricColumn` pattern (icon + big number + small label) is a clean way to display dashboard-style stats
+---
+
+## 2026-02-26 - US-009
+- Redesigned Config screen as native iOS settings page with grouped sections
+- Added `SectionHeader` component: footnote style, uppercase, text.secondary color, horizontal padding
+- Added `SettingRow` component: min 44pt height, label left with optional subtitle, right-aligned control, hairline divider inset 16px from left
+- Refactored `PeriodoNotificacao` to use `SettingRow` with `isLast` prop for proper divider control
+- Time inputs: cleaner iOS-style with borderCurve continuous, no border, bg-elevated background, tabular-nums fontVariant
+- Hydration interval: segmented-control style — three joined segments in a row with borderRadius 8, borderCurve continuous, overflow hidden, hairline dividers between segments
+- Switch components: accent trackColor when on, bg-elevated when off (already correct)
+- Cards use `className="p-0"` since SettingRow manages its own px-4 padding
+- ScrollView has `contentInsetAdjustmentBehavior="automatic"` for native header integration
+- Removed icon+callout card headers in favor of uppercase section headers above cards (iOS settings pattern)
+- Typecheck passes clean
+- Files changed (1): `app/config.tsx`
+- **Learnings for future iterations:**
+  - iOS settings page pattern: `SectionHeader` (footnote, uppercase, above card) + `Card className="p-0"` + `SettingRow` rows inside
+  - `StyleSheet.hairlineWidth` is the correct way to get a 1-pixel-device divider line in RN
+  - Segmented controls: use a row of Pressables inside a `borderRadius + overflow: hidden` container with `StyleSheet.hairlineWidth` right borders between segments
+  - `SettingRow` with `showDivider` prop enables conditional last-item divider control — cleaner than `index > 0` check
 ---
