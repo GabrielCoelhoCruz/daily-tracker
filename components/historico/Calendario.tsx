@@ -177,29 +177,29 @@ export function Calendario({ onDayPress }: CalendarioProps) {
               style={{
                 width: "14.28%",
                 aspectRatio: 1,
-                padding: 2,
+                padding: 3,
               }}
             >
               <View
                 style={[
                   {
                     flex: 1,
-                    borderRadius: 8,
+                    borderRadius: 10,
                     borderCurve: "continuous",
                     backgroundColor: bgColor,
                     alignItems: "center",
                     justifyContent: "center",
                   },
                   isToday && {
-                    borderWidth: 2,
+                    borderWidth: 2.5,
                     borderColor: theme.colors.accent.DEFAULT,
                   },
                 ]}
               >
                 <Text
                   style={{
-                    fontSize: 13,
-                    fontWeight: isToday ? "700" : "500",
+                    fontSize: 14,
+                    fontWeight: isToday ? "800" : "500",
                     fontVariant: ["tabular-nums"],
                     color: future
                       ? theme.colors.text.muted

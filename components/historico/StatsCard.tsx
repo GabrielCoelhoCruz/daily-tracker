@@ -96,7 +96,7 @@ function calcTopMissed(
     .slice(0, top);
 }
 
-function StatRow({
+function MetricColumn({
   icon,
   label,
   value,
@@ -108,18 +108,19 @@ function StatRow({
   color: string;
 }) {
   return (
-    <View className="flex-row items-center justify-between">
-      <View className="flex-row items-center gap-2">
-        <MaterialCommunityIcons name={icon} size={16} color={color} />
-        <Text className="text-sm text-txt-secondary">{label}</Text>
-      </View>
+    <View className="flex-1 items-center gap-1">
+      <MaterialCommunityIcons name={icon} size={20} color={color} />
       <Text
         selectable
-        className="text-sm font-semibold"
-        style={{ fontVariant: ["tabular-nums"], color }}
+        style={{
+          ...theme.typography.title3,
+          fontVariant: ["tabular-nums"],
+          color,
+        }}
       >
         {value}
       </Text>
+      <Text style={theme.typography.caption}>{label}</Text>
     </View>
   );
 }
@@ -149,7 +150,7 @@ export function StatsCard() {
   const topMissed = useMemo(() => calcTopMissed(dias, 3), [dias]);
 
   return (
-    <Card className="gap-3">
+    <Card className="gap-4">
       <View className="flex-row items-center gap-2">
         <MaterialCommunityIcons
           name="chart-bar"
@@ -161,44 +162,43 @@ export function StatsCard() {
         </Text>
       </View>
 
-      <StatRow
-        icon="fire"
-        label="Streak"
-        value={`${streak} dia${streak !== 1 ? "s" : ""} consecutivo${streak !== 1 ? "s" : ""} 100%`}
-        color={
-          streak > 0
-            ? theme.colors.semantic.success
-            : theme.colors.text.muted
-        }
-      />
-
-      <View className="h-px bg-border" />
-
-      <StatRow
-        icon="calendar-month-outline"
-        label="Aderência semanal"
-        value={weeklyAdherence !== null ? `${weeklyAdherence}%` : "—"}
-        color={
-          weeklyAdherence !== null && weeklyAdherence >= 80
-            ? theme.colors.semantic.success
-            : weeklyAdherence !== null && weeklyAdherence >= 50
-              ? theme.colors.accent.DEFAULT
+      {/* Horizontal key metrics */}
+      <View className="flex-row">
+        <MetricColumn
+          icon="fire"
+          label="Streak"
+          value={`${streak}`}
+          color={
+            streak > 0
+              ? theme.colors.semantic.success
               : theme.colors.text.muted
-        }
-      />
-
-      <StatRow
-        icon="calendar-month"
-        label="Aderência mensal"
-        value={monthlyAdherence !== null ? `${monthlyAdherence}%` : "—"}
-        color={
-          monthlyAdherence !== null && monthlyAdherence >= 80
-            ? theme.colors.semantic.success
-            : monthlyAdherence !== null && monthlyAdherence >= 50
-              ? theme.colors.accent.DEFAULT
-              : theme.colors.text.muted
-        }
-      />
+          }
+        />
+        <MetricColumn
+          icon="calendar-week"
+          label="Semanal"
+          value={weeklyAdherence !== null ? `${weeklyAdherence}%` : "—"}
+          color={
+            weeklyAdherence !== null && weeklyAdherence >= 80
+              ? theme.colors.semantic.success
+              : weeklyAdherence !== null && weeklyAdherence >= 50
+                ? theme.colors.accent.DEFAULT
+                : theme.colors.text.muted
+          }
+        />
+        <MetricColumn
+          icon="calendar-month"
+          label="Mensal"
+          value={monthlyAdherence !== null ? `${monthlyAdherence}%` : "—"}
+          color={
+            monthlyAdherence !== null && monthlyAdherence >= 80
+              ? theme.colors.semantic.success
+              : monthlyAdherence !== null && monthlyAdherence >= 50
+                ? theme.colors.accent.DEFAULT
+                : theme.colors.text.muted
+          }
+        />
+      </View>
 
       {topMissed.length > 0 && (
         <>
