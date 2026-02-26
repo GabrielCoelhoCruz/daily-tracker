@@ -17,6 +17,11 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - Shared UI components in `components/ui/` (Card, Badge) — use NativeWind classes + inline `style` for dynamic colors
 - Checklist components in `components/checklist/` (ProgressBar) — accept typed props like `completados`/`total`
 - Badge uses `color + "20"` hex alpha for background tint effect
+- Plan data lives in `data/plano.ts` — exports `plano` constant and all types (Categoria, RegraCondicional, ItemDoPlano, Periodo, Dica, Plano)
+- Items with `subItens` use a parent "Suplementos" item with the sub-items array for grouped supplements
+- Conditional rules use `regra: { diasDaSemana: [1,5] }` for day-specific items and `regra: { apenasEmDiaDeTreino: true }` for training-day-only items
+- Period-level `regra` (e.g. Intra Treino) applies to the entire period; item-level `regra` applies to individual items
+- Optional items use `opcional: true` flag (Abdômen, Panturrilha in "extras" period)
 
 ---
 
@@ -58,4 +63,15 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - For dynamic colors (like Badge background based on prop), use inline `style` prop alongside NativeWind `className`
   - Hex alpha shorthand (e.g. `"#f59e0b20"`) works for semi-transparent backgrounds in RN
   - The `border` Tailwind color class maps to `border-border` (since the key is `border.DEFAULT` in tailwind.config.js)
+---
+
+## 2026-02-26 - US-003
+- What was implemented: Created TypeScript types and hardcoded plan data from the Feb/2026 Team GB protocol. All 9 periods (Jejum, Refeição 1-5, Intra Treino, Protocolo Hormonal, Extras) with complete food items, supplements, dosages, and conditional rules.
+- Files changed:
+  - `data/plano.ts` - Types (Categoria, RegraCondicional, ItemDoPlano, Periodo, Dica, Plano) and exported `plano` constant with all periods, items, sub-items, conditional rules, hydration/cardio goals
+- **Learnings for future iterations:**
+  - Grouped supplements under a parent "Suplementos" ItemDoPlano with subItens array — this keeps the data structure flat per period while nesting related supplements
+  - Period-level `regra` (Intra Treino) vs item-level `regra` (Anastrozol, Oxandrolona) — filtering logic will need to handle both levels
+  - `Dica` type is defined here but actual tips data will be in a separate `data/dicas.ts` file (US-005)
+  - Keep item IDs as `{periodoId}-{itemName}` for easy cross-referencing with check state
 ---
