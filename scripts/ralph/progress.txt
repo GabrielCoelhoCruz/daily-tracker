@@ -13,6 +13,10 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - Use `@/` path alias for project root imports
 - `npx tsc --noEmit` for typecheck
 - When creating new Expo project alongside existing files, use temp dir approach then copy files over
+- `constants/theme.ts` exports a `theme` object with all color tokens (bg, accent, semantic, text, border) — use for inline styles when NativeWind classes aren't sufficient
+- Shared UI components in `components/ui/` (Card, Badge) — use NativeWind classes + inline `style` for dynamic colors
+- Checklist components in `components/checklist/` (ProgressBar) — accept typed props like `completados`/`total`
+- Badge uses `color + "20"` hex alpha for background tint effect
 
 ---
 
@@ -40,4 +44,18 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - NativeWind v4 requires: metro.config.js with `withNativeWind`, babel.config.js with `nativewind/babel` preset and `jsxImportSource: "nativewind"`, global.css imported in root layout, and `nativewind-env.d.ts` for types
   - Tab bar styling must use inline styles (not NativeWind classes) since `tabBarStyle` expects a ViewStyle object
   - Removed old template components (Themed, EditScreenInfo, Colors, useColorScheme, etc.) - they're not needed with NativeWind approach
+---
+
+## 2026-02-26 - US-002
+- What was implemented: Created centralized theme constants file and 3 reusable UI components (Card, Badge, ProgressBar) using NativeWind classes.
+- Files changed:
+  - `constants/theme.ts` - Theme object with all color tokens: bg (primary/card/elevated), accent (default/dark), semantic (success/warning/error), text (primary/secondary/muted), border
+  - `components/ui/Card.tsx` - Styled card with #1c1917 bg, #292524 border, rounded-xl, padding
+  - `components/ui/Badge.tsx` - Small colored badge with configurable text and color, uses hex alpha for background tint
+  - `components/checklist/ProgressBar.tsx` - Amber progress bar with completados/total props, percentage display, animated width
+- **Learnings for future iterations:**
+  - NativeWind `className` prop works on standard RN components (View, Text) — use it for all static styling
+  - For dynamic colors (like Badge background based on prop), use inline `style` prop alongside NativeWind `className`
+  - Hex alpha shorthand (e.g. `"#f59e0b20"`) works for semi-transparent backgrounds in RN
+  - The `border` Tailwind color class maps to `border-border` (since the key is `border.DEFAULT` in tailwind.config.js)
 ---
