@@ -37,6 +37,7 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - `expo-haptics` available for haptic feedback — use `Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)` for taps
 - Icons from `@expo/vector-icons` (Ionicons) — pre-installed with Expo, no extra install needed
 - Items with `subItens` are group headers (not checkable) — only render checkmarks on leaf items
+- Cardio component in `components/cardio/CardioCard.tsx` — uses `plano.metaCardioMin` (80min) for goal; sessions stored as `SessaoCardio[]` with `minutos` + `timestamp`
 
 ---
 
@@ -207,4 +208,16 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - Progress bar color changes to green (`semantic.success`) when goal is met — same completion pattern as PeriodoSection badge
   - Button background uses hex alpha pattern (`accent.DEFAULT + "20"`) consistent with Badge component
   - `Math.min(100, ...)` caps percentage at 100% even if user exceeds the goal
+---
+
+## 2026-02-26 - US-014
+- What was implemented: Created `components/cardio/CardioCard.tsx` — a cardio session management card with progress bar (amber, turns green when complete), session list with remove buttons, input field + "Adicionar" button, and total summary text (e.g. "30min + 50min = 80min"). Auto-check indicator (green checkmark) appears when total >= 80min. All interactions trigger haptic feedback. Uses `useDayStore` (sessoesCardio, addSessaoCardio, removeSessaoCardio) and `plano.metaCardioMin` for the 80min goal.
+- Files changed:
+  - `components/cardio/CardioCard.tsx` - New file: CardioCard with progress bar, session list, input field, add/remove session buttons, haptic feedback
+- **Learnings for future iterations:**
+  - CardioCard follows same patterns as HidratacaoCard: Card wrapper, Ionicons, theme colors, haptic feedback, progress bar with green-when-complete
+  - Session list uses `sessao.timestamp` as key since each session has a unique timestamp from `Date.now()`
+  - TextInput with `keyboardType="number-pad"` and `onSubmitEditing` for a native-feeling number input experience
+  - Total text only shows the sum breakdown (`30min + 50min = 80min`) when there are 2+ sessions — single session just shows duration
+  - `parseInt` with NaN guard prevents adding invalid sessions (empty input, non-numeric)
 ---
