@@ -25,6 +25,7 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - Workout data lives in `data/treinos.ts` — exports `treinos` array and types (Serie, Exercicio, Treino)
 - Serie type uses `tipo: "WS" | "TS" | "BS" | "CS"` with `series` count and optional `reps` (number or string like "4+4+4")
 - Treino has `letra` (A-E) and `grupoMuscular` for display; exercises have `observacao` for special notes like "1seg pico de contração"
+- Tips data lives in `data/dicas.ts` — imports `Dica` type from `data/plano.ts`, exports `dicas` array with 25 tips (12 nutricao + 13 treino)
 
 ---
 
@@ -87,4 +88,14 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - Serie `reps` field uses `number | string` union to handle both simple rep counts (15) and cluster/compound reps ("4+4+4", "5+5+5")
   - CS (cluster set) observacao at serie level (e.g. "10seg pausa") vs exercise-level observacao (e.g. "1seg pico de contração") — UI will need to render both
   - Treino E (Braços) alternates biceps/triceps exercises — the order matters for superset display in future UI
+---
+
+## 2026-02-26 - US-005
+- What was implemented: Created hardcoded tips data with 12 nutrition guidelines and 13 training guidelines from the Feb/2026 Team GB plan. Tips cover food preparation, supplementation rules, series definitions (WS/TS/BS/CS), rest intervals, and cardio protocol.
+- Files changed:
+  - `data/dicas.ts` - Exports `dicas` array with 25 Dica objects (12 nutricao + 13 treino), imports Dica type from plano.ts
+- **Learnings for future iterations:**
+  - Reused existing `Dica` type from `data/plano.ts` rather than redefining — keeps types centralized
+  - Tips use `nut-XX` and `tre-XX` ID convention for easy filtering and referencing
+  - Training tips include series type definitions (WS/TS/BS/CS) that the DicasSection component will need to display as a legend
 ---
