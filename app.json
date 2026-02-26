@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "DailyTracker",
-    "slug": "daily-tracker",
+    "slug": "plantracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -40,6 +40,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "345aaf7d-051b-43fb-94f8-dd2becbf78c2"
+      }
+    },
+    "owner": "gabrielcoelho_cruz"
   }
 }
