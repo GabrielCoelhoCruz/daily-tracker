@@ -48,6 +48,8 @@ Feature: UI/UX Overhaul
 - Haptics: always guard with `process.env.EXPO_OS === "ios"` — not `Platform.OS === "ios"`
 - LayoutAnimation: call `LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)` BEFORE the state change
 - Android LayoutAnimation: `UIManager.setLayoutAnimationEnabledExperimental?.(true)` at module level in `app/_layout.tsx`
+- `npm install --legacy-peer-deps` required due to react-native-web peer dependency conflict with React 19
+- `import "react-native-reanimated"` in root layout is required by expo-router — do NOT remove
 
 ---
 
@@ -217,4 +219,21 @@ Feature: UI/UX Overhaul
   - `LayoutAnimation.configureNext` must be called BEFORE the state change that triggers the layout shift
   - For animated progress bars driven by external props, use a `useEffect` + `useRef` to detect percentage changes and call `LayoutAnimation.configureNext`
   - `UIManager.setLayoutAnimationEnabledExperimental?.(true)` must be called at module level (not inside a component) for Android LayoutAnimation support
+---
+
+## 2026-02-26 - US-011
+- Removed `expo-glass-effect` and `expo-blur` from package.json (both unused since US-002/US-003)
+- Ran `npm install --legacy-peer-deps` to update node_modules and lock file (removed 2 packages)
+- Verified zero FontAwesome or Ionicons imports remain in source code (grep confirmed clean)
+- Old flat route files already removed in US-001: `app/(tabs)/index.tsx`, `treino.tsx`, `historico.tsx`
+- Deleted unused `components/historico/DiaDetalhe.tsx` (old modal component replaced by route in US-001)
+- GlassTabBar code already removed in US-002
+- All 11 remaining component files verified as actively imported and used
+- Kept `react-native-reanimated` — side-effect import in `_layout.tsx` required by expo-router for navigation transitions
+- `npx tsc --noEmit` passes clean with zero errors
+- Files changed (3): `package.json`, `package-lock.json`, deleted `components/historico/DiaDetalhe.tsx`
+- **Learnings for future iterations:**
+  - `npm install --legacy-peer-deps` is needed for this project due to react-native-web peer dependency conflict with React 19
+  - `import "react-native-reanimated"` in root layout is a side-effect import required by expo-router — do NOT remove even though no Reanimated APIs are directly used
+  - Always grep for component imports before deleting — some components may only be imported via barrel exports or dynamic imports
 ---
