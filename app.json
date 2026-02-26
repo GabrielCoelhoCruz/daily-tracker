@@ -13,9 +13,11 @@
       "backgroundColor": "#0c0a09"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gabrielcoelhocruz.plantracker"
     },
     "android": {
+      "package": "com.gabrielcoelhocruz.plantracker",
       "adaptiveIcon": {
         "backgroundColor": "#0c0a09",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
