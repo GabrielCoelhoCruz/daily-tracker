@@ -49,7 +49,7 @@ export default function TreinoScreen() {
     <ScrollView
       className="flex-1 bg-bg-primary"
       contentInsetAdjustmentBehavior="automatic"
-      contentContainerClassName="gap-4 px-4 pb-8 pt-4"
+      contentContainerClassName="gap-3 px-4 pb-8 pt-4"
     >
       <View className="gap-1">
         <Text style={theme.typography.headline}>

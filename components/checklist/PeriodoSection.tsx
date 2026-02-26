@@ -3,6 +3,7 @@ import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
 import { CheckItem } from "@/components/checklist/CheckItem";
 import { useDayStore } from "@/stores/useDayStore";
 import type { Periodo, ItemDoPlano } from "@/data/plano";
@@ -55,7 +56,7 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
     : countCheckedItems(periodo.itens, checks);
 
   return (
-    <View className="rounded-xl border border-border bg-bg-card">
+    <Card className="p-0">
       <Pressable
         onPress={() => setExpanded((prev) => !prev)}
         className="flex-row items-center justify-between p-4"
@@ -109,6 +110,6 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
           )}
         </View>
       )}
-    </View>
+    </Card>
   );
 }

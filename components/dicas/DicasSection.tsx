@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
+import { Card } from "@/components/ui/Card";
 import { dicas } from "@/data/dicas";
 import type { Dica } from "@/data/plano";
 
@@ -93,7 +94,7 @@ export function DicasSection({ categoria }: DicasSectionProps) {
   const title = SECTION_TITLES[categoria];
 
   return (
-    <View className="rounded-xl border border-border bg-bg-card">
+    <Card className="p-0">
       <Pressable
         onPress={() => setExpanded((prev) => !prev)}
         className="flex-row items-center justify-between p-4"
@@ -127,6 +128,6 @@ export function DicasSection({ categoria }: DicasSectionProps) {
           ))}
         </View>
       )}
-    </View>
+    </Card>
   );
 }

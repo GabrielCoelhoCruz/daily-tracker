@@ -32,6 +32,13 @@ Feature: UI/UX Overhaul
 - ThemeProvider with DarkTheme wraps root Stack in `app/_layout.tsx`
 - Typed routes auto-generate from file structure — run `npx expo customize tsconfig.json` to regenerate `.expo/types/router.d.ts`
 - For typed routes: use `/dia-detalhe?date=...` (short form) not `/(historico)/dia-detalhe?date=...`
+- `theme.typography` has pre-built TextStyle objects (caption, footnote, body, callout, headline, title3) — use via `style={theme.typography.callout}` for consistent text hierarchy
+- Add `fontVariant: ['tabular-nums']` to any numeric display that changes dynamically (prevents layout jumps)
+- Add `selectable` prop to Text elements showing user data (stats, percentages, counts)
+- Always use `<Card>` component for card-style containers — never duplicate `cardShadow`/border styles inline
+- `<Card className="p-0">` when the component manages its own internal padding (e.g., collapsible sections with header + content areas)
+- Card has: borderRadius 16, borderCurve 'continuous', iOS shadow + Android elevation, bg-bg-card, p-4 default padding
+- Screen content gaps use `gap-3` (12px) between cards
 
 ---
 
@@ -79,4 +86,35 @@ Feature: UI/UX Overhaul
   - When using sed for icon replacement, ternary expressions (e.g., `condition ? "iconA" : "iconB"`) won't match `name="iconA"` patterns — need separate handling
   - MaterialCommunityIcons type reference: `keyof typeof MaterialCommunityIcons.glyphMap` for typed icon props
   - Icon names between Ionicons and MCI often differ subtly: Ionicons `checkmark-circle` → MCI `check-circle`, Ionicons `flame` → MCI `fire`
+---
+
+## 2026-02-26 - US-004
+- Added `typography` object to `constants/theme.ts` with TextStyle objects: caption (11px), footnote (13px), body (15px), callout (16px, 600), headline (17px, 700), title3 (20px, 700) — all with appropriate text colors
+- Added `fontVariant: ['tabular-nums']` to numeric displays: ProgressBar (count + percentage), HidratacaoCard (amounts + percentage), CardioCard (minutes + percentage + session items + total), StatsCard (stat values + missed percentages), Badge (count text), Calendario (already had it)
+- Added `selectable` prop to data Text elements: ProgressBar counts, HidratacaoCard amounts, CardioCard metrics, StatsCard values
+- Applied typography scale via inline `style` across all screens: headline for screen titles/dates, callout for card/section headers, footnote for subtitles/descriptions, caption for small labels/weekday headers, body for empty state text
+- Typecheck passes clean
+- Files changed (14): `constants/theme.ts`, `components/checklist/ProgressBar.tsx`, `components/hidratacao/HidratacaoCard.tsx`, `components/cardio/CardioCard.tsx`, `components/historico/StatsCard.tsx`, `components/historico/Calendario.tsx`, `components/ui/Badge.tsx`, `components/checklist/PeriodoSection.tsx`, `components/dicas/DicasSection.tsx`, `app/(tabs)/(hoje)/index.tsx`, `app/(tabs)/(treino)/index.tsx`, `app/(tabs)/(historico)/index.tsx`, `app/(tabs)/(historico)/dia-detalhe.tsx`, `app/config.tsx`
+- **Learnings for future iterations:**
+  - Typography styles use `as TextStyle` assertion in const theme to satisfy TypeScript's fontWeight literal types
+  - `fontVariant: ['tabular-nums']` prevents layout jumps when numbers change (e.g., timers, counters, percentages)
+  - Use spread `{ ...theme.typography.body, color: ... }` when overriding typography color for specific states
+  - Keep `className` for layout (flex, padding, gap) and use `style` for typography — they compose cleanly
+---
+
+## 2026-02-26 - US-005
+- Redesigned Card component: borderRadius 16, borderCurve 'continuous', shadow (iOS shadow props + Android elevation), removed hard border
+- Card.tsx already had correct shadow and continuous corners — main change was removing `border border-border` class and using shadow for depth
+- Consolidated all card-style containers to use `<Card>` component: PeriodoSection, DicasSection, Calendario (previously had inline duplicated styles)
+- PeriodoSection and DicasSection use `<Card className="p-0">` since they manage own internal padding for collapsible header/content layout
+- Calendario uses `<Card>` directly (already had p-4 padding matching Card's default)
+- HidratacaoCard, CardioCard, StatsCard already used `<Card>` — verified they still render correctly
+- Changed screen content gaps from `gap-4` (16px) to `gap-3` (12px) in all screen layouts: hoje, treino, historico, config
+- Typecheck passes clean
+- Files changed (8): `components/ui/Card.tsx`, `components/checklist/PeriodoSection.tsx`, `components/dicas/DicasSection.tsx`, `components/historico/Calendario.tsx`, `app/(tabs)/(hoje)/index.tsx`, `app/(tabs)/(treino)/index.tsx`, `app/(tabs)/(historico)/index.tsx`, `app/config.tsx`
+- **Learnings for future iterations:**
+  - Components with collapsible sections (header + expandable content) should use `<Card className="p-0">` and manage their own internal padding
+  - Never duplicate shadow/border styles inline — always use the `<Card>` component for consistency
+  - `borderCurve: 'continuous'` gives iOS-style smooth/squircle corners — must be set via inline `style`, not NativeWind class
+  - `boxShadow` CSS property doesn't work in React Native — use platform-specific shadow props (iOS: shadowColor/Offset/Opacity/Radius, Android: elevation)
 ---

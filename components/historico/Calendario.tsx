@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
+import { Card } from "@/components/ui/Card";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { useAppFocusRefresh } from "@/utils/useAppFocusRefresh";
 
@@ -119,7 +120,7 @@ export function Calendario({ onDayPress }: CalendarioProps) {
   };
 
   return (
-    <View className="rounded-xl border border-border bg-bg-card p-4">
+    <Card>
       {/* Month navigation header */}
       <View className="mb-4 flex-row items-center justify-between">
         <Pressable onPress={goToPrevMonth} className="p-2">
@@ -212,6 +213,6 @@ export function Calendario({ onDayPress }: CalendarioProps) {
           );
         })}
       </View>
-    </View>
+    </Card>
   );
 }

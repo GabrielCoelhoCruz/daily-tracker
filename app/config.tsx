@@ -96,7 +96,7 @@ export default function ConfigScreen() {
   return (
     <ScrollView
       className="flex-1 bg-bg-primary"
-      contentContainerClassName="gap-4 p-4 pb-12"
+      contentContainerClassName="gap-3 p-4 pb-12"
     >
       {/* Period Notifications */}
       <Card className="gap-2">
