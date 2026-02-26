@@ -316,9 +316,29 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - `app/config.tsx` - Rewritten from placeholder to full config screen with period notifications and hydration reminders
 - **Learnings for future iterations:**
   - Config modal already has `presentation: "modal"` and header styling in `app/_layout.tsx` — no changes needed to the root layout
+- `expo-notifications` v55 requires `shouldShowBanner` and `shouldShowList` in `NotificationBehavior` handler (in addition to `shouldShowAlert`, `shouldPlaySound`, `shouldSetBadge`)
+- Notification scheduling: use `Notifications.SchedulableTriggerInputTypes.DAILY` with `hour`/`minute` for daily repeating notifications
+- Cancel specific notifications by tagging with `data: { type: "..." }` then filtering `getAllScheduledNotificationsAsync()` by type
+- Subscribe to Zustand store changes outside React: `useConfigStore.subscribe(() => { ... })` — returns unsubscribe function
   - `PeriodoNotificacao` internal component pattern (same as `HidratacaoSection` in HidratacaoCard) — keeps the main component clean
   - Time input uses `TextInput` with `keyboardType="number-pad"` and auto-colon insertion — simple approach without third-party date picker
   - `Switch` component from RN uses `trackColor` + `thumbColor` for theming — matches dark palette with amber active state
   - Interval selector uses pill button pattern: active button gets accent background + dark text, inactive gets elevated bg + secondary text
   - `contentContainerClassName` on ScrollView with `pb-12` ensures content isn't hidden behind the bottom edge
+---
+
+## 2026-02-26 - US-022
+- What was implemented: Created `utils/notificationUtils.ts` with local notification scheduling system using `expo-notifications`. Exports `scheduleNotificacoes()` (requests permission, cancels all existing, schedules daily repeating notifications per period based on config store, schedules hydration reminders every N hours between 7h-22h), `cancelAllNotificacoes()` (cancels all scheduled notifications), and `cancelHydrationNotificacoes()` (selectively cancels only hydration-tagged notifications). Integrated into `app/_layout.tsx` with: notification response listener for deep linking (notification tap → navigate to home), config store subscription for auto-rescheduling on settings change, and initial scheduling on mount. Added hydration goal detection in `app/(tabs)/index.tsx` — cancels hydration notifications when `aguaMl >= 4000ml` goal is met. All functions are guarded with `Platform.OS === "web"` check.
+- Files changed:
+  - `utils/notificationUtils.ts` - New file: notification scheduling, permission handling, selective cancellation
+  - `app/_layout.tsx` - Added notification response listener, config store subscription for auto-rescheduling
+  - `app/(tabs)/index.tsx` - Added hydration goal detection to cancel hydration notifications when water goal met
+  - `package.json` / `package-lock.json` - Added expo-notifications dependency
+- **Learnings for future iterations:**
+  - `expo-notifications` v55 `NotificationBehavior` requires 5 fields: `shouldShowAlert`, `shouldPlaySound`, `shouldSetBadge`, `shouldShowBanner`, `shouldShowList` — missing `shouldShowBanner`/`shouldShowList` causes TS error
+  - Use `data: { type: "..." }` field to tag notifications by category, then filter with `getAllScheduledNotificationsAsync()` for selective cancellation
+  - `SchedulableTriggerInputTypes.DAILY` with `hour`/`minute` creates daily repeating notifications — simpler than calendar triggers
+  - `useConfigStore.subscribe()` from Zustand returns an unsubscribe function — useful for reacting to store changes outside React components
+  - Platform guard `Platform.OS === "web"` should be at function level (early return) rather than inside loops for cleaner code
+  - `useRef` with `prevAguaRef` pattern to detect when a threshold is first crossed (goal met for first time) without double-triggering
 ---

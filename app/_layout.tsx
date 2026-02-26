@@ -1,12 +1,15 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import * as Notifications from "expo-notifications";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
-import { View } from "react-native";
+import { useEffect, useRef } from "react";
+import { Platform, View } from "react-native";
 import "react-native-reanimated";
 import "../global.css";
+import { useConfigStore } from "@/stores/useConfigStore";
+import { scheduleNotificacoes } from "@/utils/notificationUtils";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -17,6 +20,9 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const router = useRouter();
+  const configUnsubRef = useRef<(() => void) | null>(null);
+
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     ...FontAwesome.font,
@@ -31,6 +37,42 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  // Handle notification taps — navigate to app via Expo Router
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const data = response.notification.request.content.data as
+          | Record<string, unknown>
+          | undefined;
+        if (data?.type === "periodo") {
+          router.push("/");
+        } else if (data?.type === "hidratacao") {
+          router.push("/");
+        }
+      }
+    );
+    return () => subscription.remove();
+  }, [router]);
+
+  // Subscribe to config store changes and reschedule notifications
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+
+    // Schedule on mount
+    scheduleNotificacoes();
+
+    // Reschedule when config changes
+    configUnsubRef.current = useConfigStore.subscribe(() => {
+      scheduleNotificacoes();
+    });
+
+    return () => {
+      configUnsubRef.current?.();
+    };
+  }, []);
 
   if (!loaded) {
     return null;

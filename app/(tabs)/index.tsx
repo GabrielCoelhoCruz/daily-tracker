@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { useEffect, useMemo, useRef } from "react";
+import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -18,6 +18,7 @@ import {
   contarItens,
 } from "@/utils/diaUtils";
 import { checkAndReset } from "@/utils/resetUtils";
+import { cancelHydrationNotificacoes } from "@/utils/notificationUtils";
 
 const DAY_NAMES = [
   "Domingo",
@@ -73,10 +74,24 @@ export default function HojeScreen() {
   const refeicaoLivreUsada = useDayStore((s) => s.refeicaoLivreUsada);
   const refeicaoLivrePeriodoId = useDayStore((s) => s.refeicaoLivrePeriodoId);
   const usarRefeicaoLivre = useDayStore((s) => s.usarRefeicaoLivre);
+  const aguaMl = useDayStore((s) => s.aguaMl);
+  const prevAguaRef = useRef(aguaMl);
 
   useEffect(() => {
     checkAndReset();
   }, []);
+
+  // Cancel hydration notifications when water goal is met
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    const goalMet = aguaMl >= plano.metaHidratacao.aguaMl;
+    const wasMetBefore = prevAguaRef.current >= plano.metaHidratacao.aguaMl;
+    prevAguaRef.current = aguaMl;
+
+    if (goalMet && !wasMetBefore) {
+      cancelHydrationNotificacoes();
+    }
+  }, [aguaMl]);
 
   const dayOfWeek = new Date().getDay();
   const treino = isDiaDeTreino(dayOfWeek, diaOffManual);
