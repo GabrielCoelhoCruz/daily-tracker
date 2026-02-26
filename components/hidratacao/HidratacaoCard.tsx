@@ -1,0 +1,170 @@
+import { Pressable, Text, View } from "react-native";
+import * as Haptics from "expo-haptics";
+import { Ionicons } from "@expo/vector-icons";
+import { theme } from "@/constants/theme";
+import { Card } from "@/components/ui/Card";
+import { useDayStore } from "@/stores/useDayStore";
+import { plano } from "@/data/plano";
+
+type HidratacaoSectionProps = {
+  label: string;
+  currentMl: number;
+  metaMl: number;
+  onAdd: (ml: number) => void;
+  onRemove: (ml: number) => void;
+};
+
+function formatLiters(ml: number): string {
+  if (ml >= 1000) {
+    const liters = ml / 1000;
+    return `${liters % 1 === 0 ? liters.toFixed(0) : liters.toFixed(1)}L`;
+  }
+  return `${ml}ml`;
+}
+
+function HidratacaoSection({
+  label,
+  currentMl,
+  metaMl,
+  onAdd,
+  onRemove,
+}: HidratacaoSectionProps) {
+  const percentage = metaMl > 0 ? Math.min(100, Math.round((currentMl / metaMl) * 100)) : 0;
+  const isComplete = currentMl >= metaMl;
+
+  function handleAdd(ml: number) {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onAdd(ml);
+  }
+
+  function handleRemove(ml: number) {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onRemove(ml);
+  }
+
+  return (
+    <View className="gap-2">
+      <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center gap-2">
+          <Ionicons
+            name="water-outline"
+            size={16}
+            color={isComplete ? theme.colors.semantic.success : theme.colors.accent.DEFAULT}
+          />
+          <Text className="text-sm font-semibold text-txt-primary">{label}</Text>
+        </View>
+        <View className="flex-row items-center gap-1.5">
+          {isComplete && (
+            <Ionicons
+              name="checkmark-circle"
+              size={16}
+              color={theme.colors.semantic.success}
+            />
+          )}
+          <Text className="text-sm text-txt-secondary">
+            {formatLiters(currentMl)} / {formatLiters(metaMl)}
+          </Text>
+          <Text
+            className="text-sm font-medium"
+            style={{
+              color: isComplete
+                ? theme.colors.semantic.success
+                : theme.colors.accent.DEFAULT,
+            }}
+          >
+            {percentage}%
+          </Text>
+        </View>
+      </View>
+
+      <View className="h-2.5 overflow-hidden rounded-full bg-bg-elevated">
+        <View
+          className="h-full rounded-full"
+          style={{
+            width: `${percentage}%`,
+            backgroundColor: isComplete
+              ? theme.colors.semantic.success
+              : theme.colors.accent.DEFAULT,
+          }}
+        />
+      </View>
+
+      <View className="flex-row items-center gap-2">
+        <Pressable
+          onPress={() => handleRemove(250)}
+          className="items-center justify-center rounded-lg bg-bg-elevated px-3 py-1.5"
+        >
+          <Text className="text-xs font-medium text-txt-secondary">-250ml</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => handleAdd(250)}
+          className="flex-1 items-center justify-center rounded-lg py-1.5"
+          style={{ backgroundColor: theme.colors.accent.DEFAULT + "20" }}
+        >
+          <Text
+            className="text-xs font-semibold"
+            style={{ color: theme.colors.accent.DEFAULT }}
+          >
+            +250ml
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => handleAdd(500)}
+          className="flex-1 items-center justify-center rounded-lg py-1.5"
+          style={{ backgroundColor: theme.colors.accent.DEFAULT + "20" }}
+        >
+          <Text
+            className="text-xs font-semibold"
+            style={{ color: theme.colors.accent.DEFAULT }}
+          >
+            +500ml
+          </Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+export function HidratacaoCard() {
+  const aguaMl = useDayStore((s) => s.aguaMl);
+  const chaMl = useDayStore((s) => s.chaMl);
+  const addAgua = useDayStore((s) => s.addAgua);
+  const removeAgua = useDayStore((s) => s.removeAgua);
+  const addCha = useDayStore((s) => s.addCha);
+  const removeCha = useDayStore((s) => s.removeCha);
+
+  const { aguaMl: metaAgua, chaMl: metaCha } = plano.metaHidratacao;
+
+  return (
+    <Card className="gap-4">
+      <View className="flex-row items-center gap-2">
+        <Ionicons
+          name="water"
+          size={20}
+          color={theme.colors.accent.DEFAULT}
+        />
+        <Text className="text-base font-semibold text-txt-primary">
+          Hidratacao
+        </Text>
+      </View>
+
+      <HidratacaoSection
+        label="Agua"
+        currentMl={aguaMl}
+        metaMl={metaAgua}
+        onAdd={addAgua}
+        onRemove={removeAgua}
+      />
+
+      <View className="h-px bg-border" />
+
+      <HidratacaoSection
+        label="Cha de Cavalinha"
+        currentMl={chaMl}
+        metaMl={metaCha}
+        onAdd={addCha}
+        onRemove={removeCha}
+      />
+    </Card>
+  );
+}
