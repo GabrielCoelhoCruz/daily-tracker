@@ -32,14 +32,14 @@ export default function TreinoScreen() {
       >
         <MaterialCommunityIcons
           name="moon-waning-crescent"
-          size={64}
+          size={48}
           color={theme.colors.text.muted}
         />
         <Text className="mt-4" style={theme.typography.title3}>
-          Dia Off {"\u2014"} Descanse
+          Dia Off
         </Text>
         <Text className="mt-2 text-center" style={theme.typography.footnote}>
-          {dayName}. Aproveite para recuperar e voltar mais forte.
+          {dayName} {"\u2014"} Aproveite para recuperar e voltar mais forte.
         </Text>
       </ScrollView>
     );
@@ -52,10 +52,10 @@ export default function TreinoScreen() {
       contentContainerClassName="gap-3 px-4 pb-8 pt-4"
     >
       <View className="gap-1">
-        <Text style={theme.typography.headline}>
+        <Text style={theme.typography.footnote}>
           {dayName} {"\u2014"} {treino.letra}: {treino.grupoMuscular}
         </Text>
-        <Text style={theme.typography.footnote}>
+        <Text style={theme.typography.caption}>
           {treino.exercicios.length} exerc{"\u00ed"}cios
         </Text>
       </View>

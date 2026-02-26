@@ -67,12 +67,21 @@ function SeriesLegend() {
       {SERIES_LEGEND.map((item) => (
         <View key={item.sigla} className="flex-row items-start gap-2">
           <View
-            className="mt-0.5 rounded px-1.5 py-0.5"
-            style={{ backgroundColor: theme.colors.accent.DEFAULT + "20" }}
+            style={{
+              marginTop: 2,
+              borderRadius: 6,
+              borderCurve: "continuous",
+              paddingHorizontal: 6,
+              paddingVertical: 2,
+              backgroundColor: theme.colors.accent.DEFAULT + "20",
+            }}
           >
             <Text
-              className="text-xs font-bold"
-              style={{ color: theme.colors.accent.DEFAULT }}
+              style={{
+                fontSize: 11,
+                fontWeight: "700",
+                color: theme.colors.accent.DEFAULT,
+              }}
             >
               {item.sigla}
             </Text>
