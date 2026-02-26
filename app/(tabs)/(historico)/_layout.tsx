@@ -23,6 +23,8 @@ export default function HistoricoLayout() {
           sheetGrabberVisible: true,
           sheetAllowedDetents: [0.5, 1.0],
           title: "Detalhes do Dia",
+          headerLargeTitle: false,
+          contentStyle: { backgroundColor: theme.colors.bg.card },
         }}
       />
     </Stack>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { plano } from "@/data/plano";
@@ -50,6 +51,7 @@ function countCheckedNonOptional(
 }
 
 export default function HojeScreen() {
+  const router = useRouter();
   const checks = useDayStore((s) => s.checks);
   const diaOffManual = useDayStore((s) => s.diaOffManual);
   const setDiaOff = useDayStore((s) => s.setDiaOff);
@@ -114,9 +116,31 @@ export default function HojeScreen() {
       contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="gap-3 px-4 pb-8 pt-4"
     >
-      <Text style={theme.typography.footnote}>
-        {formatLogicalDate(new Date())}
-      </Text>
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <Text style={theme.typography.footnote}>
+          {formatLogicalDate(new Date())}
+        </Text>
+        <Pressable
+          onPress={() => router.push("/config")}
+          accessibilityLabel="Configurações"
+          accessibilityRole="button"
+          hitSlop={8}
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 16,
+            backgroundColor: theme.colors.bg.elevated,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <MaterialCommunityIcons
+            name="cog"
+            size={18}
+            color={theme.colors.text.muted}
+          />
+        </Pressable>
+      </View>
 
       <Pressable
         onPress={handleToggleDiaOff}

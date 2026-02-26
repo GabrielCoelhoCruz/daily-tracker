@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
@@ -35,13 +35,13 @@ export default function DiaDetalheScreen() {
 
   if (!historico) {
     return (
-      <View className="flex-1 items-center justify-center bg-bg-card px-8">
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
         <MaterialCommunityIcons
           name="calendar-outline"
           size={48}
           color={theme.colors.text.muted}
         />
-        <Text className="mt-4" style={{ ...theme.typography.body, color: theme.colors.text.muted }}>
+        <Text style={{ ...theme.typography.body, color: theme.colors.text.muted, marginTop: 16 }}>
           Nenhum dado encontrado
         </Text>
       </View>
@@ -52,14 +52,17 @@ export default function DiaDetalheScreen() {
   const statusColor = getStatusColor(historico.completados, historico.total);
 
   return (
-    <View className="flex-1 bg-bg-card px-5 pt-4 pb-8">
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{ padding: 20, gap: 16 }}
+    >
       {/* Header */}
-      <Text className="mb-4" style={theme.typography.headline}>
+      <Text selectable style={theme.typography.headline}>
         {formatDisplayDate(historico.data)}
       </Text>
 
       {/* Status */}
-      <View className="mb-4 flex-row items-center gap-2">
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         <MaterialCommunityIcons
           name={
             historico.completados >= historico.total
@@ -78,30 +81,35 @@ export default function DiaDetalheScreen() {
       <ProgressBar
         completados={historico.completados}
         total={historico.total}
-        className="mb-4"
       />
 
       {/* Missed items */}
       {historico.itensPerdidos.length > 0 && (
-        <View className="gap-2">
-          <View className="flex-row items-center gap-2">
+        <View style={{ gap: 8 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
             <MaterialCommunityIcons
               name="close-circle-outline"
               size={16}
               color={theme.colors.semantic.error}
             />
-            <Text className="text-sm font-medium text-txt-secondary">
+            <Text style={{ ...theme.typography.footnote, fontWeight: "500", color: theme.colors.text.secondary }}>
               Itens perdidos ({historico.itensPerdidos.length})
             </Text>
           </View>
 
           {historico.itensPerdidos.map((item, index) => (
-            <View key={`${index}-${item}`} className="ml-6 flex-row items-center gap-2">
+            <View key={`${index}-${item}`} style={{ marginLeft: 24, flexDirection: "row", alignItems: "center", gap: 8 }}>
               <View
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ backgroundColor: theme.colors.semantic.error }}
+                style={{
+                  height: 6,
+                  width: 6,
+                  borderRadius: 3,
+                  backgroundColor: theme.colors.semantic.error,
+                }}
               />
-              <Text className="text-sm text-txt-primary">{item}</Text>
+              <Text selectable style={{ ...theme.typography.body, fontSize: 14 }}>
+                {item}
+              </Text>
             </View>
           ))}
         </View>
@@ -110,20 +118,32 @@ export default function DiaDetalheScreen() {
       {/* All complete message */}
       {historico.itensPerdidos.length === 0 &&
         historico.completados >= historico.total && (
-          <View className="items-center gap-2 rounded-lg bg-bg-elevated py-4">
+          <View
+            style={{
+              alignItems: "center",
+              gap: 8,
+              borderRadius: theme.radius.lg,
+              borderCurve: "continuous",
+              backgroundColor: theme.colors.bg.elevated,
+              paddingVertical: 16,
+            }}
+          >
             <MaterialCommunityIcons
               name="trophy-outline"
               size={28}
               color={theme.colors.semantic.success}
             />
             <Text
-              className="text-sm font-medium"
-              style={{ color: theme.colors.semantic.success }}
+              style={{
+                ...theme.typography.footnote,
+                fontWeight: "500",
+                color: theme.colors.semantic.success,
+              }}
             >
               Todos os itens completados!
             </Text>
           </View>
         )}
-    </View>
+    </ScrollView>
   );
 }
