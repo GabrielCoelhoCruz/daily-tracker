@@ -35,10 +35,10 @@ export default function TreinoScreen() {
           size={64}
           color={theme.colors.text.muted}
         />
-        <Text className="mt-4 text-xl font-bold text-txt-primary">
-          Dia Off \u2014 Descanse
+        <Text className="mt-4" style={theme.typography.title3}>
+          Dia Off {"\u2014"} Descanse
         </Text>
-        <Text className="mt-2 text-center text-sm text-txt-secondary">
+        <Text className="mt-2 text-center" style={theme.typography.footnote}>
           {dayName}. Aproveite para recuperar e voltar mais forte.
         </Text>
       </ScrollView>
@@ -52,11 +52,11 @@ export default function TreinoScreen() {
       contentContainerClassName="gap-4 px-4 pb-8 pt-4"
     >
       <View className="gap-1">
-        <Text className="text-lg font-bold text-txt-primary">
-          {dayName} \u2014 {treino.letra}: {treino.grupoMuscular}
+        <Text style={theme.typography.headline}>
+          {dayName} {"\u2014"} {treino.letra}: {treino.grupoMuscular}
         </Text>
-        <Text className="text-sm text-txt-muted">
-          {treino.exercicios.length} exerc\u00edcios
+        <Text style={theme.typography.footnote}>
+          {treino.exercicios.length} exerc{"\u00ed"}cios
         </Text>
       </View>
 

@@ -61,11 +61,11 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
         className="flex-row items-center justify-between p-4"
       >
         <View className="flex-1 flex-row items-center gap-2">
-          <Text className="text-base font-semibold text-txt-primary">
+          <Text style={theme.typography.callout}>
             {periodo.nome}
           </Text>
           {periodo.descricao && (
-            <Text className="text-xs text-txt-muted">{periodo.descricao}</Text>
+            <Text style={theme.typography.caption}>{periodo.descricao}</Text>
           )}
         </View>
 

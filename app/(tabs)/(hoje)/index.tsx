@@ -121,7 +121,7 @@ export default function HojeScreen() {
     >
       <View className="flex-row items-center justify-between">
         <View className="flex-1">
-          <Text className="text-lg font-bold text-txt-primary">
+          <Text style={theme.typography.headline}>
             {formatLogicalDate(new Date())}
           </Text>
         </View>
@@ -179,7 +179,7 @@ export default function HojeScreen() {
             size={16}
             color={theme.colors.accent.DEFAULT}
           />
-          <Text className="text-sm text-txt-secondary">Refeição Livre</Text>
+          <Text style={theme.typography.footnote}>Refeição Livre</Text>
           <Badge
             text="0/1"
             color={theme.colors.accent.DEFAULT}
@@ -194,7 +194,7 @@ export default function HojeScreen() {
               size={16}
               color={theme.colors.semantic.success}
             />
-            <Text className="text-sm text-txt-secondary">Refeição Livre</Text>
+            <Text style={theme.typography.footnote}>Refeição Livre</Text>
             <Badge
               text="1/1"
               color={theme.colors.semantic.success}

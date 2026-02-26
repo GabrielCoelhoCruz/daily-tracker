@@ -61,12 +61,18 @@ function HidratacaoSection({
               color={theme.colors.semantic.success}
             />
           )}
-          <Text className="text-sm text-txt-secondary">
+          <Text
+            selectable
+            className="text-sm text-txt-secondary"
+            style={{ fontVariant: ["tabular-nums"] }}
+          >
             {formatLiters(currentMl)} / {formatLiters(metaMl)}
           </Text>
           <Text
+            selectable
             className="text-sm font-medium"
             style={{
+              fontVariant: ["tabular-nums"],
               color: isComplete
                 ? theme.colors.semantic.success
                 : theme.colors.accent.DEFAULT,
@@ -143,7 +149,7 @@ export function HidratacaoCard() {
           size={20}
           color={theme.colors.accent.DEFAULT}
         />
-        <Text className="text-base font-semibold text-txt-primary">
+        <Text style={theme.typography.callout}>
           Hidratação
         </Text>
       </View>

@@ -1,3 +1,5 @@
+import type { TextStyle } from "react-native";
+
 export const theme = {
   colors: {
     bg: {
@@ -20,6 +22,35 @@ export const theme = {
       muted: "#78716c",
     },
     border: "#292524",
+  },
+  typography: {
+    caption: {
+      fontSize: 11,
+      color: "#a8a29e",
+    } as TextStyle,
+    footnote: {
+      fontSize: 13,
+      color: "#a8a29e",
+    } as TextStyle,
+    body: {
+      fontSize: 15,
+      color: "#fafaf9",
+    } as TextStyle,
+    callout: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: "#fafaf9",
+    } as TextStyle,
+    headline: {
+      fontSize: 17,
+      fontWeight: "700",
+      color: "#fafaf9",
+    } as TextStyle,
+    title3: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: "#fafaf9",
+    } as TextStyle,
   },
 } as const;
 

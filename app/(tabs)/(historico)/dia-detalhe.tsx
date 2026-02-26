@@ -41,7 +41,7 @@ export default function DiaDetalheScreen() {
           size={48}
           color={theme.colors.text.muted}
         />
-        <Text className="mt-4 text-base text-txt-muted">
+        <Text className="mt-4" style={{ ...theme.typography.body, color: theme.colors.text.muted }}>
           Nenhum dado encontrado
         </Text>
       </View>
@@ -54,7 +54,7 @@ export default function DiaDetalheScreen() {
   return (
     <View className="flex-1 bg-bg-card px-5 pt-4 pb-8">
       {/* Header */}
-      <Text className="mb-4 text-lg font-semibold text-txt-primary">
+      <Text className="mb-4" style={theme.typography.headline}>
         {formatDisplayDate(historico.data)}
       </Text>
 
@@ -69,7 +69,7 @@ export default function DiaDetalheScreen() {
           size={20}
           color={statusColor}
         />
-        <Text className="text-sm font-medium" style={{ color: statusColor }}>
+        <Text style={{ ...theme.typography.footnote, fontWeight: "500", color: statusColor }}>
           {statusText}
         </Text>
       </View>

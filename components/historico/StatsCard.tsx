@@ -113,7 +113,11 @@ function StatRow({
         <MaterialCommunityIcons name={icon} size={16} color={color} />
         <Text className="text-sm text-txt-secondary">{label}</Text>
       </View>
-      <Text className="text-sm font-semibold" style={{ color }}>
+      <Text
+        selectable
+        className="text-sm font-semibold"
+        style={{ fontVariant: ["tabular-nums"], color }}
+      >
         {value}
       </Text>
     </View>
@@ -152,7 +156,7 @@ export function StatsCard() {
           size={20}
           color={theme.colors.accent.DEFAULT}
         />
-        <Text className="text-base font-semibold text-txt-primary">
+        <Text style={theme.typography.callout}>
           Estatísticas
         </Text>
       </View>
@@ -225,7 +229,10 @@ export function StatsCard() {
                 </Text>
                 <Text
                   className="text-xs font-medium"
-                  style={{ color: theme.colors.semantic.error }}
+                  style={{
+                    fontVariant: ["tabular-nums"],
+                    color: theme.colors.semantic.error,
+                  }}
                 >
                   {item.percentage}% ({item.count}x)
                 </Text>

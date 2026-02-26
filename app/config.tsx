@@ -106,12 +106,12 @@ export default function ConfigScreen() {
             size={20}
             color={theme.colors.accent.DEFAULT}
           />
-          <Text className="text-base font-semibold text-txt-primary">
+          <Text style={theme.typography.callout}>
             Notificações por Período
           </Text>
         </View>
 
-        <Text className="text-xs text-txt-muted">
+        <Text style={theme.typography.caption}>
           Configure lembretes para cada refeição e período do plano.
         </Text>
 
@@ -135,7 +135,7 @@ export default function ConfigScreen() {
             size={20}
             color={theme.colors.accent.DEFAULT}
           />
-          <Text className="text-base font-semibold text-txt-primary">
+          <Text style={theme.typography.callout}>
             Lembrete de Hidratação
           </Text>
         </View>

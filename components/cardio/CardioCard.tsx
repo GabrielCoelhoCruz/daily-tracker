@@ -48,7 +48,7 @@ export function CardioCard() {
             size={20}
             color={theme.colors.accent.DEFAULT}
           />
-          <Text className="text-base font-semibold text-txt-primary">
+          <Text style={theme.typography.callout}>
             Cardio
           </Text>
         </View>
@@ -63,12 +63,18 @@ export function CardioCard() {
 
       <View className="gap-1">
         <View className="flex-row items-center justify-between">
-          <Text className="text-sm text-txt-secondary">
+          <Text
+            selectable
+            className="text-sm text-txt-secondary"
+            style={{ fontVariant: ["tabular-nums"] }}
+          >
             {totalMinutos}min / {metaMinutos}min
           </Text>
           <Text
+            selectable
             className="text-sm font-medium"
             style={{
+              fontVariant: ["tabular-nums"],
               color: isComplete
                 ? theme.colors.semantic.success
                 : theme.colors.accent.DEFAULT,
@@ -97,7 +103,10 @@ export function CardioCard() {
               key={`${index}-${sessao.timestamp}`}
               className="flex-row items-center justify-between rounded-lg bg-bg-elevated px-3 py-2"
             >
-              <Text className="text-sm text-txt-primary">
+              <Text
+                className="text-sm text-txt-primary"
+                style={{ fontVariant: ["tabular-nums"] }}
+              >
                 {sessao.minutos}min
               </Text>
               <Pressable
@@ -114,7 +123,10 @@ export function CardioCard() {
           ))}
 
           {sessoesCardio.length > 1 && (
-            <Text className="text-xs text-txt-secondary">
+            <Text
+              className="text-xs text-txt-secondary"
+              style={{ fontVariant: ["tabular-nums"] }}
+            >
               {totalText}
             </Text>
           )}

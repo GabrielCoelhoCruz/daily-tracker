@@ -16,10 +16,20 @@ export function ProgressBar({
   return (
     <View className={`gap-1 ${className}`}>
       <View className="flex-row items-center justify-between">
-        <Text className="text-sm font-medium text-txt-primary">
+        <Text
+          selectable
+          className="text-sm font-medium text-txt-primary"
+          style={{ fontVariant: ["tabular-nums"] }}
+        >
           {completados}/{total}
         </Text>
-        <Text className="text-sm font-medium text-accent">{percentage}%</Text>
+        <Text
+          selectable
+          className="text-sm font-medium text-accent"
+          style={{ fontVariant: ["tabular-nums"] }}
+        >
+          {percentage}%
+        </Text>
       </View>
       <View className="h-2.5 overflow-hidden rounded-full bg-bg-elevated">
         <View

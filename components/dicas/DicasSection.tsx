@@ -104,10 +104,10 @@ export function DicasSection({ categoria }: DicasSectionProps) {
             size={20}
             color={theme.colors.accent.DEFAULT}
           />
-          <Text className="text-base font-semibold text-txt-primary">
+          <Text style={theme.typography.callout}>
             {title}
           </Text>
-          <Text className="text-xs text-txt-muted">
+          <Text style={theme.typography.caption}>
             ({filteredDicas.length})
           </Text>
         </View>

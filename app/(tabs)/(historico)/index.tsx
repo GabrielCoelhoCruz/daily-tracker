@@ -40,11 +40,11 @@ export default function HistoricoScreen() {
             size={48}
             color={theme.colors.text.muted}
           />
-          <Text className="text-base text-txt-muted">
+          <Text style={{ ...theme.typography.body, color: theme.colors.text.muted }}>
             Nenhum dado ainda
           </Text>
-          <Text className="text-center text-sm text-txt-muted">
-            Complete seu primeiro dia para ver{"\n"}o hist\u00f3rico aqui
+          <Text className="text-center" style={theme.typography.footnote}>
+            Complete seu primeiro dia para ver{"\n"}o hist{"\u00f3"}rico aqui
           </Text>
         </View>
       )}
