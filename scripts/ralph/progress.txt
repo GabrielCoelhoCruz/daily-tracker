@@ -34,6 +34,9 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - Access Zustand stores outside React: `useDayStore.getState()` / `useDayStore.setState({})` — no hooks needed in utility functions
 - Reset logic in `utils/resetUtils.ts` — `checkAndReset()` uses 4am day boundary; call on app mount to handle day transitions
 - Use `new Date(dateStr + "T12:00:00")` to avoid timezone/DST issues when parsing YYYY-MM-DD strings
+- `expo-haptics` available for haptic feedback — use `Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)` for taps
+- Icons from `@expo/vector-icons` (Ionicons) — pre-installed with Expo, no extra install needed
+- Items with `subItens` are group headers (not checkable) — only render checkmarks on leaf items
 
 ---
 
@@ -166,4 +169,17 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - `getLogicalDate()` subtracts one day if hour < 4, making the 4am cutoff simple — times at 3:59am are still "yesterday"
   - Use `new Date(dateStr + "T12:00:00")` to avoid timezone issues when parsing date strings — noon is safe from DST boundary issues
   - `filtrarItensDoDia` is reused here to get the correct items for the `ultimoReset` date when calculating missed items
+---
+
+## 2026-02-26 - US-011
+- What was implemented: Created `components/checklist/CheckItem.tsx` — a reusable check item component with haptic feedback. Renders item name, dosage, and a checkmark circle. Checked items show green checkmark with reduced opacity text. Unchecked items show an empty circle. Optional items display a muted "opcional" badge. Items with `subItens` render as a label header with indented sub-items recursively. Tapping triggers expo-haptics Light impact and toggles check state via useDayStore.
+- Files changed:
+  - `components/checklist/CheckItem.tsx` - New file: CheckItem component with haptic feedback, recursive sub-item rendering
+  - `package.json` / `package-lock.json` - Added expo-haptics dependency
+- **Learnings for future iterations:**
+  - Items with `subItens` should NOT be directly checkable — they act as group headers, only the individual sub-items get checkmarks
+  - Recursive component pattern: `CheckItem` renders itself for sub-items with `indented={true}` prop
+  - `expo-haptics` installed via `npx expo install` for SDK version compatibility
+  - Use `Ionicons` from `@expo/vector-icons` for icons — already included in Expo
+  - Badge component reused for "opcional" indicator with `theme.colors.text.muted` color
 ---
