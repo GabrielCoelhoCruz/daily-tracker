@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { Pressable, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
+import { Card } from "@/components/ui/Card";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { useAppFocusRefresh } from "@/utils/useAppFocusRefresh";
 
@@ -27,7 +28,7 @@ const MONTH_NAMES = [
 ];
 
 function getAdherenceColor(completados: number, total: number): string {
-  if (total === 0) return "#404040";
+  if (total === 0) return theme.colors.neutral;
   const pct = completados / total;
   if (pct >= 1) return theme.colors.semantic.success;
   if (pct >= 0.5) return theme.colors.accent.DEFAULT;
@@ -57,12 +58,10 @@ function getCalendarDays(year: number, month: number): DayCell[] {
 
   const cells: DayCell[] = [];
 
-  // Empty cells for days before the 1st
   for (let i = 0; i < firstDay; i++) {
     cells.push({ day: 0, dateStr: "", isCurrentMonth: false });
   }
 
-  // Actual days of the month
   for (let d = 1; d <= daysInMonth; d++) {
     cells.push({
       day: d,
@@ -119,38 +118,43 @@ export function Calendario({ onDayPress }: CalendarioProps) {
   };
 
   return (
-    <View className="rounded-xl border border-border bg-bg-card p-4">
-      {/* Month navigation header */}
+    <Card>
       <View className="mb-4 flex-row items-center justify-between">
-        <Pressable onPress={goToPrevMonth} className="p-2">
-          <Ionicons
-            name="chevron-back"
+        <Pressable
+          onPress={goToPrevMonth}
+          accessibilityLabel="Mês anterior"
+          className="p-2"
+        >
+          <MaterialCommunityIcons
+            name="chevron-left"
             size={20}
             color={theme.colors.text.primary}
           />
         </Pressable>
-        <Text className="text-base font-semibold text-txt-primary">
+        <Text style={theme.typography.callout}>
           {MONTH_NAMES[viewMonth]} {viewYear}
         </Text>
-        <Pressable onPress={goToNextMonth} className="p-2">
-          <Ionicons
-            name="chevron-forward"
+        <Pressable
+          onPress={goToNextMonth}
+          accessibilityLabel="Próximo mês"
+          className="p-2"
+        >
+          <MaterialCommunityIcons
+            name="chevron-right"
             size={20}
             color={theme.colors.text.primary}
           />
         </Pressable>
       </View>
 
-      {/* Weekday headers */}
       <View className="mb-2 flex-row">
         {WEEKDAY_LABELS.map((label) => (
           <View key={label} className="flex-1 items-center">
-            <Text className="text-xs text-txt-muted">{label}</Text>
+            <Text style={theme.typography.caption}>{label}</Text>
           </View>
         ))}
       </View>
 
-      {/* Calendar grid */}
       <View className="flex-row flex-wrap">
         {calendarDays.map((cell, index) => {
           if (!cell.isCurrentMonth) {
@@ -161,7 +165,7 @@ export function Calendario({ onDayPress }: CalendarioProps) {
           const future = isFutureDate(cell.dateStr);
           const isToday = cell.dateStr === todayStr;
 
-          let bgColor = "#404040";
+          let bgColor: string = theme.colors.neutral;
           if (historico && !future) {
             bgColor = getAdherenceColor(
               historico.completados,
@@ -173,32 +177,33 @@ export function Calendario({ onDayPress }: CalendarioProps) {
             <Pressable
               key={cell.dateStr}
               onPress={() => handleDayPress(cell)}
+              accessibilityLabel={`${cell.day} de ${MONTH_NAMES[viewMonth]}${isToday ? ", hoje" : ""}`}
               style={{
                 width: "14.28%",
                 aspectRatio: 1,
-                padding: 2,
+                padding: 3,
               }}
             >
               <View
                 style={[
                   {
                     flex: 1,
-                    borderRadius: 8,
+                    borderRadius: 10,
                     borderCurve: "continuous",
                     backgroundColor: bgColor,
                     alignItems: "center",
                     justifyContent: "center",
                   },
                   isToday && {
-                    borderWidth: 2,
+                    borderWidth: 2.5,
                     borderColor: theme.colors.accent.DEFAULT,
                   },
                 ]}
               >
                 <Text
                   style={{
-                    fontSize: 13,
-                    fontWeight: isToday ? "700" : "500",
+                    ...theme.typography.footnote,
+                    fontWeight: isToday ? "800" : "500",
                     fontVariant: ["tabular-nums"],
                     color: future
                       ? theme.colors.text.muted
@@ -212,6 +217,6 @@ export function Calendario({ onDayPress }: CalendarioProps) {
           );
         })}
       </View>
-    </View>
+    </Card>
   );
 }

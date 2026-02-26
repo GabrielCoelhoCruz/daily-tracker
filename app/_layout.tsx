@@ -1,13 +1,23 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as Notifications from "expo-notifications";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef } from "react";
-import { Platform, View } from "react-native";
+import { Platform, UIManager, View } from "react-native";
 import "react-native-reanimated";
+
+// Enable LayoutAnimation on Android
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 import "../global.css";
+import { theme } from "@/constants/theme";
 import { useConfigStore } from "@/stores/useConfigStore";
 import { scheduleNotificacoes } from "@/utils/notificationUtils";
 
@@ -25,7 +35,7 @@ export default function RootLayout() {
 
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-    ...FontAwesome.font,
+    ...MaterialCommunityIcons.font,
   });
 
   useEffect(() => {
@@ -84,26 +94,28 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0c0a09" }}>
-      <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: "#0c0a09" },
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="config"
-          options={{
-            presentation: "modal",
-            headerShown: true,
-            headerTitle: "Configurações",
-            headerStyle: { backgroundColor: "#1c1917" },
-            headerTintColor: "#fafaf9",
+    <ThemeProvider value={DarkTheme}>
+      <View style={{ flex: 1, backgroundColor: theme.colors.bg.primary }}>
+        <StatusBar style="light" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: theme.colors.bg.primary },
           }}
-        />
-      </Stack>
-    </View>
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="config"
+            options={{
+              presentation: "modal",
+              headerShown: true,
+              headerTitle: "Configurações",
+              headerStyle: { backgroundColor: theme.colors.bg.card },
+              headerTintColor: theme.colors.text.primary,
+            }}
+          />
+        </Stack>
+      </View>
+    </ThemeProvider>
   );
 }

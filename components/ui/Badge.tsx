@@ -12,7 +12,10 @@ export function Badge({ text, color = "#f59e0b", className = "" }: BadgeProps) {
       className={`rounded-full px-2 py-0.5 ${className}`}
       style={{ backgroundColor: color + "20" }}
     >
-      <Text style={{ color }} className="text-xs font-semibold">
+      <Text
+        style={{ color, fontVariant: ["tabular-nums"] }}
+        className="text-xs font-semibold"
+      >
         {text}
       </Text>
     </View>

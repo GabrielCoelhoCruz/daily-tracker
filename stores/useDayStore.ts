@@ -34,6 +34,7 @@ type DayActions = {
   addSessaoCardio: (min: number) => void;
   removeSessaoCardio: (index: number) => void;
   usarRefeicaoLivre: (periodoId: string) => void;
+  desfazerRefeicaoLivre: () => void;
   resetDay: (logicalDate?: string) => void;
 };
 
@@ -101,6 +102,12 @@ export const useDayStore = create<DayState & DayActions>()(
         set({
           refeicaoLivreUsada: true,
           refeicaoLivrePeriodoId: periodoId,
+        }),
+
+      desfazerRefeicaoLivre: () =>
+        set({
+          refeicaoLivreUsada: false,
+          refeicaoLivrePeriodoId: null,
         }),
 
       // Note: refeicaoLivreUsada/refeicaoLivrePeriodoId/semanaRefeicaoLivre

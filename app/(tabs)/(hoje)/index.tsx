@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { plano } from "@/data/plano";
 import { Badge } from "@/components/ui/Badge";
@@ -12,6 +10,7 @@ import { HidratacaoCard } from "@/components/hidratacao/HidratacaoCard";
 import { CardioCard } from "@/components/cardio/CardioCard";
 import { DicasSection } from "@/components/dicas/DicasSection";
 import { useDayStore } from "@/stores/useDayStore";
+import { animateWithHaptic } from "@/utils/animationUtils";
 import {
   isDiaDeTreino,
   filtrarItensDoDia,
@@ -51,13 +50,13 @@ function countCheckedNonOptional(
 }
 
 export default function HojeScreen() {
-  const router = useRouter();
   const checks = useDayStore((s) => s.checks);
   const diaOffManual = useDayStore((s) => s.diaOffManual);
   const setDiaOff = useDayStore((s) => s.setDiaOff);
   const refeicaoLivreUsada = useDayStore((s) => s.refeicaoLivreUsada);
   const refeicaoLivrePeriodoId = useDayStore((s) => s.refeicaoLivrePeriodoId);
   const usarRefeicaoLivre = useDayStore((s) => s.usarRefeicaoLivre);
+  const desfazerRefeicaoLivre = useDayStore((s) => s.desfazerRefeicaoLivre);
   const aguaMl = useDayStore((s) => s.aguaMl);
   const prevAguaRef = useRef(aguaMl);
 
@@ -98,81 +97,93 @@ export default function HojeScreen() {
   );
 
   function handleToggleDiaOff() {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setDiaOff(!diaOffManual);
+    animateWithHaptic(() => setDiaOff(!diaOffManual));
   }
 
   function handleRefeicaoLivre(periodoId: string) {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    usarRefeicaoLivre(periodoId);
+    animateWithHaptic(() => usarRefeicaoLivre(periodoId));
+  }
+
+  function handleDesfazerRefeicaoLivre() {
+    animateWithHaptic(() => desfazerRefeicaoLivre());
   }
 
   return (
     <ScrollView
       className="flex-1 bg-bg-primary"
-      contentContainerClassName="gap-4 px-4 pb-8 pt-4"
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerClassName="gap-3 px-4 pb-8 pt-4"
     >
-      <View className="flex-row items-center justify-between">
-        <View className="flex-1">
-          <Text className="text-lg font-bold text-txt-primary">
-            {formatLogicalDate(new Date())}
-          </Text>
-        </View>
+      <Text style={theme.typography.footnote}>
+        {formatLogicalDate(new Date())}
+      </Text>
 
+      <Pressable
+        onPress={handleToggleDiaOff}
+        accessibilityRole="button"
+        accessibilityLabel={diaOffManual ? "Desativar Dia Off" : "Ativar Dia Off"}
+        className="flex-row items-center justify-between rounded-2xl px-4 py-3"
+        style={{
+          backgroundColor: diaOffManual
+            ? theme.colors.semantic.error + "15"
+            : theme.colors.bg.card,
+          borderCurve: "continuous",
+        }}
+      >
         <View className="flex-row items-center gap-3">
-          <Pressable
-            onPress={handleToggleDiaOff}
-            className="flex-row items-center gap-1.5 rounded-lg px-3 py-1.5"
-            style={{
-              backgroundColor: diaOffManual
-                ? theme.colors.semantic.error + "20"
-                : theme.colors.bg.elevated,
-            }}
-          >
-            <Ionicons
-              name={diaOffManual ? "moon" : "moon-outline"}
-              size={16}
-              color={
-                diaOffManual
-                  ? theme.colors.semantic.error
-                  : theme.colors.text.muted
-              }
-            />
+          <MaterialCommunityIcons
+            name="moon-waning-crescent"
+            size={24}
+            color={
+              diaOffManual
+                ? theme.colors.semantic.error
+                : theme.colors.text.muted
+            }
+          />
+          <View>
             <Text
-              className="text-xs font-medium"
               style={{
+                ...theme.typography.callout,
                 color: diaOffManual
                   ? theme.colors.semantic.error
-                  : theme.colors.text.muted,
+                  : theme.colors.text.primary,
               }}
             >
               Dia Off
             </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => router.push("/config")}
-            hitSlop={8}
-          >
-            <Ionicons
-              name="settings-outline"
-              size={22}
-              color={theme.colors.text.muted}
-            />
-          </Pressable>
+            <Text style={theme.typography.caption}>
+              {diaOffManual ? "Treino e dieta pausados" : "Pausar treino e dieta"}
+            </Text>
+          </View>
         </View>
-      </View>
+        <View
+          className="h-7 w-7 items-center justify-center rounded-full"
+          style={{
+            backgroundColor: diaOffManual
+              ? theme.colors.semantic.error
+              : theme.colors.bg.elevated,
+          }}
+        >
+          {diaOffManual && (
+            <MaterialCommunityIcons
+              name="check"
+              size={16}
+              color={theme.colors.text.primary}
+            />
+          )}
+        </View>
+      </Pressable>
 
       <ProgressBar completados={completados} total={total} />
 
       {treino && !refeicaoLivreUsada && (
         <View className="flex-row items-center gap-2">
-          <Ionicons
-            name="restaurant-outline"
+          <MaterialCommunityIcons
+            name="food-apple-outline"
             size={16}
             color={theme.colors.accent.DEFAULT}
           />
-          <Text className="text-sm text-txt-secondary">Refeição Livre</Text>
+          <Text style={theme.typography.footnote}>Refeição Livre</Text>
           <Badge
             text="0/1"
             color={theme.colors.accent.DEFAULT}
@@ -180,17 +191,39 @@ export default function HojeScreen() {
         </View>
       )}
       {treino && refeicaoLivreUsada && (
-        <View className="flex-row items-center gap-2">
-          <Ionicons
-            name="restaurant-outline"
-            size={16}
-            color={theme.colors.semantic.success}
-          />
-          <Text className="text-sm text-txt-secondary">Refeição Livre</Text>
-          <Badge
-            text="1/1"
-            color={theme.colors.semantic.success}
-          />
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center gap-2">
+            <MaterialCommunityIcons
+              name="food-apple-outline"
+              size={16}
+              color={theme.colors.semantic.success}
+            />
+            <Text style={theme.typography.footnote}>Refeição Livre</Text>
+            <Badge
+              text="1/1"
+              color={theme.colors.semantic.success}
+            />
+          </View>
+          <Pressable
+            onPress={handleDesfazerRefeicaoLivre}
+            accessibilityLabel="Desfazer refeição livre"
+            className="flex-row items-center gap-1 rounded-lg px-2.5 py-1"
+            style={{
+              backgroundColor: theme.colors.semantic.error + "15",
+            }}
+          >
+            <MaterialCommunityIcons
+              name="undo"
+              size={14}
+              color={theme.colors.semantic.error}
+            />
+            <Text
+              className="text-xs font-medium"
+              style={{ color: theme.colors.semantic.error }}
+            >
+              Desfazer
+            </Text>
+          </Pressable>
         </View>
       )}
 
@@ -202,13 +235,14 @@ export default function HojeScreen() {
             periodo.itens.some((i) => i.categoria === "refeicao") && (
               <Pressable
                 onPress={() => handleRefeicaoLivre(periodo.id)}
+                accessibilityLabel={`Usar refeição livre em ${periodo.nome}`}
                 className="flex-row items-center justify-center gap-2 rounded-lg py-2"
                 style={{
                   backgroundColor: theme.colors.accent.DEFAULT + "10",
                 }}
               >
-                <Ionicons
-                  name="restaurant-outline"
+                <MaterialCommunityIcons
+                  name="food-apple-outline"
                   size={14}
                   color={theme.colors.accent.DEFAULT}
                 />

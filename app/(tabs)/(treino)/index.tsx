@@ -1,5 +1,5 @@
 import { ScrollView, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { getTreinoDoDia } from "@/utils/diaUtils";
 import { useDayStore } from "@/stores/useDayStore";
@@ -10,11 +10,11 @@ import { DicasSection } from "@/components/dicas/DicasSection";
 const DAY_NAMES = [
   "Domingo",
   "Segunda",
-  "Terça",
+  "Ter\u00e7a",
   "Quarta",
   "Quinta",
   "Sexta",
-  "Sábado",
+  "S\u00e1bado",
 ];
 
 export default function TreinoScreen() {
@@ -25,33 +25,38 @@ export default function TreinoScreen() {
 
   if (!treino) {
     return (
-      <View className="flex-1 items-center justify-center bg-bg-primary px-8">
-        <Ionicons
-          name="moon-outline"
-          size={64}
+      <ScrollView
+        className="flex-1 bg-bg-primary"
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerClassName="flex-1 items-center justify-center px-8"
+      >
+        <MaterialCommunityIcons
+          name="moon-waning-crescent"
+          size={48}
           color={theme.colors.text.muted}
         />
-        <Text className="mt-4 text-xl font-bold text-txt-primary">
-          Dia Off — Descanse
+        <Text className="mt-4" style={theme.typography.title3}>
+          Dia Off
         </Text>
-        <Text className="mt-2 text-center text-sm text-txt-secondary">
-          {dayName}. Aproveite para recuperar e voltar mais forte.
+        <Text className="mt-2 text-center" style={theme.typography.footnote}>
+          {dayName} {"\u2014"} Aproveite para recuperar e voltar mais forte.
         </Text>
-      </View>
+      </ScrollView>
     );
   }
 
   return (
     <ScrollView
       className="flex-1 bg-bg-primary"
-      contentContainerClassName="gap-4 px-4 pb-8 pt-4"
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerClassName="gap-3 px-4 pb-8 pt-4"
     >
       <View className="gap-1">
-        <Text className="text-lg font-bold text-txt-primary">
-          {dayName} — {treino.letra}: {treino.grupoMuscular}
+        <Text style={theme.typography.footnote}>
+          {dayName} {"\u2014"} {treino.letra}: {treino.grupoMuscular}
         </Text>
-        <Text className="text-sm text-txt-muted">
-          {treino.exercicios.length} exercícios
+        <Text style={theme.typography.caption}>
+          {treino.exercicios.length} exerc{"\u00ed"}cios
         </Text>
       </View>
 

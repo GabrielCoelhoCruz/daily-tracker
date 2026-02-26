@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
 import { CheckItem } from "@/components/checklist/CheckItem";
 import { useDayStore } from "@/stores/useDayStore";
+import { animateNext } from "@/utils/animationUtils";
 import type { Periodo, ItemDoPlano } from "@/data/plano";
 
 type PeriodoSectionProps = {
@@ -55,17 +57,23 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
     : countCheckedItems(periodo.itens, checks);
 
   return (
-    <View className="rounded-xl border border-border bg-bg-card">
+    <Card className="p-0">
       <Pressable
-        onPress={() => setExpanded((prev) => !prev)}
+        onPress={() => {
+          animateNext();
+          setExpanded((prev) => !prev);
+        }}
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+        accessibilityLabel={`${periodo.nome}, ${checkedItems} de ${totalItems}`}
         className="flex-row items-center justify-between p-4"
       >
         <View className="flex-1 flex-row items-center gap-2">
-          <Text className="text-base font-semibold text-txt-primary">
+          <Text style={theme.typography.callout}>
             {periodo.nome}
           </Text>
           {periodo.descricao && (
-            <Text className="text-xs text-txt-muted">{periodo.descricao}</Text>
+            <Text style={theme.typography.caption}>{periodo.descricao}</Text>
           )}
         </View>
 
@@ -78,7 +86,7 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
                 : theme.colors.accent.DEFAULT
             }
           />
-          <Ionicons
+          <MaterialCommunityIcons
             name={expanded ? "chevron-up" : "chevron-down"}
             size={18}
             color={theme.colors.text.muted}
@@ -90,8 +98,8 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
         <View className="gap-1 px-4 pb-4">
           {isRefeicaoLivre ? (
             <View className="items-center rounded-lg bg-bg-elevated py-4">
-              <Ionicons
-                name="restaurant-outline"
+              <MaterialCommunityIcons
+                name="food-apple"
                 size={24}
                 color={theme.colors.semantic.success}
               />
@@ -109,6 +117,6 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
           )}
         </View>
       )}
-    </View>
+    </Card>
   );
 }

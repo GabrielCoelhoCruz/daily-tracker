@@ -1,0 +1,396 @@
+{
+  "project": "DailyTracker",
+  "branchName": "ralph/daily-tracker-v1",
+  "description": "Daily Tracker - App pessoal para acompanhamento diário de dieta, suplementos, medicamentos manipulados, hidratação, cardio e treino. Dark mode, amber accent, React Native + Expo. Plano real: Gabriel Cruz, Fev/2026, Team GB.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Initialize Expo project with NativeWind and Expo Router tabs",
+      "description": "As a developer, I need the project scaffolded with Expo, Expo Router file-based routing, NativeWind (Tailwind CSS), and the 3-tab layout (Hoje/Treino/Histórico) with dark theme.",
+      "acceptanceCriteria": [
+        "Expo project initialized with TypeScript template",
+        "Expo Router configured with (tabs) layout containing index.tsx, treino.tsx, historico.tsx",
+        "config.tsx exists as a modal route",
+        "NativeWind installed and configured with tailwind.config.js",
+        "Tab bar styled: dark background #0c0a09, amber #f59e0b active tint, stone #78716c inactive tint",
+        "Root layout sets dark background and StatusBar to light",
+        "All three tabs render placeholder content",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Define theme constants and shared UI components",
+      "description": "As a developer, I need a centralized theme file with all color tokens and reusable UI components (Card, Badge, ProgressBar).",
+      "acceptanceCriteria": [
+        "constants/theme.ts exports theme object with: bg (#0c0a09, #1c1917, #292524), accent (#f59e0b, #92400e), semantic (#22c55e, #f59e0b, #ef4444), text (#fafaf9, #a8a29e, #78716c), border (#292524)",
+        "components/ui/Card.tsx renders a styled card with #1c1917 background and #292524 border",
+        "components/ui/Badge.tsx renders a small colored badge with configurable text and color",
+        "components/checklist/ProgressBar.tsx renders an amber progress bar accepting completados/total props",
+        "All components use NativeWind classes",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Define hardcoded plan data with real protocol data",
+      "description": "As a developer, I need the TypeScript types and real hardcoded plan data from the Feb/2026 Team GB plan.",
+      "acceptanceCriteria": [
+        "data/plano.ts exports types: Categoria, RegraCondicional, ItemDoPlano (with opcional and subItens fields), Periodo, Dica, Plano",
+        "Jejum period with: Cafeína 220mg, Ioimbina 10mg, Teacrine 150mg, Anastrozol 0.5mg (diasDaSemana: [1,5])",
+        "Refeição 1 (desjejum/pré treino) with: 6 claras, 2 ovos inteiros, 30g aveia, 100g mamão, 10g chia, 20g pasta de amendoim, canela/adoçante. Sub-itens: Vit C 1g, Polivitamínico TEAM GB, NAC 600mg, Omega 3 2000mg, Vit E 400ui, Berberina 500mg, Nattokinase 150mg, Dobesilato de Cálcio 500mg",
+        "Refeição 2 (pré treino) with: 180g frango/tilápia, 90g arroz/macarrão, 8g azeite, 100g vegetais, folhas. Sub-itens: Cafeína 220mg, Ioimbina 10mg, Teacrine 150mg, Vit C 1g, Oxandrolona 40mg (apenasEmDiaDeTreino: true)",
+        "Intra Treino (apenasEmDiaDeTreino: true) with: Intensity Hunter 40g, Glutamina 10g, Creatina 10g, EAAs 10g",
+        "Refeição 3 (pós treino) with: Killer Whey 40g, 100g morango. Sub-itens: Glifage XR 500mg, NAC 600mg, Picolinato de Cromo 350mcg, Cafeína 210mg",
+        "Refeição 4 with: 180g frango/tilápia, 90g batata, 100g abacaxi/kiwi, 8g azeite, 100g vegetais, folhas. No supplements.",
+        "Refeição 5 (ceia) with: 180g carne vermelha magra, 2 ovos, 90g batata, 100g mamão, 100g vegetais, folhas. Sub-itens: Vit C 1g, Glifage XR 500mg, Omega 3 2000mg, Vit E 400ui, NAC 600mg, Nattokinase 150mg",
+        "Protocolo Hormonal period with: Enantest 150mg, Masteron 100mg, Trembolona 75mg (all diasDaSemana: [1,3,5])",
+        "Abdômen and Panturrilha items with opcional: true, apenasEmDiaDeTreino: true",
+        "metaHidratacao: { aguaMl: 4000, chaMl: 500 }, metaCardioMin: 80",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Define hardcoded workout data with real exercises",
+      "description": "As a developer, I need the real workout data for the 5-day training split from the Feb/2026 plan.",
+      "acceptanceCriteria": [
+        "data/treinos.ts exports types: Serie, Exercicio, Treino",
+        "Treino A (Peito): Supino inclinado máquina/hammer 2xWS+2xTS, Supino inclinado smith 2xWS+1xTS, Crucifixo inclinado halteres 2xWS+1xTS+1xBS(15), Supino reto máquina 2xWS+1xTS+1xCS(4+4+4), Crucifixo/peck deck 2xWS+1xTS, Supino declinado halteres 1xWS+1xTS+1xBS(15), Cross over 2xWS+1xTS",
+        "Treino B (Costas): Remada curvada pronada 2xWS+2xTS, Remada cavalinho supinada 2xWS+1xTS+1xBS(15), Remada baixa neutra/triângulo 2xWS+1xTS, Puxada frente aberta pronada 2xWS+1xTS, Puxada frente fechada/supinada 3xWS, Pulldown corda 2xWS+1xTS, Hiperextensão lombar com carga 3xWS",
+        "Treino C (Pernas): Agachamento smith 2xWS+2xTS, Leg press 45° 2xWS+2xTS, Stiff barra livre 2xWS+1xTS+1xTS, Mesa flexora 2xWS+1xTS+1xCS(5+5+5/10seg), Cadeira extensora 1seg pico 2xWS+2xTS, Cadeira abdutora 2xWS+1xTS, Elevação pélvica 2xWS+1xTS, Cadeira adutora 2xWS+1xTS",
+        "Treino D (Ombros): Desenvolvimento máquina 2xWS+2xTS, Elevação frontal halteres banco 45° 2xWS+1xTS, Elevação lateral halteres 2xWS+2xTS+1xBS(15), Elevação lateral máquina 1seg pico 2xWS+1xTS+1xCS(5+5+5), Elevação lateral unilateral sentado 2xWS+1xTS, Crucifixo inverso halteres 2xWS+1xTS, Encolhimento smith 3xWS",
+        "Treino E (Braços): Rosca martelo halteres 2xWS+1xTS, Tríceps francês halter 2xWS+1xTS, Rosca direta polia barra W 2xWS+1xTS, Tríceps polia barra W 2xWS+1xTS, Rosca Scott máquina 2xWS+1xTS, Tríceps testa polia/corda 2xWS+1xTS, Rosca banco 45° halteres 2xWS+1xTS, Tríceps polia corda 2xWS+1xTS, Rosca inversa 3xWS",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Define hardcoded tips data (nutrition and training)",
+      "description": "As a developer, I need the real tips/guidelines from the personal trainer hardcoded for display in the app.",
+      "acceptanceCriteria": [
+        "data/dicas.ts exports type Dica: { id: string, categoria: 'nutricao' | 'treino', texto: string }",
+        "12 nutrition tips covering: food weighing (cooked), preparation (no industrial seasoning), allowed seasonings, zero-calorie sauces, zero-sugar drinks (don't count as hydration), sodium guidelines, 100% protocol adherence, meal reordering on schedule changes, no snacking between meals, free meal rules, food substitution via report",
+        "13 training tips covering: mobility/warmup, warm-up sets, feeder sets, WS/TS/CS/BS definitions and rep ranges, rest intervals (45s/60-120s/120-240s), mind-muscle connection, range of motion, cadence, abs/calves 3x/week, cardio 80min/day split in 2 sessions",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create day utility functions for training day logic and item filtering",
+      "description": "As a developer, I need utility functions to determine if today is a training day, filter plan items by day rules, and calculate the current training letter (A-E).",
+      "acceptanceCriteria": [
+        "utils/diaUtils.ts exports isDiaDeTreino(dayOfWeek: number, diaOffManual: boolean): boolean",
+        "utils/diaUtils.ts exports filtrarItensDoDia(periodos: Periodo[], dayOfWeek: number, diaOffManual: boolean): Periodo[] that filters items based on regra conditions",
+        "utils/diaUtils.ts exports getTreinoDoDia(dayOfWeek: number): Treino | null returning correct A-E rotation for seg-sex, null for weekends",
+        "utils/diaUtils.ts exports contarItens(periodos: Periodo[]): { total: number, totalComOpcionais: number } excluding optional items from total",
+        "Monday=1 returns A, Tuesday=2 returns B, etc. Saturday/Sunday returns null",
+        "Filtered periods exclude items whose regra doesn't match current day",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Create Zustand day store with AsyncStorage persist middleware",
+      "description": "As a developer, I need the main day store with checks, hydration, cardio, and free meal state, persisted via Zustand middleware.",
+      "acceptanceCriteria": [
+        "stores/useDayStore.ts exports useDayStore with DayState shape matching PRD section 5.2",
+        "State includes: checks (Record<string, {checked, timestamp}>), diaOffManual, aguaMl, chaMl, sessoesCardio, refeicaoLivreUsada, refeicaoLivrePeriodoId, semanaRefeicaoLivre, ultimoReset",
+        "Actions: toggleCheck(id), setDiaOff(value), addAgua(ml), removeAgua(ml), addCha(ml), removeCha(ml), addSessaoCardio(min), removeSessaoCardio(index), usarRefeicaoLivre(periodoId), resetDay()",
+        "Uses Zustand persist middleware with createJSONStorage(() => AsyncStorage)",
+        "Store name is 'day-store'",
+        "removeAgua/removeCha clamp to minimum 0",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Create Zustand history store with persist middleware",
+      "description": "As a developer, I need the history store to persist daily adherence records.",
+      "acceptanceCriteria": [
+        "stores/useHistoryStore.ts exports useHistoryStore with HistoryState: { dias: Record<string, HistoricoDia> }",
+        "HistoricoDia type: { data: string, completados: number, total: number, itensPerdidos: string[] }",
+        "Actions: salvarDia(historico: HistoricoDia), getDia(data: string): HistoricoDia | undefined",
+        "Uses Zustand persist middleware with store name 'history-store'",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Create Zustand config store for notification settings",
+      "description": "As a developer, I need the config store for notification toggles and schedule settings.",
+      "acceptanceCriteria": [
+        "stores/useConfigStore.ts exports useConfigStore",
+        "State: notificacoesPorPeriodo (Record<string, { enabled: boolean, horario: string }>), hidratacaoLembrete: { enabled: boolean, intervaloHoras: number }",
+        "Actions: toggleNotificacaoPeriodo(periodoId), setHorarioPeriodo(periodoId, horario), toggleHidratacaoLembrete(), setIntervaloHidratacao(horas)",
+        "Uses Zustand persist middleware with store name 'config-store'",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Implement reset logic (4am daily reset with history save)",
+      "description": "As a developer, I need the reset utility that checks on app open if the day changed (using 4am cutoff) and saves history before resetting.",
+      "acceptanceCriteria": [
+        "utils/resetUtils.ts exports checkAndReset() function",
+        "Compares ultimoReset with current date using 4am as day boundary (before 4am counts as previous day)",
+        "When day changed: calculates itensPerdidos from unchecked non-optional items, calls useHistoryStore.salvarDia(), then calls useDayStore.resetDay()",
+        "When day changed and it's Monday with new week: also resets refeicaoLivreUsada and refeicaoLivrePeriodoId",
+        "When app was closed for multiple days: only saves history for ultimoReset date, intermediate days get no entry",
+        "Updates ultimoReset to current date after reset",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Build CheckItem component with haptic feedback",
+      "description": "As a user, I want to tap items to check/uncheck them with satisfying haptic feedback.",
+      "acceptanceCriteria": [
+        "components/checklist/CheckItem.tsx renders item name, dosagem, and a checkmark",
+        "Checked state: green #22c55e checkmark, text with reduced opacity",
+        "Unchecked state: empty circle border, full opacity text",
+        "Optional items render with muted text #78716c and a subtle 'opcional' badge",
+        "Tapping triggers expo-haptics ImpactFeedbackStyle.Light and calls toggleCheck",
+        "Sub-items render indented below parent item",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Build PeriodoSection collapsible component",
+      "description": "As a user, I want to see my daily items grouped by meal/period in collapsible sections.",
+      "acceptanceCriteria": [
+        "components/checklist/PeriodoSection.tsx renders a collapsible section with period name as header",
+        "Header shows period name, item count badge (e.g. '3/5'), and chevron icon",
+        "Section expands/collapses on header tap with animation",
+        "Renders CheckItem for each item in the period (including sub-items)",
+        "When refeição livre is active for this period: shows 'Refeição Livre' text instead of items, all checks auto-marked",
+        "Sections default to expanded state",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Build HidratacaoCard with increment/decrement buttons",
+      "description": "As a user, I want to track my water and tea intake with quick buttons.",
+      "acceptanceCriteria": [
+        "components/hidratacao/HidratacaoCard.tsx renders a card with two progress sections: Água (4000ml) and Chá de Cavalinha (500ml)",
+        "Each section shows: progress bar (amber), current/meta text (e.g. '2.5L / 4L'), percentage",
+        "Increment buttons: +250ml, +500ml per type",
+        "Decrement button: -250ml per type (does not go below 0)",
+        "Buttons trigger haptic feedback on tap",
+        "Reads/writes from useDayStore (aguaMl, chaMl)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Build CardioCard with session management",
+      "description": "As a user, I want to log cardio sessions and see my daily total vs the 80min goal.",
+      "acceptanceCriteria": [
+        "components/cardio/CardioCard.tsx renders a card with: progress bar (amber), total minutes vs 80min goal, list of sessions",
+        "Input field + 'Adicionar' button to add a session with duration in minutes",
+        "Each session row shows duration and a remove button (X icon)",
+        "Total text: '50min + 30min = 80min'",
+        "Auto-check indicator (green checkmark) when total >= 80min",
+        "Haptic feedback on add session",
+        "Reads/writes from useDayStore (sessoesCardio)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 14,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Build DicasSection collapsible component",
+      "description": "As a user, I want to quickly reference nutrition and training tips from my personal trainer.",
+      "acceptanceCriteria": [
+        "components/dicas/DicasSection.tsx renders a collapsible section with title and list of tips",
+        "Accepts categoria prop to filter tips ('nutricao' or 'treino')",
+        "Each tip renders as a card with info icon and text",
+        "Collapsed by default, expands on header tap",
+        "Training tips section includes series legend (WS, TS, BS, CS definitions and rest intervals)",
+        "Reads from data/dicas.ts",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Build Tab Hoje main screen assembling all checklist components",
+      "description": "As a user, I want to open the app and see my full daily checklist with progress, hydration, cardio, and nutrition tips.",
+      "acceptanceCriteria": [
+        "app/(tabs)/index.tsx renders the Hoje screen as a ScrollView",
+        "Header shows: formatted date, 'Dia Off' toggle button, gear icon linking to config modal",
+        "ProgressBar at top showing completados/total (excluding optional items)",
+        "Refeição livre indicator: '0/1' or '1/1' badge, only visible on training days",
+        "PeriodoSection for each filtered period (based on day of week and diaOffManual)",
+        "Refeição livre button appears on each period when available",
+        "HidratacaoCard below periods",
+        "CardioCard below hydration",
+        "DicasSection with categoria='nutricao' at bottom, collapsed by default",
+        "Calls checkAndReset() on mount to handle 4am reset",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 16,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Build Tab Treino workout reference screen with training tips",
+      "description": "As a user, I want to see today's workout plan with exercises, sets, and training tips.",
+      "acceptanceCriteria": [
+        "app/(tabs)/treino.tsx renders the workout for today based on day of week",
+        "Header shows: day name + workout letter + muscle group (e.g. 'Segunda — A: Peito')",
+        "components/treino/ExercicioItem.tsx renders exercise name, series list (tipo, series x reps), and observacao",
+        "Series types displayed as badges: WS, TS, BS, CS with distinct styling",
+        "On weekends/off days: shows 'Dia Off — Descanse' message",
+        "DicasSection with categoria='treino' at bottom, collapsed by default, includes series legend",
+        "Read-only, no input fields",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Build Calendario monthly grid component",
+      "description": "As a user, I want to see a calendar view of my adherence with colored day indicators.",
+      "acceptanceCriteria": [
+        "components/historico/Calendario.tsx renders a monthly calendar grid",
+        "Day cells colored by adherence: green #22c55e (100%), amber #f59e0b (50-99%), red #ef4444 (<50%), gray #404040 (no data/future)",
+        "Month navigation with left/right arrows",
+        "Header shows month name and year",
+        "Tapping a day with data calls onDayPress callback with the date string",
+        "Current day has a subtle border/ring indicator",
+        "Reads from useHistoryStore",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Build StatsCard with streak, adherence, and top missed items",
+      "description": "As a user, I want to see my streak, weekly/monthly adherence, and which items I forget most.",
+      "acceptanceCriteria": [
+        "components/historico/StatsCard.tsx renders a card with 4 stats sections",
+        "Streak: counts consecutive days with 100% completion, displays as 'X dias consecutivos 100%'",
+        "Weekly adherence: average completados/total for current week as percentage",
+        "Monthly adherence: average completados/total for current month as percentage",
+        "Top 3 missed items: aggregates itensPerdidos across all history, shows item name + miss percentage",
+        "Reads from useHistoryStore",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "Build DiaDetalhe bottom sheet and assemble Tab Histórico",
+      "description": "As a user, I want to tap a calendar day and see details, and see the full history tab assembled.",
+      "acceptanceCriteria": [
+        "components/historico/DiaDetalhe.tsx renders a bottom sheet/modal with: date, status text (completo/parcial), progress bar, list of missed items",
+        "app/(tabs)/historico.tsx renders: Calendario component at top, StatsCard below, DiaDetalhe as overlay triggered by day tap",
+        "Bottom sheet dismissible by swipe down or tap outside",
+        "Empty state when no history: 'Nenhum dado ainda' message",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-021",
+      "title": "Build config modal screen for notification settings",
+      "description": "As a user, I want to configure notification times per meal period and hydration reminders.",
+      "acceptanceCriteria": [
+        "app/config.tsx renders as a modal (Expo Router modal presentation)",
+        "Lists each period from plano with toggle switch (on/off) and time picker for horário",
+        "Hydration section: toggle on/off + interval selector (1h, 2h, 3h)",
+        "Close button or swipe to dismiss",
+        "Reads/writes from useConfigStore",
+        "Dark themed consistent with app palette",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 21,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-022",
+      "title": "Implement local notification scheduling",
+      "description": "As a user, I want to receive notifications reminding me of pending meals and hydration.",
+      "acceptanceCriteria": [
+        "utils/notificationUtils.ts exports scheduleNotificacoes() and cancelAllNotificacoes()",
+        "Requests notification permission on first call",
+        "Schedules daily repeating notifications per period based on useConfigStore settings",
+        "Schedules hydration reminders every N hours between 7h-22h based on config",
+        "Cancels and reschedules when config changes",
+        "Cancels hydration notifications dynamically when water goal is met",
+        "Notification tap opens app via Expo Router deep link",
+        "Typecheck passes"
+      ],
+      "priority": 22,
+      "passes": true,
+      "notes": ""
+    }
+  ]
+}

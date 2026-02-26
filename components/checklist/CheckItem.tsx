@@ -1,9 +1,9 @@
 import { Pressable, Text, View } from "react-native";
-import * as Haptics from "expo-haptics";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Badge } from "@/components/ui/Badge";
 import { useDayStore } from "@/stores/useDayStore";
+import { animateWithHaptic } from "@/utils/animationUtils";
 import type { ItemDoPlano } from "@/data/plano";
 
 type CheckItemProps = {
@@ -19,8 +19,7 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
   const hasSubItens = item.subItens && item.subItens.length > 0;
 
   function handlePress() {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    toggleCheck(item.id);
+    animateWithHaptic(() => toggleCheck(item.id));
   }
 
   if (hasSubItens) {
@@ -42,23 +41,25 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
   return (
     <Pressable
       onPress={handlePress}
-      className="flex-row items-center gap-3 py-1.5"
-      style={{ paddingLeft: indented ? 16 : 0 }}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: isChecked }}
+      accessibilityLabel={item.nome}
+      className="flex-row items-center gap-3"
+      style={{ minHeight: 44, paddingLeft: indented ? 16 : 0 }}
     >
-      <View
-        className="h-6 w-6 items-center justify-center rounded-full"
-        style={{
-          borderWidth: isChecked ? 0 : 1.5,
-          borderColor: isChecked ? "transparent" : theme.colors.text.muted,
-          backgroundColor: isChecked
+      <MaterialCommunityIcons
+        name={
+          isChecked
+            ? "checkbox-marked-circle-outline"
+            : "checkbox-blank-circle-outline"
+        }
+        size={24}
+        color={
+          isChecked
             ? theme.colors.semantic.success
-            : "transparent",
-        }}
-      >
-        {isChecked && (
-          <Ionicons name="checkmark" size={14} color={theme.colors.bg.primary} />
-        )}
-      </View>
+            : theme.colors.text.muted
+        }
+      />
 
       <View className="flex-1 flex-row items-center gap-2">
         <Text

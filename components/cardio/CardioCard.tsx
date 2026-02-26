@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
-import * as Haptics from "expo-haptics";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useDayStore } from "@/stores/useDayStore";
+import { animateWithHaptic } from "@/utils/animationUtils";
 import { plano } from "@/data/plano";
 
 export function CardioCard() {
@@ -23,14 +23,14 @@ export function CardioCard() {
     const minutos = parseInt(inputMinutos, 10);
     if (isNaN(minutos) || minutos <= 0 || minutos > 240) return;
 
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    addSessaoCardio(minutos);
-    setInputMinutos("");
+    animateWithHaptic(() => {
+      addSessaoCardio(minutos);
+      setInputMinutos("");
+    });
   }
 
   function handleRemoveSessao(index: number) {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    removeSessaoCardio(index);
+    animateWithHaptic(() => removeSessaoCardio(index));
   }
 
   const totalText =
@@ -43,18 +43,18 @@ export function CardioCard() {
     <Card className="gap-4">
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <Ionicons
-            name="bicycle-outline"
+          <MaterialCommunityIcons
+            name="run-fast"
             size={20}
             color={theme.colors.accent.DEFAULT}
           />
-          <Text className="text-base font-semibold text-txt-primary">
+          <Text style={theme.typography.callout}>
             Cardio
           </Text>
         </View>
         {isComplete && (
-          <Ionicons
-            name="checkmark-circle"
+          <MaterialCommunityIcons
+            name="check-circle"
             size={20}
             color={theme.colors.semantic.success}
           />
@@ -63,12 +63,18 @@ export function CardioCard() {
 
       <View className="gap-1">
         <View className="flex-row items-center justify-between">
-          <Text className="text-sm text-txt-secondary">
+          <Text
+            selectable
+            className="text-sm text-txt-secondary"
+            style={{ fontVariant: ["tabular-nums"] }}
+          >
             {totalMinutos}min / {metaMinutos}min
           </Text>
           <Text
+            selectable
             className="text-sm font-medium"
             style={{
+              fontVariant: ["tabular-nums"],
               color: isComplete
                 ? theme.colors.semantic.success
                 : theme.colors.accent.DEFAULT,
@@ -97,14 +103,18 @@ export function CardioCard() {
               key={`${index}-${sessao.timestamp}`}
               className="flex-row items-center justify-between rounded-lg bg-bg-elevated px-3 py-2"
             >
-              <Text className="text-sm text-txt-primary">
+              <Text
+                className="text-sm text-txt-primary"
+                style={{ fontVariant: ["tabular-nums"] }}
+              >
                 {sessao.minutos}min
               </Text>
               <Pressable
                 onPress={() => handleRemoveSessao(index)}
+                accessibilityLabel={`Remover sessão de ${sessao.minutos} minutos`}
                 hitSlop={8}
               >
-                <Ionicons
+                <MaterialCommunityIcons
                   name="close-circle"
                   size={18}
                   color={theme.colors.text.muted}
@@ -114,7 +124,10 @@ export function CardioCard() {
           ))}
 
           {sessoesCardio.length > 1 && (
-            <Text className="text-xs text-txt-secondary">
+            <Text
+              className="text-xs text-txt-secondary"
+              style={{ fontVariant: ["tabular-nums"] }}
+            >
               {totalText}
             </Text>
           )}
@@ -123,7 +136,8 @@ export function CardioCard() {
 
       <View className="flex-row items-center gap-2">
         <TextInput
-          className="flex-1 rounded-lg bg-bg-elevated px-3 py-2 text-sm text-txt-primary"
+          className="flex-1 rounded-lg bg-bg-elevated px-3 text-sm text-txt-primary"
+          style={{ height: 44 }}
           placeholder="Minutos"
           placeholderTextColor={theme.colors.text.muted}
           keyboardType="number-pad"
@@ -134,15 +148,19 @@ export function CardioCard() {
         />
         <Pressable
           onPress={handleAddSessao}
-          className="items-center justify-center rounded-lg px-4 py-2"
-          style={{ backgroundColor: theme.colors.accent.DEFAULT + "20" }}
+          accessibilityLabel="Adicionar sessão de cardio"
+          className="items-center justify-center rounded-xl"
+          style={{
+            height: 44,
+            width: 44,
+            backgroundColor: theme.colors.accent.DEFAULT,
+          }}
         >
-          <Text
-            className="text-sm font-semibold"
-            style={{ color: theme.colors.accent.DEFAULT }}
-          >
-            Adicionar
-          </Text>
+          <MaterialCommunityIcons
+            name="plus"
+            size={24}
+            color={theme.colors.bg.primary}
+          />
         </Pressable>
       </View>
     </Card>

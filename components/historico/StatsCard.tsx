@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useHistoryStore, type HistoricoDia } from "@/stores/useHistoryStore";
@@ -96,26 +96,31 @@ function calcTopMissed(
     .slice(0, top);
 }
 
-function StatRow({
+function MetricColumn({
   icon,
   label,
   value,
   color,
 }: {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap;
   label: string;
   value: string;
   color: string;
 }) {
   return (
-    <View className="flex-row items-center justify-between">
-      <View className="flex-row items-center gap-2">
-        <Ionicons name={icon} size={16} color={color} />
-        <Text className="text-sm text-txt-secondary">{label}</Text>
-      </View>
-      <Text className="text-sm font-semibold" style={{ color }}>
+    <View className="flex-1 items-center gap-1">
+      <MaterialCommunityIcons name={icon} size={20} color={color} />
+      <Text
+        selectable
+        style={{
+          ...theme.typography.title3,
+          fontVariant: ["tabular-nums"],
+          color,
+        }}
+      >
         {value}
       </Text>
+      <Text style={theme.typography.caption}>{label}</Text>
     </View>
   );
 }
@@ -145,56 +150,55 @@ export function StatsCard() {
   const topMissed = useMemo(() => calcTopMissed(dias, 3), [dias]);
 
   return (
-    <Card className="gap-3">
+    <Card className="gap-4">
       <View className="flex-row items-center gap-2">
-        <Ionicons
-          name="stats-chart"
+        <MaterialCommunityIcons
+          name="chart-bar"
           size={20}
           color={theme.colors.accent.DEFAULT}
         />
-        <Text className="text-base font-semibold text-txt-primary">
+        <Text style={theme.typography.callout}>
           Estatísticas
         </Text>
       </View>
 
-      <StatRow
-        icon="flame"
-        label="Streak"
-        value={`${streak} dia${streak !== 1 ? "s" : ""} consecutivo${streak !== 1 ? "s" : ""} 100%`}
-        color={
-          streak > 0
-            ? theme.colors.semantic.success
-            : theme.colors.text.muted
-        }
-      />
-
-      <View className="h-px bg-border" />
-
-      <StatRow
-        icon="calendar-outline"
-        label="Aderência semanal"
-        value={weeklyAdherence !== null ? `${weeklyAdherence}%` : "—"}
-        color={
-          weeklyAdherence !== null && weeklyAdherence >= 80
-            ? theme.colors.semantic.success
-            : weeklyAdherence !== null && weeklyAdherence >= 50
-              ? theme.colors.accent.DEFAULT
+      {/* Horizontal key metrics */}
+      <View className="flex-row">
+        <MetricColumn
+          icon="fire"
+          label="Streak"
+          value={`${streak}`}
+          color={
+            streak > 0
+              ? theme.colors.semantic.success
               : theme.colors.text.muted
-        }
-      />
-
-      <StatRow
-        icon="calendar"
-        label="Aderência mensal"
-        value={monthlyAdherence !== null ? `${monthlyAdherence}%` : "—"}
-        color={
-          monthlyAdherence !== null && monthlyAdherence >= 80
-            ? theme.colors.semantic.success
-            : monthlyAdherence !== null && monthlyAdherence >= 50
-              ? theme.colors.accent.DEFAULT
-              : theme.colors.text.muted
-        }
-      />
+          }
+        />
+        <MetricColumn
+          icon="calendar-week"
+          label="Semanal"
+          value={weeklyAdherence !== null ? `${weeklyAdherence}%` : "—"}
+          color={
+            weeklyAdherence !== null && weeklyAdherence >= 80
+              ? theme.colors.semantic.success
+              : weeklyAdherence !== null && weeklyAdherence >= 50
+                ? theme.colors.accent.DEFAULT
+                : theme.colors.text.muted
+          }
+        />
+        <MetricColumn
+          icon="calendar-month"
+          label="Mensal"
+          value={monthlyAdherence !== null ? `${monthlyAdherence}%` : "—"}
+          color={
+            monthlyAdherence !== null && monthlyAdherence >= 80
+              ? theme.colors.semantic.success
+              : monthlyAdherence !== null && monthlyAdherence >= 50
+                ? theme.colors.accent.DEFAULT
+                : theme.colors.text.muted
+          }
+        />
+      </View>
 
       {topMissed.length > 0 && (
         <>
@@ -202,7 +206,7 @@ export function StatsCard() {
 
           <View className="gap-2">
             <View className="flex-row items-center gap-2">
-              <Ionicons
+              <MaterialCommunityIcons
                 name="alert-circle-outline"
                 size={16}
                 color={theme.colors.semantic.error}
@@ -225,7 +229,10 @@ export function StatsCard() {
                 </Text>
                 <Text
                   className="text-xs font-medium"
-                  style={{ color: theme.colors.semantic.error }}
+                  style={{
+                    fontVariant: ["tabular-nums"],
+                    color: theme.colors.semantic.error,
+                  }}
                 >
                   {item.percentage}% ({item.count}x)
                 </Text>

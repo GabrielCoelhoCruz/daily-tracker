@@ -1,344 +1,239 @@
 # Ralph Progress Log
-Started: Thu, Feb 26, 2026 12:23:45 AM
+Started: Wed, Feb 26, 2026
+Feature: UI/UX Overhaul
 ---
 
 ## Codebase Patterns
-- Expo SDK 55 with Expo Router file-based routing (`app/` directory)
-- NativeWind v4 with Tailwind CSS 3.3.2 for styling (`className` prop on RN components)
+- Expo SDK 54 with Expo Router file-based routing (`app/` directory)
+- NativeWind v4 with Tailwind CSS for styling (`className` prop on RN components)
 - Import global.css in root `app/_layout.tsx`
-- Custom Tailwind colors defined in `tailwind.config.js` under `theme.extend.colors`: bg-primary (#0c0a09), bg-card (#1c1917), bg-elevated (#292524), accent (#f59e0b), txt-primary (#fafaf9), txt-secondary (#a8a29e), txt-muted (#78716c)
-- Tab bar uses inline styles (not NativeWind) for backgroundColor/tint colors in `app/(tabs)/_layout.tsx`
-- `app/config.tsx` is a modal route (presentation: 'modal' in root Stack)
-- TypeScript strict mode enabled via `tsconfig.json` extending `expo/tsconfig.base`
-- Use `@/` path alias for project root imports
+- Custom Tailwind colors in `tailwind.config.js`: bg-primary (#0c0a09), bg-card (#1c1917), bg-elevated (#292524), accent (#f59e0b), txt-primary (#fafaf9), txt-secondary (#a8a29e), txt-muted (#78716c)
+- `constants/theme.ts` exports `theme` object with all color tokens — use for inline styles when NativeWind classes aren't sufficient
+- `@/` path alias for project root imports
 - `npx tsc --noEmit` for typecheck
-- When creating new Expo project alongside existing files, use temp dir approach then copy files over
-- `constants/theme.ts` exports a `theme` object with all color tokens (bg, accent, semantic, text, border) — use for inline styles when NativeWind classes aren't sufficient
-- Shared UI components in `components/ui/` (Card, Badge) — use NativeWind classes + inline `style` for dynamic colors
-- Checklist components in `components/checklist/` (ProgressBar) — accept typed props like `completados`/`total`
-- Badge uses `color + "20"` hex alpha for background tint effect
-- Plan data lives in `data/plano.ts` — exports `plano` constant and all types (Categoria, RegraCondicional, ItemDoPlano, Periodo, Dica, Plano)
-- Items with `subItens` use a parent "Suplementos" item with the sub-items array for grouped supplements
-- Conditional rules use `regra: { diasDaSemana: [1,5] }` for day-specific items and `regra: { apenasEmDiaDeTreino: true }` for training-day-only items
-- Period-level `regra` (e.g. Intra Treino) applies to the entire period; item-level `regra` applies to individual items
-- Optional items use `opcional: true` flag (Abdômen, Panturrilha in "extras" period)
-- Workout data lives in `data/treinos.ts` — exports `treinos` array and types (Serie, Exercicio, Treino)
-- Serie type uses `tipo: "WS" | "TS" | "BS" | "CS"` with `series` count and optional `reps` (number or string like "4+4+4")
-- Treino has `letra` (A-E) and `grupoMuscular` for display; exercises have `observacao` for special notes like "1seg pico de contração"
-- Tips data lives in `data/dicas.ts` — imports `Dica` type from `data/plano.ts`, exports `dicas` array with 25 tips (12 nutricao + 13 treino)
-- Day utilities in `utils/diaUtils.ts` — `isDiaDeTreino`, `getTreinoDoDia`, `filtrarItensDoDia`, `contarItens`. Uses JS dayOfWeek (0=Sun, 1=Mon...6=Sat). Mon-Fri are training days unless `diaOffManual` is true.
-- Item counting: parent items with `subItens` are NOT counted — only their sub-items are counted individually
-- History store in `stores/useHistoryStore.ts` — exports `HistoricoDia` type and `useHistoryStore`. Uses `get()` for read-only actions (getDia)
-- For Zustand read-only/getter actions, use `get()` instead of `set()` in the store creator
-- All 3 Zustand stores: `useDayStore` (day-store), `useHistoryStore` (history-store), `useConfigStore` (config-store) — all use persist middleware with AsyncStorage
-- Access Zustand stores outside React: `useDayStore.getState()` / `useDayStore.setState({})` — no hooks needed in utility functions
-- Reset logic in `utils/resetUtils.ts` — `checkAndReset()` uses 4am day boundary; call on app mount to handle day transitions
-- Use `new Date(dateStr + "T12:00:00")` to avoid timezone/DST issues when parsing YYYY-MM-DD strings
-- `expo-haptics` available for haptic feedback — use `Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)` for taps
-- Icons from `@expo/vector-icons` (Ionicons) — pre-installed with Expo, no extra install needed
-- Items with `subItens` are group headers (not checkable) — only render checkmarks on leaf items
-- Cardio component in `components/cardio/CardioCard.tsx` — uses `plano.metaCardioMin` (80min) for goal; sessions stored as `SessaoCardio[]` with `minutos` + `timestamp`
-- Dicas component in `components/dicas/DicasSection.tsx` — accepts `categoria` prop ('nutricao' | 'treino'), filters tips from `data/dicas.ts`, collapsed by default. Training section includes series legend (WS/TS/BS/CS)
-- Tab Hoje screen (`app/(tabs)/index.tsx`) assembles all components: ProgressBar, PeriodoSection (filtered), HidratacaoCard, CardioCard, DicasSection. Uses `contentContainerClassName` for ScrollView content styling
-- `useRouter` from expo-router for programmatic navigation (e.g. `router.push("/config")`)
-- Refeição livre button only shown on periods with `refeicao` category items — filter with `periodo.itens.some(i => i.categoria === "refeicao")`
-- Treino components in `components/treino/` (ExercicioItem) — read-only, no store deps, just renders from `data/treinos.ts`
-- History components in `components/historico/` — reads from `useHistoryStore`, calendar uses `14.28%` width for 7-column grid
-- Date strings use `YYYY-MM-DD` format throughout (formatted via `padStart(2, "0")`) — consistent key for history store lookups
-- Bottom sheets use RN `Modal` with `transparent` + `animationType="slide"` + nested `Pressable` with `e.stopPropagation()` for backdrop dismiss — no third-party library needed
-- Config modal route (`app/config.tsx`) already configured with `presentation: "modal"` + header in `app/_layout.tsx` — just implement the screen content
-- RN `Switch` theming: `trackColor={{ false: bg.elevated, true: accent.DEFAULT }}` + `thumbColor={text.primary}` for dark theme consistency
+- Zustand stores in `stores/` with persist middleware + AsyncStorage
+- Access stores outside React: `useStore.getState()` / `useStore.subscribe()`
+- NativeWind `className` for static layout styles, inline `style` for dynamic colors and typography
+- expo-haptics already used in CheckItem, HidratacaoCard, CardioCard, index.tsx (Light impact)
+- Tab bar: NativeTabs from `expo-router/unstable-native-tabs` with SF Symbols via `Icon` component
+- All icons now use `MaterialCommunityIcons` from `@expo/vector-icons/MaterialCommunityIcons` (default import)
+- Import style: `import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"` (NOT named import)
+- Route structure: `app/(tabs)/(hoje)/index.tsx`, `(treino)/index.tsx`, `(historico)/index.tsx`, `(historico)/dia-detalhe.tsx`
+- All screens use ScrollView as first child with `contentInsetAdjustmentBehavior="automatic"`
+- react-native-reanimated installed but NOT used anywhere
+- expo-blur installed but NOT imported anywhere
+- SDK 54 NativeTabs: use standalone `Icon`, `Label`, `VectorIcon` imports (NOT compound `NativeTabs.Trigger.X`)
+- SDK 54 NativeTabs: `md` prop NOT available — use `VectorIcon` with MaterialCommunityIcons for Android fallback
+- NativeTabs don't render headers — must nest Stack inside each tab group
+- ScrollView must be first opaque child of each screen for tab bar transparency on iOS 18
+- formSheet presentation requires a route in a Stack — cannot be used with in-screen `<Modal>`
+- Route structure now: `app/(tabs)/(hoje)/index.tsx`, `(treino)/index.tsx`, `(historico)/index.tsx`, `(historico)/dia-detalhe.tsx`
+- Tab group names in Tabs.Screen must match directory names exactly: `(hoje)`, `(treino)`, `(historico)`
+- ThemeProvider with DarkTheme wraps root Stack in `app/_layout.tsx`
+- Typed routes auto-generate from file structure — run `npx expo customize tsconfig.json` to regenerate `.expo/types/router.d.ts`
+- For typed routes: use `/dia-detalhe?date=...` (short form) not `/(historico)/dia-detalhe?date=...`
+- `theme.typography` has pre-built TextStyle objects (caption, footnote, body, callout, headline, title3) — use via `style={theme.typography.callout}` for consistent text hierarchy
+- Add `fontVariant: ['tabular-nums']` to any numeric display that changes dynamically (prevents layout jumps)
+- Add `selectable` prop to Text elements showing user data (stats, percentages, counts)
+- Always use `<Card>` component for card-style containers — never duplicate `cardShadow`/border styles inline
+- `<Card className="p-0">` when the component manages its own internal padding (e.g., collapsible sections with header + content areas)
+- Card has: borderRadius 16, borderCurve 'continuous', iOS shadow + Android elevation, bg-bg-card, p-4 default padding
+- Screen content gaps use `gap-3` (12px) between cards
+- Settings/nav buttons go in `headerRight` of Stack.Screen options, not inline in screen JSX
+- Use `minHeight: 44` via inline `style` for touch target compliance on interactive elements
+- CheckItem uses `checkbox-marked-circle-outline` / `checkbox-blank-circle-outline` from MaterialCommunityIcons
+- SerieBadge/pill badges: use inline `style` with `borderCurve: 'continuous'`, `borderRadius: 6` — NativeWind `rounded` doesn't set borderCurve
+- Circular number badges: `width`/`height` + `borderRadius: half` + accent color at `"20"` opacity suffix for background
+- ExercicioItem uses `<Card className="p-0">` with internal p-3 padding sections
+- Haptics: always guard with `process.env.EXPO_OS === "ios"` — not `Platform.OS === "ios"`
+- LayoutAnimation: call `LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)` BEFORE the state change
+- Android LayoutAnimation: `UIManager.setLayoutAnimationEnabledExperimental?.(true)` at module level in `app/_layout.tsx`
+- `npm install --legacy-peer-deps` required due to react-native-web peer dependency conflict with React 19
+- `import "react-native-reanimated"` in root layout is required by expo-router — do NOT remove
 
 ---
 
-## 2026-02-26 - US-001
-- What was implemented: Initialized Expo project with TypeScript, Expo Router (tabs layout), NativeWind v4 + Tailwind CSS. Created 3-tab layout (Hoje/Treino/Histórico) with dark theme (#0c0a09 bg, #f59e0b amber accent, #78716c inactive). Added config.tsx modal route. Set StatusBar to light.
-- Files changed:
-  - `app/_layout.tsx` - Root layout with dark theme, StatusBar light, Stack with tabs + config modal
-  - `app/(tabs)/_layout.tsx` - Tab layout with 3 tabs, dark styling
-  - `app/(tabs)/index.tsx` - Hoje placeholder screen
-  - `app/(tabs)/treino.tsx` - Treino placeholder screen
-  - `app/(tabs)/historico.tsx` - Histórico placeholder screen
-  - `app/config.tsx` - Config modal placeholder
-  - `app/+html.tsx` - Web HTML with dark bg
-  - `app/+not-found.tsx` - 404 screen with NativeWind
-  - `tailwind.config.js` - Custom colors, NativeWind preset
-  - `metro.config.js` - NativeWind metro config
-  - `babel.config.js` - NativeWind babel preset
-  - `global.css` - Tailwind directives
-  - `nativewind-env.d.ts` - NativeWind type declarations
-  - `app.json` - Updated name, scheme, dark userInterfaceStyle
-  - `package.json` - Dependencies: nativewind, tailwindcss
-  - `.gitignore` - Standard Expo ignores
+## 2026-02-26 11:30 - US-001
+- Implemented ThemeProvider with DarkTheme wrapping root Stack
+- Created tab group directories: `(hoje)`, `(treino)`, `(historico)` with Stack layouts
+- Moved screen content from flat files to group index files
+- Created `dia-detalhe.tsx` route with formSheet presentation, sheetGrabberVisible, sheetAllowedDetents [0.5, 1.0]
+- Converted historico from `<Modal>` to `router.push('/dia-detalhe?date=...')`
+- Updated tabs `_layout.tsx` to reference new group names with `headerShown: false`
+- All Stack headers: headerLargeTitle, headerTransparent, headerShadowVisible false, headerBlurEffect none
+- Files changed: `app/_layout.tsx`, `app/(tabs)/_layout.tsx`, created 7 new files in tab groups, deleted 3 old flat files
 - **Learnings for future iterations:**
-  - `create-expo-app` tabs template provides Expo Router pre-configured but includes template components (Themed.tsx, EditScreenInfo.tsx, etc.) that should be removed when replacing with NativeWind
-  - NativeWind v4 requires: metro.config.js with `withNativeWind`, babel.config.js with `nativewind/babel` preset and `jsxImportSource: "nativewind"`, global.css imported in root layout, and `nativewind-env.d.ts` for types
-  - Tab bar styling must use inline styles (not NativeWind classes) since `tabBarStyle` expects a ViewStyle object
-  - Removed old template components (Themed, EditScreenInfo, Colors, useColorScheme, etc.) - they're not needed with NativeWind approach
+  - Expo Router typed routes use short-form paths (e.g., `/dia-detalhe`) not full group paths
+  - Must delete old flat route files after moving content to group dirs to avoid route conflicts
+  - `headerShown: false` on Tabs screens is required when nested Stacks provide their own headers
 ---
 
-## 2026-02-26 - US-002
-- What was implemented: Created centralized theme constants file and 3 reusable UI components (Card, Badge, ProgressBar) using NativeWind classes.
-- Files changed:
-  - `constants/theme.ts` - Theme object with all color tokens: bg (primary/card/elevated), accent (default/dark), semantic (success/warning/error), text (primary/secondary/muted), border
-  - `components/ui/Card.tsx` - Styled card with #1c1917 bg, #292524 border, rounded-xl, padding
-  - `components/ui/Badge.tsx` - Small colored badge with configurable text and color, uses hex alpha for background tint
-  - `components/checklist/ProgressBar.tsx` - Amber progress bar with completados/total props, percentage display, animated width
+## 2026-02-26 12:00 - US-002
+- Replaced custom GlassTabBar + JS Tabs with NativeTabs from `expo-router/unstable-native-tabs`
+- Used SDK 54 standalone imports: `Icon`, `Label` (not compound `NativeTabs.Trigger.X`)
+- SF Symbol icons: checkmark.circle(.fill) for Hoje, dumbbell(.fill) for Treino, calendar for Histórico
+- Set `tintColor="#f59e0b"` on NativeTabs
+- Removed all expo-glass-effect imports and GlassTabBar code from tab layout
+- Added `contentInsetAdjustmentBehavior="automatic"` to all screen ScrollViews
+- Converted treino empty state (dia off) from View to ScrollView for tab bar transparency
+- Files changed: `app/(tabs)/_layout.tsx`, `app/(tabs)/(hoje)/index.tsx`, `app/(tabs)/(treino)/index.tsx`, `app/(tabs)/(historico)/index.tsx`
 - **Learnings for future iterations:**
-  - NativeWind `className` prop works on standard RN components (View, Text) — use it for all static styling
-  - For dynamic colors (like Badge background based on prop), use inline `style` prop alongside NativeWind `className`
-  - Hex alpha shorthand (e.g. `"#f59e0b20"`) works for semi-transparent backgrounds in RN
-  - The `border` Tailwind color class maps to `border-border` (since the key is `border.DEFAULT` in tailwind.config.js)
+  - SDK 54 NativeTabs use standalone `Icon`, `Label`, `VectorIcon` imports — no `NativeTabs.Trigger.Icon` compound syntax
+  - Empty state screens also need ScrollView as first child for proper tab bar transparency
+  - NativeTabs automatically handles headerShown — no need for explicit `headerShown: false` on triggers
+  - `contentContainerClassName` works with NativeWind for ScrollView content padding (same as contentContainerStyle)
 ---
 
 ## 2026-02-26 - US-003
-- What was implemented: Created TypeScript types and hardcoded plan data from the Feb/2026 Team GB protocol. All 9 periods (Jejum, Refeição 1-5, Intra Treino, Protocolo Hormonal, Extras) with complete food items, supplements, dosages, and conditional rules.
-- Files changed:
-  - `data/plano.ts` - Types (Categoria, RegraCondicional, ItemDoPlano, Periodo, Dica, Plano) and exported `plano` constant with all periods, items, sub-items, conditional rules, hydration/cardio goals
+- Replaced ALL FontAwesome and Ionicons imports with MaterialCommunityIcons across 14 files
+- FontAwesome: removed from `app/_layout.tsx` (font loading), replaced with MaterialCommunityIcons.font
+- Ionicons: replaced in 13 files (4 route files, 9 component files)
+- Icon name mapping applied: checkmark→check, checkmark-circle→check-circle, moon/moon-outline→moon-waning-crescent, settings-outline→cog-outline, restaurant-outline→food-apple/food-apple-outline, bicycle-outline→run-fast, notifications-outline→bell-outline, information-circle-outline→information-outline, nutrition-outline→food-apple, barbell-outline→dumbbell, chevron-back→chevron-left, chevron-forward→chevron-right, stats-chart→chart-bar, flame→fire, calendar-outline→calendar-month-outline, calendar→calendar-month, arrow-undo-outline→undo
+- Zero remaining FontAwesome or Ionicons imports (grep confirmed)
+- Typecheck passes clean
+- Files changed: `app/_layout.tsx`, `app/config.tsx`, `app/(tabs)/(hoje)/index.tsx`, `app/(tabs)/(treino)/index.tsx`, `app/(tabs)/(historico)/index.tsx`, `app/(tabs)/(historico)/dia-detalhe.tsx`, `components/checklist/CheckItem.tsx`, `components/checklist/PeriodoSection.tsx`, `components/hidratacao/HidratacaoCard.tsx`, `components/cardio/CardioCard.tsx`, `components/dicas/DicasSection.tsx`, `components/historico/Calendario.tsx`, `components/historico/StatsCard.tsx`, `components/historico/DiaDetalhe.tsx`
 - **Learnings for future iterations:**
-  - Grouped supplements under a parent "Suplementos" ItemDoPlano with subItens array — this keeps the data structure flat per period while nesting related supplements
-  - Period-level `regra` (Intra Treino) vs item-level `regra` (Anastrozol, Oxandrolona) — filtering logic will need to handle both levels
-  - `Dica` type is defined here but actual tips data will be in a separate `data/dicas.ts` file (US-005)
-  - Keep item IDs as `{periodoId}-{itemName}` for easy cross-referencing with check state
+  - Use default import `import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"` — NOT `import { MaterialCommunityIcons } from "@expo/vector-icons"`
+  - When using sed for icon replacement, ternary expressions (e.g., `condition ? "iconA" : "iconB"`) won't match `name="iconA"` patterns — need separate handling
+  - MaterialCommunityIcons type reference: `keyof typeof MaterialCommunityIcons.glyphMap` for typed icon props
+  - Icon names between Ionicons and MCI often differ subtly: Ionicons `checkmark-circle` → MCI `check-circle`, Ionicons `flame` → MCI `fire`
 ---
 
 ## 2026-02-26 - US-004
-- What was implemented: Created TypeScript types (Serie, Exercicio, Treino) and hardcoded workout data for the 5-day training split (A: Peito, B: Costas, C: Pernas, D: Ombros, E: Braços) with all exercises, series types, rep schemes, and exercise-specific observations.
-- Files changed:
-  - `data/treinos.ts` - Types (Serie, Exercicio, Treino) and exported `treinos` array with 5 workouts, ~40 total exercises
+- Added `typography` object to `constants/theme.ts` with TextStyle objects: caption (11px), footnote (13px), body (15px), callout (16px, 600), headline (17px, 700), title3 (20px, 700) — all with appropriate text colors
+- Added `fontVariant: ['tabular-nums']` to numeric displays: ProgressBar (count + percentage), HidratacaoCard (amounts + percentage), CardioCard (minutes + percentage + session items + total), StatsCard (stat values + missed percentages), Badge (count text), Calendario (already had it)
+- Added `selectable` prop to data Text elements: ProgressBar counts, HidratacaoCard amounts, CardioCard metrics, StatsCard values
+- Applied typography scale via inline `style` across all screens: headline for screen titles/dates, callout for card/section headers, footnote for subtitles/descriptions, caption for small labels/weekday headers, body for empty state text
+- Typecheck passes clean
+- Files changed (14): `constants/theme.ts`, `components/checklist/ProgressBar.tsx`, `components/hidratacao/HidratacaoCard.tsx`, `components/cardio/CardioCard.tsx`, `components/historico/StatsCard.tsx`, `components/historico/Calendario.tsx`, `components/ui/Badge.tsx`, `components/checklist/PeriodoSection.tsx`, `components/dicas/DicasSection.tsx`, `app/(tabs)/(hoje)/index.tsx`, `app/(tabs)/(treino)/index.tsx`, `app/(tabs)/(historico)/index.tsx`, `app/(tabs)/(historico)/dia-detalhe.tsx`, `app/config.tsx`
 - **Learnings for future iterations:**
-  - Serie `reps` field uses `number | string` union to handle both simple rep counts (15) and cluster/compound reps ("4+4+4", "5+5+5")
-  - CS (cluster set) observacao at serie level (e.g. "10seg pausa") vs exercise-level observacao (e.g. "1seg pico de contração") — UI will need to render both
-  - Treino E (Braços) alternates biceps/triceps exercises — the order matters for superset display in future UI
+  - Typography styles use `as TextStyle` assertion in const theme to satisfy TypeScript's fontWeight literal types
+  - `fontVariant: ['tabular-nums']` prevents layout jumps when numbers change (e.g., timers, counters, percentages)
+  - Use spread `{ ...theme.typography.body, color: ... }` when overriding typography color for specific states
+  - Keep `className` for layout (flex, padding, gap) and use `style` for typography — they compose cleanly
 ---
 
 ## 2026-02-26 - US-005
-- What was implemented: Created hardcoded tips data with 12 nutrition guidelines and 13 training guidelines from the Feb/2026 Team GB plan. Tips cover food preparation, supplementation rules, series definitions (WS/TS/BS/CS), rest intervals, and cardio protocol.
-- Files changed:
-  - `data/dicas.ts` - Exports `dicas` array with 25 Dica objects (12 nutricao + 13 treino), imports Dica type from plano.ts
+- Redesigned Card component: borderRadius 16, borderCurve 'continuous', shadow (iOS shadow props + Android elevation), removed hard border
+- Card.tsx already had correct shadow and continuous corners — main change was removing `border border-border` class and using shadow for depth
+- Consolidated all card-style containers to use `<Card>` component: PeriodoSection, DicasSection, Calendario (previously had inline duplicated styles)
+- PeriodoSection and DicasSection use `<Card className="p-0">` since they manage own internal padding for collapsible header/content layout
+- Calendario uses `<Card>` directly (already had p-4 padding matching Card's default)
+- HidratacaoCard, CardioCard, StatsCard already used `<Card>` — verified they still render correctly
+- Changed screen content gaps from `gap-4` (16px) to `gap-3` (12px) in all screen layouts: hoje, treino, historico, config
+- Typecheck passes clean
+- Files changed (8): `components/ui/Card.tsx`, `components/checklist/PeriodoSection.tsx`, `components/dicas/DicasSection.tsx`, `components/historico/Calendario.tsx`, `app/(tabs)/(hoje)/index.tsx`, `app/(tabs)/(treino)/index.tsx`, `app/(tabs)/(historico)/index.tsx`, `app/config.tsx`
 - **Learnings for future iterations:**
-  - Reused existing `Dica` type from `data/plano.ts` rather than redefining — keeps types centralized
-  - Tips use `nut-XX` and `tre-XX` ID convention for easy filtering and referencing
-  - Training tips include series type definitions (WS/TS/BS/CS) that the DicasSection component will need to display as a legend
+  - Components with collapsible sections (header + expandable content) should use `<Card className="p-0">` and manage their own internal padding
+  - Never duplicate shadow/border styles inline — always use the `<Card>` component for consistency
+  - `borderCurve: 'continuous'` gives iOS-style smooth/squircle corners — must be set via inline `style`, not NativeWind class
+  - `boxShadow` CSS property doesn't work in React Native — use platform-specific shadow props (iOS: shadowColor/Offset/Opacity/Radius, Android: elevation)
 ---
 
 ## 2026-02-26 - US-006
-- What was implemented: Created utility functions in `utils/diaUtils.ts` for day logic: `isDiaDeTreino` (checks Mon-Fri with manual override), `getTreinoDoDia` (A-E rotation by day of week), `filtrarItensDoDia` (filters periods and items by day-of-week and training-day rules at period, item, and sub-item levels), `contarItens` (counts checkable items excluding optionals from total).
-- Files changed:
-  - `utils/diaUtils.ts` - New file with 4 exported functions and 1 private helper
+- Moved settings button (cog icon) to `headerRight` in `(hoje)/_layout.tsx` Stack.Screen options
+- Moved date display below header as standalone footnote text
+- Redesigned Dia Off toggle as a prominent card with moon icon, title, subtitle, and check indicator
+- Thickened ProgressBar track to height 12 with rounded ends, percentage color-coded (green at 100%, amber otherwise)
+- CheckItem now uses `checkbox-marked-circle-outline` / `checkbox-blank-circle-outline` icons at 24px with min 44pt touch target height
+- HidratacaoCard stepper buttons redesigned with `minus-circle-outline` / `plus-circle-outline` icons at 28px flanking the +250ml/+500ml quick-add buttons
+- CardioCard input area cleaned up: 44pt height input, accent-colored circular plus-icon add button (44x44)
+- Removed `useRouter` import from Hoje screen (settings nav now in layout header)
+- Typecheck passes clean
+- Files changed (6): `app/(tabs)/(hoje)/_layout.tsx`, `app/(tabs)/(hoje)/index.tsx`, `components/checklist/ProgressBar.tsx`, `components/checklist/CheckItem.tsx`, `components/hidratacao/HidratacaoCard.tsx`, `components/cardio/CardioCard.tsx`
 - **Learnings for future iterations:**
-  - Filtering logic must handle 3 levels: period-level `regra` (e.g. Intra Treino), item-level `regra` (e.g. Anastrozol), and sub-item-level `regra` (e.g. Oxandrolona)
-  - `contarItens` skips the parent "Suplementos" item when it has `subItens`, counting each sub-item individually instead
-  - `dayOfWeek` uses JS Date convention: 0=Sunday, 1=Monday, ..., 6=Saturday
-  - Empty periods (all items filtered out) are removed from the result
-- Zustand v5 with persist middleware: `create<State & Actions>()(persist((...) => ({...}), { name, storage }))` — note the extra `()` for middleware
-- AsyncStorage via `@react-native-async-storage/async-storage` used with `createJSONStorage(() => AsyncStorage)` for Zustand persist
-- Stores live in `stores/` directory with `use[Name]Store.ts` naming convention
-- DayState exports `DayState` type for use by other stores/utils (e.g. reset logic)
+  - Settings buttons belong in `headerRight` of Stack.Screen options, not inline in screen content — keeps the native iOS feel
+  - Use `minHeight: 44` via inline `style` for touch target compliance (NativeWind doesn't have `min-h-11` equivalent that maps to exactly 44pt)
+  - `checkbox-marked-circle-outline` / `checkbox-blank-circle-outline` are cleaner than custom View+border checkbox implementations
+  - For add buttons, a solid accent-colored circle with plus icon (44x44) provides clear affordance
 ---
 
 ## 2026-02-26 - US-007
-- What was implemented: Created Zustand day store (`stores/useDayStore.ts`) with full DayState shape and all actions. State includes: checks (Record with checked/timestamp), diaOffManual, aguaMl, chaMl, sessoesCardio, refeicaoLivreUsada, refeicaoLivrePeriodoId, semanaRefeicaoLivre, ultimoReset. Actions: toggleCheck, setDiaOff, addAgua, removeAgua, addCha, removeCha, addSessaoCardio, removeSessaoCardio, usarRefeicaoLivre, resetDay. Persisted via Zustand persist middleware with AsyncStorage.
-- Files changed:
-  - `stores/useDayStore.ts` - New file: Zustand store with persist middleware
-  - `package.json` - Added zustand and @react-native-async-storage/async-storage dependencies
+- Redesigned ExercicioItem: exercise number as accent-colored circular badge (28x28), name using callout typography, series aligned below with marginLeft offset
+- Updated SerieBadge: consistent pill design with borderCurve 'continuous', borderRadius 6, inline styles instead of NativeWind classes
+- ExercicioItem now uses `<Card className="p-0">` for card-style container instead of bare bg-bg-elevated View
+- Treino screen: moved day name + muscle group to footnote subtitle below native large title header, exercise count as caption
+- Dia Off empty state: moon-waning-crescent icon reduced from 64px to 48px per spec, cleaner text layout
+- DicasSection SeriesLegend: updated badge pills to match SerieBadge style (borderCurve continuous, inline styles)
+- DicasSection already had SeriesLegend at top of training tips — no change needed
+- Files changed (3): `components/treino/ExercicioItem.tsx`, `app/(tabs)/(treino)/index.tsx`, `components/dicas/DicasSection.tsx`
 - **Learnings for future iterations:**
-  - Zustand v5 requires double parentheses for middleware: `create<T>()(persist(...))`
-  - `removeAgua`/`removeCha` use `Math.max(0, ...)` to clamp to minimum 0
-  - `resetDay` does NOT reset `refeicaoLivreUsada`/`refeicaoLivrePeriodoId`/`semanaRefeicaoLivre` — those are reset separately by the weekly reset logic in US-010
-  - `SessaoCardio` type includes timestamp for tracking when sessions were logged
+  - iOS settings page pattern: `SectionHeader` above `<Card className="p-0">` with `SettingRow` components inside, using `StyleSheet.hairlineWidth` for dividers inset 16px from left
+- ExercicioItem uses `<Card className="p-0">` since it manages its own padding for the two-section layout (header + series row)
+  - SerieBadge pill styling should use inline `style` with `borderCurve: 'continuous'` for iOS squircle corners — NativeWind `rounded` doesn't set borderCurve
+  - Circular number badges: use exact width/height + borderRadius = half for a perfect circle, with accent color at 20% opacity background
+  - Keep `className` for flexbox layout (flex-row, gap, items-center) and `style` for visual design (borderRadius, borderCurve, colors)
 ---
 
 ## 2026-02-26 - US-008
-- What was implemented: Created Zustand history store (`stores/useHistoryStore.ts`) with `HistoryState` containing `dias: Record<string, HistoricoDia>`. Actions: `salvarDia` (saves a day's adherence record keyed by date string), `getDia` (retrieves a day's record or undefined). Persisted via Zustand persist middleware with AsyncStorage under store name `history-store`.
-- Files changed:
-  - `stores/useHistoryStore.ts` - New file: Zustand store with persist middleware, exports `HistoricoDia` type and `useHistoryStore`
+- Redesigned Calendario: larger cells (padding 3 vs 2), bolder today indicator (borderWidth 2.5, fontWeight 800), larger borderRadius 10, larger font size 14
+- Redesigned StatsCard: replaced vertical StatRow layout with horizontal MetricColumn layout — three columns (streak, weekly, monthly) each showing icon (20px) + value (title3 style) + label (caption style) stacked vertically
+- Changed streak display from verbose "X dias consecutivos 100%" to clean number-only display
+- Used `calendar-week` icon for weekly adherence to differentiate from monthly `calendar-month`
+- Empty state already correctly implemented: calendar-month-outline at 48px + "Nenhum dado ainda" text
+- DiaDetalhe route already renders correctly with date param, progress bar, and missed items (implemented in US-001)
+- Typecheck passes clean
+- Files changed (2): `components/historico/Calendario.tsx`, `components/historico/StatsCard.tsx`
 - **Learnings for future iterations:**
-  - `getDia` uses `get()` from Zustand (not `set`) since it's a read-only action — this is the pattern for computed/getter actions in Zustand
-  - `HistoricoDia` type is exported for use by reset logic (US-010) and history UI components (US-018, US-019, US-020)
-  - History store follows same pattern as day store: `create<State & Actions>()(persist(...))`
+  - `calendar-week` is a valid MaterialCommunityIcons name — useful to distinguish weekly from monthly calendar icons
+  - Horizontal metric layouts work well with `flex-1 items-center gap-1` on each column and `flex-row` on the parent
+  - The `MetricColumn` pattern (icon + big number + small label) is a clean way to display dashboard-style stats
 ---
 
 ## 2026-02-26 - US-009
-- What was implemented: Created Zustand config store (`stores/useConfigStore.ts`) with notification settings state and actions. State includes `notificacoesPorPeriodo` (Record of period notification toggles with horario) and `hidratacaoLembrete` (toggle + interval in hours). Actions: `toggleNotificacaoPeriodo`, `setHorarioPeriodo`, `toggleHidratacaoLembrete`, `setIntervaloHidratacao`. Persisted via Zustand persist middleware with store name `config-store`.
-- Files changed:
-  - `stores/useConfigStore.ts` - New file: Zustand store with persist middleware for notification config
+- Redesigned Config screen as native iOS settings page with grouped sections
+- Added `SectionHeader` component: footnote style, uppercase, text.secondary color, horizontal padding
+- Added `SettingRow` component: min 44pt height, label left with optional subtitle, right-aligned control, hairline divider inset 16px from left
+- Refactored `PeriodoNotificacao` to use `SettingRow` with `isLast` prop for proper divider control
+- Time inputs: cleaner iOS-style with borderCurve continuous, no border, bg-elevated background, tabular-nums fontVariant
+- Hydration interval: segmented-control style — three joined segments in a row with borderRadius 8, borderCurve continuous, overflow hidden, hairline dividers between segments
+- Switch components: accent trackColor when on, bg-elevated when off (already correct)
+- Cards use `className="p-0"` since SettingRow manages its own px-4 padding
+- ScrollView has `contentInsetAdjustmentBehavior="automatic"` for native header integration
+- Removed icon+callout card headers in favor of uppercase section headers above cards (iOS settings pattern)
+- Typecheck passes clean
+- Files changed (1): `app/config.tsx`
 - **Learnings for future iterations:**
-  - `toggleNotificacaoPeriodo` initializes missing entries with a default horario of "08:00" when toggling on for the first time — avoids needing to pre-populate all period entries
-  - `setHorarioPeriodo` preserves existing `enabled` state (defaults to `false` if entry doesn't exist yet) — safe to call before toggling
-  - Config store is the simplest of the 3 stores — no complex logic, just toggle/set actions with spread updates
-  - All 3 stores now complete (day-store, history-store, config-store) — ready for reset logic (US-010) and UI components
+  - iOS settings page pattern: `SectionHeader` (footnote, uppercase, above card) + `Card className="p-0"` + `SettingRow` rows inside
+  - `StyleSheet.hairlineWidth` is the correct way to get a 1-pixel-device divider line in RN
+  - Segmented controls: use a row of Pressables inside a `borderRadius + overflow: hidden` container with `StyleSheet.hairlineWidth` right borders between segments
+  - `SettingRow` with `showDivider` prop enables conditional last-item divider control — cleaner than `index > 0` check
 ---
 
 ## 2026-02-26 - US-010
-- What was implemented: Created `utils/resetUtils.ts` with `checkAndReset()` function that handles daily app reset with 4am cutoff. Uses a `getLogicalDate()` helper that treats times before 4am as the previous day. When the day has changed: calculates completados/total and itensPerdidos from unchecked non-optional items, saves history via `useHistoryStore.salvarDia()`, then calls `useDayStore.resetDay()`. When the week has changed, also resets free meal state (refeicaoLivreUsada, refeicaoLivrePeriodoId, semanaRefeicaoLivre). If the app was closed for multiple days, only the `ultimoReset` date gets a history entry — intermediate days get none.
-- Files changed:
-  - `utils/resetUtils.ts` - New file: exports `checkAndReset()` function with 4am day boundary logic
+- Enabled `UIManager.setLayoutAnimationEnabledExperimental(true)` on Android in `app/_layout.tsx`
+- Added `LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)` before state changes:
+  - PeriodoSection expand/collapse
+  - DicasSection expand/collapse
+  - CheckItem check/uncheck
+  - HidratacaoCard stepper add/remove
+  - CardioCard add/remove sessions
+  - ProgressBar width changes (via useEffect on percentage change)
+  - Hoje screen: Dia Off toggle, refeição livre, desfazer refeição livre
+- Made all haptics (expo-haptics Light impact) iOS-only using `process.env.EXPO_OS === "ios"` guard
+- Verified: no Reanimated entering/exiting animations — lightweight LayoutAnimation only
+- Typecheck passes clean
+- Files changed (8): `app/_layout.tsx`, `app/(tabs)/(hoje)/index.tsx`, `components/checklist/PeriodoSection.tsx`, `components/checklist/CheckItem.tsx`, `components/checklist/ProgressBar.tsx`, `components/dicas/DicasSection.tsx`, `components/hidratacao/HidratacaoCard.tsx`, `components/cardio/CardioCard.tsx`
 - **Learnings for future iterations:**
-  - Access Zustand stores outside React components with `useDayStore.getState()` and `useDayStore.setState()` — no hooks needed for utility functions
-  - The `resetDay()` action in useDayStore already sets `ultimoReset` to today via its `getToday()` helper
-  - `getLogicalDate()` subtracts one day if hour < 4, making the 4am cutoff simple — times at 3:59am are still "yesterday"
-  - Use `new Date(dateStr + "T12:00:00")` to avoid timezone issues when parsing date strings — noon is safe from DST boundary issues
-  - `filtrarItensDoDia` is reused here to get the correct items for the `ultimoReset` date when calculating missed items
+  - `process.env.EXPO_OS === "ios"` is the Expo-recommended way to conditionally run iOS-only code (replaces `Platform.OS === "ios"` checks)
+  - `LayoutAnimation.configureNext` must be called BEFORE the state change that triggers the layout shift
+  - For animated progress bars driven by external props, use a `useEffect` + `useRef` to detect percentage changes and call `LayoutAnimation.configureNext`
+  - `UIManager.setLayoutAnimationEnabledExperimental?.(true)` must be called at module level (not inside a component) for Android LayoutAnimation support
 ---
 
 ## 2026-02-26 - US-011
-- What was implemented: Created `components/checklist/CheckItem.tsx` — a reusable check item component with haptic feedback. Renders item name, dosage, and a checkmark circle. Checked items show green checkmark with reduced opacity text. Unchecked items show an empty circle. Optional items display a muted "opcional" badge. Items with `subItens` render as a label header with indented sub-items recursively. Tapping triggers expo-haptics Light impact and toggles check state via useDayStore.
-- Files changed:
-  - `components/checklist/CheckItem.tsx` - New file: CheckItem component with haptic feedback, recursive sub-item rendering
-  - `package.json` / `package-lock.json` - Added expo-haptics dependency
+- Removed `expo-glass-effect` and `expo-blur` from package.json (both unused since US-002/US-003)
+- Ran `npm install --legacy-peer-deps` to update node_modules and lock file (removed 2 packages)
+- Verified zero FontAwesome or Ionicons imports remain in source code (grep confirmed clean)
+- Old flat route files already removed in US-001: `app/(tabs)/index.tsx`, `treino.tsx`, `historico.tsx`
+- Deleted unused `components/historico/DiaDetalhe.tsx` (old modal component replaced by route in US-001)
+- GlassTabBar code already removed in US-002
+- All 11 remaining component files verified as actively imported and used
+- Kept `react-native-reanimated` — side-effect import in `_layout.tsx` required by expo-router for navigation transitions
+- `npx tsc --noEmit` passes clean with zero errors
+- Files changed (3): `package.json`, `package-lock.json`, deleted `components/historico/DiaDetalhe.tsx`
 - **Learnings for future iterations:**
-  - Items with `subItens` should NOT be directly checkable — they act as group headers, only the individual sub-items get checkmarks
-  - Recursive component pattern: `CheckItem` renders itself for sub-items with `indented={true}` prop
-  - `expo-haptics` installed via `npx expo install` for SDK version compatibility
-  - Use `Ionicons` from `@expo/vector-icons` for icons — already included in Expo
-  - Badge component reused for "opcional" indicator with `theme.colors.text.muted` color
----
-
-## 2026-02-26 - US-012
-- What was implemented: Created `components/checklist/PeriodoSection.tsx` — a collapsible section component that groups daily items by meal/period. Header shows period name (with optional description), a count badge (checked/total) with color coding (green when complete, amber otherwise), and a chevron icon. Sections default to expanded and toggle on header tap. Renders CheckItem for each item in the period. When "refeicao livre" is active for a period, shows a "Refeicao Livre" indicator with restaurant icon instead of individual items, with count treated as fully checked.
-- Files changed:
-  - `components/checklist/PeriodoSection.tsx` - New file: collapsible period section with count badge, refeicao livre support
-- **Learnings for future iterations:**
-  - Item counting for badge: parent items with `subItens` count their sub-items individually (not the parent), same pattern as `contarItens` in diaUtils
-  - Badge color changes based on completion: green (`semantic.success`) when all done, amber (`accent.DEFAULT`) when partial — gives quick visual feedback
-  - Refeicao livre state comes from `useDayStore` (`refeicaoLivreUsada` + `refeicaoLivrePeriodoId`) — when active for a period, all items in that period are considered checked
-  - Use inline `style` with `theme.colors` for dynamic text colors instead of NativeWind `text-semantic-*` classes — more consistent with existing component patterns
-- Hydration component in `components/hidratacao/HidratacaoCard.tsx` — uses internal `HidratacaoSection` subcomponent for DRY agua/cha sections
-- `plano.metaHidratacao` provides goals (`aguaMl: 4000`, `chaMl: 500`) — import from `data/plano.ts` for meta values
-- `formatLiters()` helper converts ml to liters display (e.g. 2500 → "2.5L", 500 → "500ml") — reusable pattern for volume display
----
-
-## 2026-02-26 - US-013
-- What was implemented: Created `components/hidratacao/HidratacaoCard.tsx` — a hydration tracking card with two sections (Agua 4000ml goal, Cha de Cavalinha 500ml goal). Each section shows an amber progress bar (turns green when complete), current/meta text with percentage, increment buttons (+250ml, +500ml), and a decrement button (-250ml). All buttons trigger haptic feedback. Uses `HidratacaoSection` internal component for DRY rendering of both water and tea sections. Reads/writes from `useDayStore` (aguaMl, chaMl, addAgua, removeAgua, addCha, removeCha). Meta values from `plano.metaHidratacao`.
-- Files changed:
-  - `components/hidratacao/HidratacaoCard.tsx` - New file: HidratacaoCard with progress bars, increment/decrement buttons, haptic feedback
-- **Learnings for future iterations:**
-  - Internal subcomponents (not exported) work well for DRY patterns within a single file — `HidratacaoSection` avoids duplicating agua/cha logic
-  - Progress bar color changes to green (`semantic.success`) when goal is met — same completion pattern as PeriodoSection badge
-  - Button background uses hex alpha pattern (`accent.DEFAULT + "20"`) consistent with Badge component
-  - `Math.min(100, ...)` caps percentage at 100% even if user exceeds the goal
----
-
-## 2026-02-26 - US-014
-- What was implemented: Created `components/cardio/CardioCard.tsx` — a cardio session management card with progress bar (amber, turns green when complete), session list with remove buttons, input field + "Adicionar" button, and total summary text (e.g. "30min + 50min = 80min"). Auto-check indicator (green checkmark) appears when total >= 80min. All interactions trigger haptic feedback. Uses `useDayStore` (sessoesCardio, addSessaoCardio, removeSessaoCardio) and `plano.metaCardioMin` for the 80min goal.
-- Files changed:
-  - `components/cardio/CardioCard.tsx` - New file: CardioCard with progress bar, session list, input field, add/remove session buttons, haptic feedback
-- **Learnings for future iterations:**
-  - CardioCard follows same patterns as HidratacaoCard: Card wrapper, Ionicons, theme colors, haptic feedback, progress bar with green-when-complete
-  - Session list uses `sessao.timestamp` as key since each session has a unique timestamp from `Date.now()`
-  - TextInput with `keyboardType="number-pad"` and `onSubmitEditing` for a native-feeling number input experience
-  - Total text only shows the sum breakdown (`30min + 50min = 80min`) when there are 2+ sessions — single session just shows duration
-  - `parseInt` with NaN guard prevents adding invalid sessions (empty input, non-numeric)
----
-
-## 2026-02-26 - US-015
-- What was implemented: Created `components/dicas/DicasSection.tsx` — a collapsible section component for displaying nutrition and training tips. Accepts `categoria` prop to filter tips ('nutricao' or 'treino'). Each tip renders as a card with info icon and text on elevated background. Collapsed by default, expands on header tap. Training tips section includes a series legend (WS, TS, BS, CS definitions with descriptions and rest intervals) displayed at the top before the tips list. Uses Ionicons for category-specific icons (nutrition-outline for nutricao, barbell-outline for treino).
-- Files changed:
-  - `components/dicas/DicasSection.tsx` - New file: collapsible tips section with category filtering, series legend, info icon cards
-- **Learnings for future iterations:**
-  - DicasSection follows PeriodoSection pattern for collapsible header (chevron icon, Pressable, expanded state) but defaults to `collapsed` (false) instead of expanded
-  - Series legend uses same `accent.DEFAULT + "20"` alpha pattern for badge-like styling as Badge and HidratacaoCard buttons
-  - Helper functions (`filterDicas`) and sub-components (`DicaItem`, `SeriesLegend`) are defined outside the main component, not exported — keeps component pure
-  - Constants (`SERIES_LEGEND`, `SECTION_TITLES`) defined at module level, not inside components
-  - DicasSection component lives in `components/dicas/` directory
----
-
-## 2026-02-26 - US-016
-- What was implemented: Built the Tab Hoje main screen (`app/(tabs)/index.tsx`) assembling all previously created components into a full daily checklist view. The screen is a ScrollView with: formatted date header (day name + date in Portuguese), "Dia Off" toggle button with moon icon, gear icon linking to config modal, ProgressBar showing completados/total (excluding optional items), refeição livre indicator (0/1 or 1/1 badge) visible only on training days, PeriodoSection for each filtered period, "Usar Refeição Livre" button per meal period (only when available and not yet used), HidratacaoCard, CardioCard, and DicasSection with categoria='nutricao' collapsed by default. Calls `checkAndReset()` on mount for 4am daily reset.
-- Files changed:
-  - `app/(tabs)/index.tsx` - Complete rewrite from placeholder to full Hoje screen with all components assembled
-- **Learnings for future iterations:**
-  - `contentContainerClassName` on ScrollView works with NativeWind for styling the scroll content container (gap, padding)
-  - `countCheckedNonOptional` helper counts checked items across all periods, handling sub-items and refeição livre — same counting pattern as `contarItens` but checks against store state
-  - Refeição livre button only appears on periods that contain `refeicao` category items — use `periodo.itens.some(i => i.categoria === "refeicao")` to filter
-  - `useMemo` for `filtrarItensDoDia` and `contarItens` since they depend only on `dayOfWeek` and `diaOffManual` — avoids recalculating on every check toggle
-  - `useRouter` from expo-router for navigation to config modal: `router.push("/config")`
-  - Portuguese date formatting: use `toLocaleDateString("pt-BR", { month: "long" })` for month name + manual DAY_NAMES array for day of week
----
-
-## 2026-02-26 - US-017
-- What was implemented: Built the Tab Treino workout reference screen (`app/(tabs)/treino.tsx`) and `components/treino/ExercicioItem.tsx`. The screen shows today's workout based on day of week using `getTreinoDoDia`. Header displays day name + workout letter + muscle group (e.g. "Segunda — A: Peito") with exercise count. Each exercise renders via `ExercicioItem` with numbered index, exercise name, optional `observacao`, and series badges (WS/TS/BS/CS) with distinct color-coding. On weekends/off days, shows a "Dia Off — Descanse" message with moon icon. `DicasSection` with `categoria='treino'` at bottom (collapsed by default, includes series legend). Read-only, no input fields.
-- Files changed:
-  - `components/treino/ExercicioItem.tsx` - New file: renders exercise name, numbered index, series badges with color per type, observacao at exercise and serie level
-  - `app/(tabs)/treino.tsx` - Complete rewrite from placeholder to full Treino screen
-- **Learnings for future iterations:**
-  - `ExercicioItem` lives in `components/treino/` directory — consistent with other feature-specific component directories
-  - Series badge colors: WS=amber (accent), TS=red (error), BS=green (success), CS=amber (warning) — matches DicasSection's SERIES_LEGEND but adds visual distinction via color
-  - `SERIE_COLORS` map using `Record<Serie["tipo"], string>` is type-safe against the union type
-  - Exercise-level `observacao` (e.g. "1seg pico de contração") renders below the name; serie-level `observacao` (e.g. "10seg pausa") renders inline with the badge — both are displayed
-  - Treino screen is entirely read-only — no store dependencies, just data from `getTreinoDoDia`
----
-
-## 2026-02-26 - US-018
-- What was implemented: Created `components/historico/Calendario.tsx` — a monthly calendar grid component. Renders a 7-column grid (Dom-Sáb) with day cells colored by adherence from `useHistoryStore`: green (#22c55e) for 100%, amber (#f59e0b) for 50-99%, red (#ef4444) for <50%, gray (#404040) for no data or future dates. Month navigation with left/right arrow buttons and month name + year header. Current day highlighted with amber border ring. Tapping a day with history data calls `onDayPress` callback with the date string. Uses `useMemo` for calendar cell generation and today string.
-- Files changed:
-  - `components/historico/Calendario.tsx` - New file: monthly calendar grid with adherence coloring, month navigation, day press callback
-- **Learnings for future iterations:**
-  - Calendar grid uses `width: "14.28%"` (100/7) for 7-column layout with `flex-row flex-wrap` — simpler than FlatList for fixed grid
-  - `aspectRatio: 1` on day cells ensures square proportions regardless of screen width
-  - `borderCurve: "continuous"` on day cells for smoother rounded corners (Apple HIG pattern)
-  - `fontVariant: ["tabular-nums"]` for day numbers ensures consistent alignment across cells
-  - Empty cells before month start use index-based keys (`empty-${index}`) since they have no date identity
-  - Future dates are determined by simple string comparison (`dateStr > todayStr`) since YYYY-MM-DD format sorts chronologically
-  - `onDayPress` only fires for days with history data — prevents meaningless taps on empty/future days
----
-
-## 2026-02-26 - US-019
-- What was implemented: Created `components/historico/StatsCard.tsx` — a statistics card with 4 sections: streak (consecutive 100% days counting backwards from today), weekly adherence (current week Mon-Sun percentage), monthly adherence (current month percentage), and top 3 most missed items (aggregated from all history with miss count and percentage). Uses `Card` wrapper, `Ionicons`, and `theme` colors. All calculations use `useMemo` for performance. Adherence color-coded: green >=80%, amber >=50%, muted otherwise. Streak counts backwards from yesterday (today may be in-progress) but includes today if it's 100% complete.
-- Files changed:
-  - `components/historico/StatsCard.tsx` - New file: StatsCard with streak, adherence, top missed items
-- **Learnings for future iterations:**
-  - Streak calculation should start from yesterday (today is still in-progress) but include today if it has a 100% complete entry
-  - Week bounds (Mon-Sun) calculated via `getDay()` offset from current date — Sunday=0 needs special handling (diffToMon = -6)
-  - `calcAdherence` uses a filter function pattern to reuse logic for both weekly and monthly — sum completados/total across matching days
-  - `topMissed` aggregates `itensPerdidos` across all history entries — percentage is relative to total days with history, not total days possible
-  - YYYY-MM-DD string comparison works for date range filtering (week bounds) since the format sorts chronologically
----
-
-## 2026-02-26 - US-020
-- What was implemented: Created `components/historico/DiaDetalhe.tsx` — a bottom sheet modal component showing day details when tapping a calendar day. Uses RN `Modal` with `animationType="slide"`, transparent backdrop (tap to dismiss), and a slide-up panel with: drag handle bar, formatted date header (Portuguese long format), close button, status text (Completo/Parcial) with color-coded icon, ProgressBar for completion, list of missed items with bullet points, and a trophy message when all items were completed. Assembled `app/(tabs)/historico.tsx` with Calendario at top, StatsCard below, DiaDetalhe as overlay triggered by day tap, and an empty state ("Nenhum dado ainda") with icon when no history exists.
-- Files changed:
-  - `components/historico/DiaDetalhe.tsx` - New file: bottom sheet modal with day details, progress bar, missed items list
-  - `app/(tabs)/historico.tsx` - Rewritten from placeholder to full Histórico screen with Calendario, StatsCard, DiaDetalhe
-- **Learnings for future iterations:**
-  - RN `Modal` with `transparent` + `animationType="slide"` is sufficient for bottom sheet behavior — no need for a third-party library
-  - Use nested `Pressable` with `e.stopPropagation()` to prevent backdrop taps from closing the modal when tapping on content
-  - `new Date(dateStr + "T12:00:00")` pattern reused for safe date parsing (avoids timezone/DST issues)
-  - `useCallback` for handlers passed as props to memoized children (Calendario `onDayPress`) to avoid unnecessary re-renders
-  - History store `dias` checked with `Object.keys(dias).length > 0` for empty state — simple and clear
-  - DiaDetalhe receives `HistoricoDia | null` — returns null when no historico, Modal only renders when visible + historico exists
----
-
-## 2026-02-26 - US-021
-- What was implemented: Built the config modal screen (`app/config.tsx`) for notification settings. Lists each period from `plano.periodos` with a toggle switch (on/off) and time input field for `horario`. Hydration section with toggle on/off and interval selector (1h, 2h, 3h) as pill buttons. Uses `PeriodoNotificacao` internal component for DRY rendering of each period row. Time input auto-inserts ":" after 2 digits. Dark themed consistent with app palette using Card, Ionicons, theme colors. Reads/writes from `useConfigStore`. Already presented as modal via root Stack in `_layout.tsx`.
-- Files changed:
-  - `app/config.tsx` - Rewritten from placeholder to full config screen with period notifications and hydration reminders
-- **Learnings for future iterations:**
-  - Config modal already has `presentation: "modal"` and header styling in `app/_layout.tsx` — no changes needed to the root layout
-- `expo-notifications` v55 requires `shouldShowBanner` and `shouldShowList` in `NotificationBehavior` handler (in addition to `shouldShowAlert`, `shouldPlaySound`, `shouldSetBadge`)
-- Notification scheduling: use `Notifications.SchedulableTriggerInputTypes.DAILY` with `hour`/`minute` for daily repeating notifications
-- Cancel specific notifications by tagging with `data: { type: "..." }` then filtering `getAllScheduledNotificationsAsync()` by type
-- Subscribe to Zustand store changes outside React: `useConfigStore.subscribe(() => { ... })` — returns unsubscribe function
-  - `PeriodoNotificacao` internal component pattern (same as `HidratacaoSection` in HidratacaoCard) — keeps the main component clean
-  - Time input uses `TextInput` with `keyboardType="number-pad"` and auto-colon insertion — simple approach without third-party date picker
-  - `Switch` component from RN uses `trackColor` + `thumbColor` for theming — matches dark palette with amber active state
-  - Interval selector uses pill button pattern: active button gets accent background + dark text, inactive gets elevated bg + secondary text
-  - `contentContainerClassName` on ScrollView with `pb-12` ensures content isn't hidden behind the bottom edge
----
-
-## 2026-02-26 - US-022
-- What was implemented: Created `utils/notificationUtils.ts` with local notification scheduling system using `expo-notifications`. Exports `scheduleNotificacoes()` (requests permission, cancels all existing, schedules daily repeating notifications per period based on config store, schedules hydration reminders every N hours between 7h-22h), `cancelAllNotificacoes()` (cancels all scheduled notifications), and `cancelHydrationNotificacoes()` (selectively cancels only hydration-tagged notifications). Integrated into `app/_layout.tsx` with: notification response listener for deep linking (notification tap → navigate to home), config store subscription for auto-rescheduling on settings change, and initial scheduling on mount. Added hydration goal detection in `app/(tabs)/index.tsx` — cancels hydration notifications when `aguaMl >= 4000ml` goal is met. All functions are guarded with `Platform.OS === "web"` check.
-- Files changed:
-  - `utils/notificationUtils.ts` - New file: notification scheduling, permission handling, selective cancellation
-  - `app/_layout.tsx` - Added notification response listener, config store subscription for auto-rescheduling
-  - `app/(tabs)/index.tsx` - Added hydration goal detection to cancel hydration notifications when water goal met
-  - `package.json` / `package-lock.json` - Added expo-notifications dependency
-- **Learnings for future iterations:**
-  - `expo-notifications` v55 `NotificationBehavior` requires 5 fields: `shouldShowAlert`, `shouldPlaySound`, `shouldSetBadge`, `shouldShowBanner`, `shouldShowList` — missing `shouldShowBanner`/`shouldShowList` causes TS error
-  - Use `data: { type: "..." }` field to tag notifications by category, then filter with `getAllScheduledNotificationsAsync()` for selective cancellation
-  - `SchedulableTriggerInputTypes.DAILY` with `hour`/`minute` creates daily repeating notifications — simpler than calendar triggers
-  - `useConfigStore.subscribe()` from Zustand returns an unsubscribe function — useful for reacting to store changes outside React components
-  - Platform guard `Platform.OS === "web"` should be at function level (early return) rather than inside loops for cleaner code
-  - `useRef` with `prevAguaRef` pattern to detect when a threshold is first crossed (goal met for first time) without double-triggering
+  - `npm install --legacy-peer-deps` is needed for this project due to react-native-web peer dependency conflict with React 19
+  - `import "react-native-reanimated"` in root layout is a side-effect import required by expo-router — do NOT remove even though no Reanimated APIs are directly used
+  - Always grep for component imports before deleting — some components may only be imported via barrel exports or dynamic imports
 ---

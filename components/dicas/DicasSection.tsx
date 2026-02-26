@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
+import { Card } from "@/components/ui/Card";
+import { animateNext } from "@/utils/animationUtils";
 import { dicas } from "@/data/dicas";
 import type { Dica } from "@/data/plano";
 
@@ -44,8 +46,8 @@ function filterDicas(categoria: DicasSectionProps["categoria"]): Dica[] {
 function DicaItem({ dica }: { dica: Dica }) {
   return (
     <View className="flex-row gap-3 rounded-lg bg-bg-elevated p-3">
-      <Ionicons
-        name="information-circle-outline"
+      <MaterialCommunityIcons
+        name="information-outline"
         size={20}
         color={theme.colors.accent.DEFAULT}
         style={{ marginTop: 2 }}
@@ -66,12 +68,21 @@ function SeriesLegend() {
       {SERIES_LEGEND.map((item) => (
         <View key={item.sigla} className="flex-row items-start gap-2">
           <View
-            className="mt-0.5 rounded px-1.5 py-0.5"
-            style={{ backgroundColor: theme.colors.accent.DEFAULT + "20" }}
+            style={{
+              marginTop: 2,
+              borderRadius: theme.radius.sm,
+              borderCurve: "continuous",
+              paddingHorizontal: 6,
+              paddingVertical: 2,
+              backgroundColor: theme.colors.accent.DEFAULT + "20",
+            }}
           >
             <Text
-              className="text-xs font-bold"
-              style={{ color: theme.colors.accent.DEFAULT }}
+              style={{
+                ...theme.typography.caption,
+                fontWeight: "700",
+                color: theme.colors.accent.DEFAULT,
+              }}
             >
               {item.sigla}
             </Text>
@@ -93,26 +104,32 @@ export function DicasSection({ categoria }: DicasSectionProps) {
   const title = SECTION_TITLES[categoria];
 
   return (
-    <View className="rounded-xl border border-border bg-bg-card">
+    <Card className="p-0">
       <Pressable
-        onPress={() => setExpanded((prev) => !prev)}
+        onPress={() => {
+          animateNext();
+          setExpanded((prev) => !prev);
+        }}
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+        accessibilityLabel={`${title}, ${filteredDicas.length} dicas`}
         className="flex-row items-center justify-between p-4"
       >
         <View className="flex-row items-center gap-2">
-          <Ionicons
-            name={categoria === "nutricao" ? "nutrition-outline" : "barbell-outline"}
+          <MaterialCommunityIcons
+            name={categoria === "nutricao" ? "food-apple" : "dumbbell"}
             size={20}
             color={theme.colors.accent.DEFAULT}
           />
-          <Text className="text-base font-semibold text-txt-primary">
+          <Text style={theme.typography.callout}>
             {title}
           </Text>
-          <Text className="text-xs text-txt-muted">
+          <Text style={theme.typography.caption}>
             ({filteredDicas.length})
           </Text>
         </View>
 
-        <Ionicons
+        <MaterialCommunityIcons
           name={expanded ? "chevron-up" : "chevron-down"}
           size={18}
           color={theme.colors.text.muted}
@@ -127,6 +144,6 @@ export function DicasSection({ categoria }: DicasSectionProps) {
           ))}
         </View>
       )}
-    </View>
+    </Card>
   );
 }

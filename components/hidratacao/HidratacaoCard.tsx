@@ -1,9 +1,9 @@
 import { Pressable, Text, View } from "react-native";
-import * as Haptics from "expo-haptics";
-import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useDayStore } from "@/stores/useDayStore";
+import { animateWithHaptic } from "@/utils/animationUtils";
 import { plano } from "@/data/plano";
 
 type HidratacaoSectionProps = {
@@ -33,20 +33,18 @@ function HidratacaoSection({
   const isComplete = currentMl >= metaMl;
 
   function handleAdd(ml: number) {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onAdd(ml);
+    animateWithHaptic(() => onAdd(ml));
   }
 
   function handleRemove(ml: number) {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onRemove(ml);
+    animateWithHaptic(() => onRemove(ml));
   }
 
   return (
     <View className="gap-2">
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <Ionicons
+          <MaterialCommunityIcons
             name="water-outline"
             size={16}
             color={isComplete ? theme.colors.semantic.success : theme.colors.accent.DEFAULT}
@@ -55,18 +53,24 @@ function HidratacaoSection({
         </View>
         <View className="flex-row items-center gap-1.5">
           {isComplete && (
-            <Ionicons
-              name="checkmark-circle"
+            <MaterialCommunityIcons
+              name="check-circle"
               size={16}
               color={theme.colors.semantic.success}
             />
           )}
-          <Text className="text-sm text-txt-secondary">
+          <Text
+            selectable
+            className="text-sm text-txt-secondary"
+            style={{ fontVariant: ["tabular-nums"] }}
+          >
             {formatLiters(currentMl)} / {formatLiters(metaMl)}
           </Text>
           <Text
+            selectable
             className="text-sm font-medium"
             style={{
+              fontVariant: ["tabular-nums"],
               color: isComplete
                 ? theme.colors.semantic.success
                 : theme.colors.accent.DEFAULT,
@@ -89,36 +93,58 @@ function HidratacaoSection({
         />
       </View>
 
-      <View className="flex-row items-center gap-2">
+      <View className="flex-row items-center gap-3">
         <Pressable
           onPress={() => handleRemove(250)}
-          className="items-center justify-center rounded-lg bg-bg-elevated px-3 py-1.5"
+          accessibilityLabel={`Remover 250ml de ${label}`}
+          hitSlop={4}
+          style={{ minHeight: 44, justifyContent: "center" }}
         >
-          <Text className="text-xs font-medium text-txt-secondary">-250ml</Text>
+          <MaterialCommunityIcons
+            name="minus-circle-outline"
+            size={28}
+            color={theme.colors.text.muted}
+          />
         </Pressable>
+        <View className="flex-1 flex-row items-center gap-2">
+          <Pressable
+            onPress={() => handleAdd(250)}
+            accessibilityLabel={`Adicionar 250ml de ${label}`}
+            className="flex-1 items-center justify-center rounded-lg py-2"
+            style={{ backgroundColor: theme.colors.accent.DEFAULT + "15" }}
+          >
+            <Text
+              className="text-xs font-semibold"
+              style={{ color: theme.colors.accent.DEFAULT }}
+            >
+              +250ml
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => handleAdd(500)}
+            accessibilityLabel={`Adicionar 500ml de ${label}`}
+            className="flex-1 items-center justify-center rounded-lg py-2"
+            style={{ backgroundColor: theme.colors.accent.DEFAULT + "15" }}
+          >
+            <Text
+              className="text-xs font-semibold"
+              style={{ color: theme.colors.accent.DEFAULT }}
+            >
+              +500ml
+            </Text>
+          </Pressable>
+        </View>
         <Pressable
           onPress={() => handleAdd(250)}
-          className="flex-1 items-center justify-center rounded-lg py-1.5"
-          style={{ backgroundColor: theme.colors.accent.DEFAULT + "20" }}
+          accessibilityLabel={`Adicionar 250ml de ${label}`}
+          hitSlop={4}
+          style={{ minHeight: 44, justifyContent: "center" }}
         >
-          <Text
-            className="text-xs font-semibold"
-            style={{ color: theme.colors.accent.DEFAULT }}
-          >
-            +250ml
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => handleAdd(500)}
-          className="flex-1 items-center justify-center rounded-lg py-1.5"
-          style={{ backgroundColor: theme.colors.accent.DEFAULT + "20" }}
-        >
-          <Text
-            className="text-xs font-semibold"
-            style={{ color: theme.colors.accent.DEFAULT }}
-          >
-            +500ml
-          </Text>
+          <MaterialCommunityIcons
+            name="plus-circle-outline"
+            size={28}
+            color={theme.colors.accent.DEFAULT}
+          />
         </Pressable>
       </View>
     </View>
@@ -138,12 +164,12 @@ export function HidratacaoCard() {
   return (
     <Card className="gap-4">
       <View className="flex-row items-center gap-2">
-        <Ionicons
+        <MaterialCommunityIcons
           name="water"
           size={20}
           color={theme.colors.accent.DEFAULT}
         />
-        <Text className="text-base font-semibold text-txt-primary">
+        <Text style={theme.typography.callout}>
           Hidratação
         </Text>
       </View>

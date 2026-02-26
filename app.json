@@ -14,7 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.gabrielcoelhocruz.plantracker"
+      "bundleIdentifier": "com.gabrielcoelhocruz.plantracker",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.gabrielcoelhocruz.plantracker",
