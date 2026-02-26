@@ -1,0 +1,132 @@
+import { useState } from "react";
+import { Pressable, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { theme } from "@/constants/theme";
+import { dicas } from "@/data/dicas";
+import type { Dica } from "@/data/plano";
+
+type DicasSectionProps = {
+  categoria: "nutricao" | "treino";
+};
+
+const SERIES_LEGEND: { sigla: string; nome: string; descricao: string }[] = [
+  {
+    sigla: "WS",
+    nome: "Work Set",
+    descricao: "Carga controlada, 6-12 reps. Descanso: 60-120seg.",
+  },
+  {
+    sigla: "TS",
+    nome: "Top Set",
+    descricao: "Carga mais pesada, 6-10 reps. Descanso: 120-240seg.",
+  },
+  {
+    sigla: "BS",
+    nome: "Back-off Set",
+    descricao: "Reduz 20-30% da carga, 12-15 reps.",
+  },
+  {
+    sigla: "CS",
+    nome: "Cluster Set",
+    descricao: "Mini-series com 10-15seg de pausa intra-serie.",
+  },
+];
+
+const SECTION_TITLES: Record<DicasSectionProps["categoria"], string> = {
+  nutricao: "Dicas de Nutricao",
+  treino: "Dicas de Treino",
+};
+
+function filterDicas(categoria: DicasSectionProps["categoria"]): Dica[] {
+  return dicas.filter((d) => d.categoria === categoria);
+}
+
+function DicaItem({ dica }: { dica: Dica }) {
+  return (
+    <View className="flex-row gap-3 rounded-lg bg-bg-elevated p-3">
+      <Ionicons
+        name="information-circle-outline"
+        size={20}
+        color={theme.colors.accent.DEFAULT}
+        style={{ marginTop: 2 }}
+      />
+      <Text className="flex-1 text-sm leading-5 text-txt-secondary">
+        {dica.texto}
+      </Text>
+    </View>
+  );
+}
+
+function SeriesLegend() {
+  return (
+    <View className="gap-2 rounded-lg bg-bg-elevated p-3">
+      <Text className="text-sm font-semibold text-txt-primary">
+        Legenda de Series
+      </Text>
+      {SERIES_LEGEND.map((item) => (
+        <View key={item.sigla} className="flex-row items-start gap-2">
+          <View
+            className="mt-0.5 rounded px-1.5 py-0.5"
+            style={{ backgroundColor: theme.colors.accent.DEFAULT + "20" }}
+          >
+            <Text
+              className="text-xs font-bold"
+              style={{ color: theme.colors.accent.DEFAULT }}
+            >
+              {item.sigla}
+            </Text>
+          </View>
+          <Text className="flex-1 text-sm text-txt-secondary">
+            <Text className="font-medium text-txt-primary">{item.nome}</Text>
+            {" — "}
+            {item.descricao}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+export function DicasSection({ categoria }: DicasSectionProps) {
+  const [expanded, setExpanded] = useState(false);
+  const filteredDicas = filterDicas(categoria);
+  const title = SECTION_TITLES[categoria];
+
+  return (
+    <View className="rounded-xl border border-border bg-bg-card">
+      <Pressable
+        onPress={() => setExpanded((prev) => !prev)}
+        className="flex-row items-center justify-between p-4"
+      >
+        <View className="flex-row items-center gap-2">
+          <Ionicons
+            name={categoria === "nutricao" ? "nutrition-outline" : "barbell-outline"}
+            size={20}
+            color={theme.colors.accent.DEFAULT}
+          />
+          <Text className="text-base font-semibold text-txt-primary">
+            {title}
+          </Text>
+          <Text className="text-xs text-txt-muted">
+            ({filteredDicas.length})
+          </Text>
+        </View>
+
+        <Ionicons
+          name={expanded ? "chevron-up" : "chevron-down"}
+          size={18}
+          color={theme.colors.text.muted}
+        />
+      </Pressable>
+
+      {expanded && (
+        <View className="gap-2 px-4 pb-4">
+          {categoria === "treino" && <SeriesLegend />}
+          {filteredDicas.map((dica) => (
+            <DicaItem key={dica.id} dica={dica} />
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
