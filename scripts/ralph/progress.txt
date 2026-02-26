@@ -22,6 +22,9 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - Conditional rules use `regra: { diasDaSemana: [1,5] }` for day-specific items and `regra: { apenasEmDiaDeTreino: true }` for training-day-only items
 - Period-level `regra` (e.g. Intra Treino) applies to the entire period; item-level `regra` applies to individual items
 - Optional items use `opcional: true` flag (Abdômen, Panturrilha in "extras" period)
+- Workout data lives in `data/treinos.ts` — exports `treinos` array and types (Serie, Exercicio, Treino)
+- Serie type uses `tipo: "WS" | "TS" | "BS" | "CS"` with `series` count and optional `reps` (number or string like "4+4+4")
+- Treino has `letra` (A-E) and `grupoMuscular` for display; exercises have `observacao` for special notes like "1seg pico de contração"
 
 ---
 
@@ -74,4 +77,14 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - Period-level `regra` (Intra Treino) vs item-level `regra` (Anastrozol, Oxandrolona) — filtering logic will need to handle both levels
   - `Dica` type is defined here but actual tips data will be in a separate `data/dicas.ts` file (US-005)
   - Keep item IDs as `{periodoId}-{itemName}` for easy cross-referencing with check state
+---
+
+## 2026-02-26 - US-004
+- What was implemented: Created TypeScript types (Serie, Exercicio, Treino) and hardcoded workout data for the 5-day training split (A: Peito, B: Costas, C: Pernas, D: Ombros, E: Braços) with all exercises, series types, rep schemes, and exercise-specific observations.
+- Files changed:
+  - `data/treinos.ts` - Types (Serie, Exercicio, Treino) and exported `treinos` array with 5 workouts, ~40 total exercises
+- **Learnings for future iterations:**
+  - Serie `reps` field uses `number | string` union to handle both simple rep counts (15) and cluster/compound reps ("4+4+4", "5+5+5")
+  - CS (cluster set) observacao at serie level (e.g. "10seg pausa") vs exercise-level observacao (e.g. "1seg pico de contração") — UI will need to render both
+  - Treino E (Braços) alternates biceps/triceps exercises — the order matters for superset display in future UI
 ---
