@@ -46,6 +46,8 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - History components in `components/historico/` — reads from `useHistoryStore`, calendar uses `14.28%` width for 7-column grid
 - Date strings use `YYYY-MM-DD` format throughout (formatted via `padStart(2, "0")`) — consistent key for history store lookups
 - Bottom sheets use RN `Modal` with `transparent` + `animationType="slide"` + nested `Pressable` with `e.stopPropagation()` for backdrop dismiss — no third-party library needed
+- Config modal route (`app/config.tsx`) already configured with `presentation: "modal"` + header in `app/_layout.tsx` — just implement the screen content
+- RN `Switch` theming: `trackColor={{ false: bg.elevated, true: accent.DEFAULT }}` + `thumbColor={text.primary}` for dark theme consistency
 
 ---
 
@@ -306,4 +308,17 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - `useCallback` for handlers passed as props to memoized children (Calendario `onDayPress`) to avoid unnecessary re-renders
   - History store `dias` checked with `Object.keys(dias).length > 0` for empty state — simple and clear
   - DiaDetalhe receives `HistoricoDia | null` — returns null when no historico, Modal only renders when visible + historico exists
+---
+
+## 2026-02-26 - US-021
+- What was implemented: Built the config modal screen (`app/config.tsx`) for notification settings. Lists each period from `plano.periodos` with a toggle switch (on/off) and time input field for `horario`. Hydration section with toggle on/off and interval selector (1h, 2h, 3h) as pill buttons. Uses `PeriodoNotificacao` internal component for DRY rendering of each period row. Time input auto-inserts ":" after 2 digits. Dark themed consistent with app palette using Card, Ionicons, theme colors. Reads/writes from `useConfigStore`. Already presented as modal via root Stack in `_layout.tsx`.
+- Files changed:
+  - `app/config.tsx` - Rewritten from placeholder to full config screen with period notifications and hydration reminders
+- **Learnings for future iterations:**
+  - Config modal already has `presentation: "modal"` and header styling in `app/_layout.tsx` — no changes needed to the root layout
+  - `PeriodoNotificacao` internal component pattern (same as `HidratacaoSection` in HidratacaoCard) — keeps the main component clean
+  - Time input uses `TextInput` with `keyboardType="number-pad"` and auto-colon insertion — simple approach without third-party date picker
+  - `Switch` component from RN uses `trackColor` + `thumbColor` for theming — matches dark palette with amber active state
+  - Interval selector uses pill button pattern: active button gets accent background + dark text, inactive gets elevated bg + secondary text
+  - `contentContainerClassName` on ScrollView with `pb-12` ensures content isn't hidden behind the bottom edge
 ---
