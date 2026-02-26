@@ -1,12 +1,68 @@
-import { Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { theme } from "@/constants/theme";
+import { getTreinoDoDia } from "@/utils/diaUtils";
+import { ExercicioItem } from "@/components/treino/ExercicioItem";
+import { DicasSection } from "@/components/dicas/DicasSection";
+
+const DAY_NAMES = [
+  "Domingo",
+  "Segunda",
+  "Terça",
+  "Quarta",
+  "Quinta",
+  "Sexta",
+  "Sábado",
+];
 
 export default function TreinoScreen() {
+  const dayOfWeek = new Date().getDay();
+  const treino = getTreinoDoDia(dayOfWeek);
+  const dayName = DAY_NAMES[dayOfWeek];
+
+  if (!treino) {
+    return (
+      <View className="flex-1 items-center justify-center bg-bg-primary px-8">
+        <Ionicons
+          name="moon-outline"
+          size={64}
+          color={theme.colors.text.muted}
+        />
+        <Text className="mt-4 text-xl font-bold text-txt-primary">
+          Dia Off — Descanse
+        </Text>
+        <Text className="mt-2 text-center text-sm text-txt-secondary">
+          {dayName}. Aproveite para recuperar e voltar mais forte.
+        </Text>
+      </View>
+    );
+  }
+
   return (
-    <View className="flex-1 items-center justify-center bg-bg-primary">
-      <Text className="text-2xl font-bold text-txt-primary">Treino</Text>
-      <Text className="mt-2 text-txt-secondary">
-        Treino do dia em breve
-      </Text>
-    </View>
+    <ScrollView
+      className="flex-1 bg-bg-primary"
+      contentContainerClassName="gap-4 px-4 pb-8 pt-4"
+    >
+      <View className="gap-1">
+        <Text className="text-lg font-bold text-txt-primary">
+          {dayName} — {treino.letra}: {treino.grupoMuscular}
+        </Text>
+        <Text className="text-sm text-txt-muted">
+          {treino.exercicios.length} exercícios
+        </Text>
+      </View>
+
+      <View className="gap-2">
+        {treino.exercicios.map((exercicio, index) => (
+          <ExercicioItem
+            key={exercicio.id}
+            exercicio={exercicio}
+            index={index}
+          />
+        ))}
+      </View>
+
+      <DicasSection categoria="treino" />
+    </ScrollView>
   );
 }
