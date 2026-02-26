@@ -42,6 +42,7 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
 - Tab Hoje screen (`app/(tabs)/index.tsx`) assembles all components: ProgressBar, PeriodoSection (filtered), HidratacaoCard, CardioCard, DicasSection. Uses `contentContainerClassName` for ScrollView content styling
 - `useRouter` from expo-router for programmatic navigation (e.g. `router.push("/config")`)
 - Refeição livre button only shown on periods with `refeicao` category items — filter with `periodo.itens.some(i => i.categoria === "refeicao")`
+- Treino components in `components/treino/` (ExercicioItem) — read-only, no store deps, just renders from `data/treinos.ts`
 
 ---
 
@@ -249,4 +250,17 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - `useMemo` for `filtrarItensDoDia` and `contarItens` since they depend only on `dayOfWeek` and `diaOffManual` — avoids recalculating on every check toggle
   - `useRouter` from expo-router for navigation to config modal: `router.push("/config")`
   - Portuguese date formatting: use `toLocaleDateString("pt-BR", { month: "long" })` for month name + manual DAY_NAMES array for day of week
+---
+
+## 2026-02-26 - US-017
+- What was implemented: Built the Tab Treino workout reference screen (`app/(tabs)/treino.tsx`) and `components/treino/ExercicioItem.tsx`. The screen shows today's workout based on day of week using `getTreinoDoDia`. Header displays day name + workout letter + muscle group (e.g. "Segunda — A: Peito") with exercise count. Each exercise renders via `ExercicioItem` with numbered index, exercise name, optional `observacao`, and series badges (WS/TS/BS/CS) with distinct color-coding. On weekends/off days, shows a "Dia Off — Descanse" message with moon icon. `DicasSection` with `categoria='treino'` at bottom (collapsed by default, includes series legend). Read-only, no input fields.
+- Files changed:
+  - `components/treino/ExercicioItem.tsx` - New file: renders exercise name, numbered index, series badges with color per type, observacao at exercise and serie level
+  - `app/(tabs)/treino.tsx` - Complete rewrite from placeholder to full Treino screen
+- **Learnings for future iterations:**
+  - `ExercicioItem` lives in `components/treino/` directory — consistent with other feature-specific component directories
+  - Series badge colors: WS=amber (accent), TS=red (error), BS=green (success), CS=amber (warning) — matches DicasSection's SERIES_LEGEND but adds visual distinction via color
+  - `SERIE_COLORS` map using `Record<Serie["tipo"], string>` is type-safe against the union type
+  - Exercise-level `observacao` (e.g. "1seg pico de contração") renders below the name; serie-level `observacao` (e.g. "10seg pausa") renders inline with the badge — both are displayed
+  - Treino screen is entirely read-only — no store dependencies, just data from `getTreinoDoDia`
 ---
