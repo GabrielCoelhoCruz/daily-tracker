@@ -42,6 +42,9 @@ Feature: UI/UX Overhaul
 - Settings/nav buttons go in `headerRight` of Stack.Screen options, not inline in screen JSX
 - Use `minHeight: 44` via inline `style` for touch target compliance on interactive elements
 - CheckItem uses `checkbox-marked-circle-outline` / `checkbox-blank-circle-outline` from MaterialCommunityIcons
+- SerieBadge/pill badges: use inline `style` with `borderCurve: 'continuous'`, `borderRadius: 6` — NativeWind `rounded` doesn't set borderCurve
+- Circular number badges: `width`/`height` + `borderRadius: half` + accent color at `"20"` opacity suffix for background
+- ExercicioItem uses `<Card className="p-0">` with internal p-3 padding sections
 
 ---
 
@@ -138,4 +141,20 @@ Feature: UI/UX Overhaul
   - Use `minHeight: 44` via inline `style` for touch target compliance (NativeWind doesn't have `min-h-11` equivalent that maps to exactly 44pt)
   - `checkbox-marked-circle-outline` / `checkbox-blank-circle-outline` are cleaner than custom View+border checkbox implementations
   - For add buttons, a solid accent-colored circle with plus icon (44x44) provides clear affordance
+---
+
+## 2026-02-26 - US-007
+- Redesigned ExercicioItem: exercise number as accent-colored circular badge (28x28), name using callout typography, series aligned below with marginLeft offset
+- Updated SerieBadge: consistent pill design with borderCurve 'continuous', borderRadius 6, inline styles instead of NativeWind classes
+- ExercicioItem now uses `<Card className="p-0">` for card-style container instead of bare bg-bg-elevated View
+- Treino screen: moved day name + muscle group to footnote subtitle below native large title header, exercise count as caption
+- Dia Off empty state: moon-waning-crescent icon reduced from 64px to 48px per spec, cleaner text layout
+- DicasSection SeriesLegend: updated badge pills to match SerieBadge style (borderCurve continuous, inline styles)
+- DicasSection already had SeriesLegend at top of training tips — no change needed
+- Files changed (3): `components/treino/ExercicioItem.tsx`, `app/(tabs)/(treino)/index.tsx`, `components/dicas/DicasSection.tsx`
+- **Learnings for future iterations:**
+  - ExercicioItem uses `<Card className="p-0">` since it manages its own padding for the two-section layout (header + series row)
+  - SerieBadge pill styling should use inline `style` with `borderCurve: 'continuous'` for iOS squircle corners — NativeWind `rounded` doesn't set borderCurve
+  - Circular number badges: use exact width/height + borderRadius = half for a perfect circle, with accent color at 20% opacity background
+  - Keep `className` for flexbox layout (flex-row, gap, items-center) and `style` for visual design (borderRadius, borderCurve, colors)
 ---
