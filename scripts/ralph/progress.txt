@@ -39,6 +39,9 @@ Feature: UI/UX Overhaul
 - `<Card className="p-0">` when the component manages its own internal padding (e.g., collapsible sections with header + content areas)
 - Card has: borderRadius 16, borderCurve 'continuous', iOS shadow + Android elevation, bg-bg-card, p-4 default padding
 - Screen content gaps use `gap-3` (12px) between cards
+- Settings/nav buttons go in `headerRight` of Stack.Screen options, not inline in screen JSX
+- Use `minHeight: 44` via inline `style` for touch target compliance on interactive elements
+- CheckItem uses `checkbox-marked-circle-outline` / `checkbox-blank-circle-outline` from MaterialCommunityIcons
 
 ---
 
@@ -117,4 +120,22 @@ Feature: UI/UX Overhaul
   - Never duplicate shadow/border styles inline — always use the `<Card>` component for consistency
   - `borderCurve: 'continuous'` gives iOS-style smooth/squircle corners — must be set via inline `style`, not NativeWind class
   - `boxShadow` CSS property doesn't work in React Native — use platform-specific shadow props (iOS: shadowColor/Offset/Opacity/Radius, Android: elevation)
+---
+
+## 2026-02-26 - US-006
+- Moved settings button (cog icon) to `headerRight` in `(hoje)/_layout.tsx` Stack.Screen options
+- Moved date display below header as standalone footnote text
+- Redesigned Dia Off toggle as a prominent card with moon icon, title, subtitle, and check indicator
+- Thickened ProgressBar track to height 12 with rounded ends, percentage color-coded (green at 100%, amber otherwise)
+- CheckItem now uses `checkbox-marked-circle-outline` / `checkbox-blank-circle-outline` icons at 24px with min 44pt touch target height
+- HidratacaoCard stepper buttons redesigned with `minus-circle-outline` / `plus-circle-outline` icons at 28px flanking the +250ml/+500ml quick-add buttons
+- CardioCard input area cleaned up: 44pt height input, accent-colored circular plus-icon add button (44x44)
+- Removed `useRouter` import from Hoje screen (settings nav now in layout header)
+- Typecheck passes clean
+- Files changed (6): `app/(tabs)/(hoje)/_layout.tsx`, `app/(tabs)/(hoje)/index.tsx`, `components/checklist/ProgressBar.tsx`, `components/checklist/CheckItem.tsx`, `components/hidratacao/HidratacaoCard.tsx`, `components/cardio/CardioCard.tsx`
+- **Learnings for future iterations:**
+  - Settings buttons belong in `headerRight` of Stack.Screen options, not inline in screen content — keeps the native iOS feel
+  - Use `minHeight: 44` via inline `style` for touch target compliance (NativeWind doesn't have `min-h-11` equivalent that maps to exactly 44pt)
+  - `checkbox-marked-circle-outline` / `checkbox-blank-circle-outline` are cleaner than custom View+border checkbox implementations
+  - For add buttons, a solid accent-colored circle with plus icon (44x44) provides clear affordance
 ---
