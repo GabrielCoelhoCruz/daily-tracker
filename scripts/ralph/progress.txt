@@ -111,4 +111,20 @@ Started: Thu, Feb 26, 2026 12:23:45 AM
   - `contarItens` skips the parent "Suplementos" item when it has `subItens`, counting each sub-item individually instead
   - `dayOfWeek` uses JS Date convention: 0=Sunday, 1=Monday, ..., 6=Saturday
   - Empty periods (all items filtered out) are removed from the result
+- Zustand v5 with persist middleware: `create<State & Actions>()(persist((...) => ({...}), { name, storage }))` — note the extra `()` for middleware
+- AsyncStorage via `@react-native-async-storage/async-storage` used with `createJSONStorage(() => AsyncStorage)` for Zustand persist
+- Stores live in `stores/` directory with `use[Name]Store.ts` naming convention
+- DayState exports `DayState` type for use by other stores/utils (e.g. reset logic)
+---
+
+## 2026-02-26 - US-007
+- What was implemented: Created Zustand day store (`stores/useDayStore.ts`) with full DayState shape and all actions. State includes: checks (Record with checked/timestamp), diaOffManual, aguaMl, chaMl, sessoesCardio, refeicaoLivreUsada, refeicaoLivrePeriodoId, semanaRefeicaoLivre, ultimoReset. Actions: toggleCheck, setDiaOff, addAgua, removeAgua, addCha, removeCha, addSessaoCardio, removeSessaoCardio, usarRefeicaoLivre, resetDay. Persisted via Zustand persist middleware with AsyncStorage.
+- Files changed:
+  - `stores/useDayStore.ts` - New file: Zustand store with persist middleware
+  - `package.json` - Added zustand and @react-native-async-storage/async-storage dependencies
+- **Learnings for future iterations:**
+  - Zustand v5 requires double parentheses for middleware: `create<T>()(persist(...))`
+  - `removeAgua`/`removeCha` use `Math.max(0, ...)` to clamp to minimum 0
+  - `resetDay` does NOT reset `refeicaoLivreUsada`/`refeicaoLivrePeriodoId`/`semanaRefeicaoLivre` — those are reset separately by the weekly reset logic in US-010
+  - `SessaoCardio` type includes timestamp for tracking when sessions were logged
 ---
