@@ -25,7 +25,11 @@ export default function TreinoScreen() {
 
   if (!treino) {
     return (
-      <View className="flex-1 items-center justify-center bg-bg-primary px-8">
+      <ScrollView
+        className="flex-1 bg-bg-primary"
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerClassName="flex-1 items-center justify-center px-8"
+      >
         <Ionicons
           name="moon-outline"
           size={64}
@@ -37,13 +41,14 @@ export default function TreinoScreen() {
         <Text className="mt-2 text-center text-sm text-txt-secondary">
           {dayName}. Aproveite para recuperar e voltar mais forte.
         </Text>
-      </View>
+      </ScrollView>
     );
   }
 
   return (
     <ScrollView
       className="flex-1 bg-bg-primary"
+      contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="gap-4 px-4 pb-8 pt-4"
     >
       <View className="gap-1">

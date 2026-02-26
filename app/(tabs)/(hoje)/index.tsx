@@ -116,6 +116,7 @@ export default function HojeScreen() {
   return (
     <ScrollView
       className="flex-1 bg-bg-primary"
+      contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="gap-4 px-4 pb-8 pt-4"
     >
       <View className="flex-row items-center justify-between">

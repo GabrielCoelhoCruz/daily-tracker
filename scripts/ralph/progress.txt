@@ -15,10 +15,10 @@ Feature: UI/UX Overhaul
 - Access stores outside React: `useStore.getState()` / `useStore.subscribe()`
 - NativeWind `className` for static layout styles, inline `style` for dynamic colors and typography
 - expo-haptics already used in CheckItem, HidratacaoCard, CardioCard, index.tsx (Light impact)
-- Current tab bar: custom GlassTabBar in `app/(tabs)/_layout.tsx` using `expo-glass-effect` + JS `Tabs`
-- Current icons: Ionicons (12+ files) + FontAwesome (tab bar only) — both from `@expo/vector-icons`
-- Current route structure: flat `app/(tabs)/index.tsx`, `treino.tsx`, `historico.tsx`
-- DiaDetalhe currently uses React Native `<Modal>` with `animationType="slide"` inside historico screen
+- Tab bar: NativeTabs from `expo-router/unstable-native-tabs` with SF Symbols via `Icon` component
+- Current icons: Ionicons (12+ files) still in screens — FontAwesome fully removed
+- Route structure: `app/(tabs)/(hoje)/index.tsx`, `(treino)/index.tsx`, `(historico)/index.tsx`, `(historico)/dia-detalhe.tsx`
+- All screens use ScrollView as first child with `contentInsetAdjustmentBehavior="automatic"`
 - react-native-reanimated installed but NOT used anywhere
 - expo-blur installed but NOT imported anywhere
 - SDK 54 NativeTabs: use standalone `Icon`, `Label`, `VectorIcon` imports (NOT compound `NativeTabs.Trigger.X`)
@@ -26,5 +26,41 @@ Feature: UI/UX Overhaul
 - NativeTabs don't render headers — must nest Stack inside each tab group
 - ScrollView must be first opaque child of each screen for tab bar transparency on iOS 18
 - formSheet presentation requires a route in a Stack — cannot be used with in-screen `<Modal>`
+- Route structure now: `app/(tabs)/(hoje)/index.tsx`, `(treino)/index.tsx`, `(historico)/index.tsx`, `(historico)/dia-detalhe.tsx`
+- Tab group names in Tabs.Screen must match directory names exactly: `(hoje)`, `(treino)`, `(historico)`
+- ThemeProvider with DarkTheme wraps root Stack in `app/_layout.tsx`
+- Typed routes auto-generate from file structure — run `npx expo customize tsconfig.json` to regenerate `.expo/types/router.d.ts`
+- For typed routes: use `/dia-detalhe?date=...` (short form) not `/(historico)/dia-detalhe?date=...`
 
+---
+
+## 2026-02-26 11:30 - US-001
+- Implemented ThemeProvider with DarkTheme wrapping root Stack
+- Created tab group directories: `(hoje)`, `(treino)`, `(historico)` with Stack layouts
+- Moved screen content from flat files to group index files
+- Created `dia-detalhe.tsx` route with formSheet presentation, sheetGrabberVisible, sheetAllowedDetents [0.5, 1.0]
+- Converted historico from `<Modal>` to `router.push('/dia-detalhe?date=...')`
+- Updated tabs `_layout.tsx` to reference new group names with `headerShown: false`
+- All Stack headers: headerLargeTitle, headerTransparent, headerShadowVisible false, headerBlurEffect none
+- Files changed: `app/_layout.tsx`, `app/(tabs)/_layout.tsx`, created 7 new files in tab groups, deleted 3 old flat files
+- **Learnings for future iterations:**
+  - Expo Router typed routes use short-form paths (e.g., `/dia-detalhe`) not full group paths
+  - Must delete old flat route files after moving content to group dirs to avoid route conflicts
+  - `headerShown: false` on Tabs screens is required when nested Stacks provide their own headers
+---
+
+## 2026-02-26 12:00 - US-002
+- Replaced custom GlassTabBar + JS Tabs with NativeTabs from `expo-router/unstable-native-tabs`
+- Used SDK 54 standalone imports: `Icon`, `Label` (not compound `NativeTabs.Trigger.X`)
+- SF Symbol icons: checkmark.circle(.fill) for Hoje, dumbbell(.fill) for Treino, calendar for Histórico
+- Set `tintColor="#f59e0b"` on NativeTabs
+- Removed all expo-glass-effect imports and GlassTabBar code from tab layout
+- Added `contentInsetAdjustmentBehavior="automatic"` to all screen ScrollViews
+- Converted treino empty state (dia off) from View to ScrollView for tab bar transparency
+- Files changed: `app/(tabs)/_layout.tsx`, `app/(tabs)/(hoje)/index.tsx`, `app/(tabs)/(treino)/index.tsx`, `app/(tabs)/(historico)/index.tsx`
+- **Learnings for future iterations:**
+  - SDK 54 NativeTabs use standalone `Icon`, `Label`, `VectorIcon` imports — no `NativeTabs.Trigger.Icon` compound syntax
+  - Empty state screens also need ScrollView as first child for proper tab bar transparency
+  - NativeTabs automatically handles headerShown — no need for explicit `headerShown: false` on triggers
+  - `contentContainerClassName` works with NativeWind for ScrollView content padding (same as contentContainerStyle)
 ---

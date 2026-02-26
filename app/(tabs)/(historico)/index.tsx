@@ -25,6 +25,7 @@ export default function HistoricoScreen() {
   return (
     <ScrollView
       className="flex-1 bg-bg-primary"
+      contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="gap-4 p-4 pb-8"
     >
       {hasHistory ? (
