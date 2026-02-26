@@ -10,11 +10,11 @@ import { DicasSection } from "@/components/dicas/DicasSection";
 const DAY_NAMES = [
   "Domingo",
   "Segunda",
-  "Terça",
+  "Ter\u00e7a",
   "Quarta",
   "Quinta",
   "Sexta",
-  "Sábado",
+  "S\u00e1bado",
 ];
 
 export default function TreinoScreen() {
@@ -32,7 +32,7 @@ export default function TreinoScreen() {
           color={theme.colors.text.muted}
         />
         <Text className="mt-4 text-xl font-bold text-txt-primary">
-          Dia Off — Descanse
+          Dia Off \u2014 Descanse
         </Text>
         <Text className="mt-2 text-center text-sm text-txt-secondary">
           {dayName}. Aproveite para recuperar e voltar mais forte.
@@ -48,10 +48,10 @@ export default function TreinoScreen() {
     >
       <View className="gap-1">
         <Text className="text-lg font-bold text-txt-primary">
-          {dayName} — {treino.letra}: {treino.grupoMuscular}
+          {dayName} \u2014 {treino.letra}: {treino.grupoMuscular}
         </Text>
         <Text className="text-sm text-txt-muted">
-          {treino.exercicios.length} exercícios
+          {treino.exercicios.length} exerc\u00edcios
         </Text>
       </View>
 

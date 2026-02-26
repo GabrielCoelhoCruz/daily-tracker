@@ -1,4 +1,5 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -84,26 +85,28 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0c0a09" }}>
-      <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: "#0c0a09" },
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="config"
-          options={{
-            presentation: "modal",
-            headerShown: true,
-            headerTitle: "Configurações",
-            headerStyle: { backgroundColor: "#1c1917" },
-            headerTintColor: "#fafaf9",
+    <ThemeProvider value={DarkTheme}>
+      <View style={{ flex: 1, backgroundColor: "#0c0a09" }}>
+        <StatusBar style="light" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: "#0c0a09" },
           }}
-        />
-      </Stack>
-    </View>
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="config"
+            options={{
+              presentation: "modal",
+              headerShown: true,
+              headerTitle: "Configurações",
+              headerStyle: { backgroundColor: "#1c1917" },
+              headerTintColor: "#fafaf9",
+            }}
+          />
+        </Stack>
+      </View>
+    </ThemeProvider>
   );
 }

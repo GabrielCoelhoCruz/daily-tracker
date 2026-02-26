@@ -58,6 +58,7 @@ export default function HojeScreen() {
   const refeicaoLivreUsada = useDayStore((s) => s.refeicaoLivreUsada);
   const refeicaoLivrePeriodoId = useDayStore((s) => s.refeicaoLivrePeriodoId);
   const usarRefeicaoLivre = useDayStore((s) => s.usarRefeicaoLivre);
+  const desfazerRefeicaoLivre = useDayStore((s) => s.desfazerRefeicaoLivre);
   const aguaMl = useDayStore((s) => s.aguaMl);
   const prevAguaRef = useRef(aguaMl);
 
@@ -105,6 +106,11 @@ export default function HojeScreen() {
   function handleRefeicaoLivre(periodoId: string) {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     usarRefeicaoLivre(periodoId);
+  }
+
+  function handleDesfazerRefeicaoLivre() {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    desfazerRefeicaoLivre();
   }
 
   return (
@@ -180,17 +186,38 @@ export default function HojeScreen() {
         </View>
       )}
       {treino && refeicaoLivreUsada && (
-        <View className="flex-row items-center gap-2">
-          <Ionicons
-            name="restaurant-outline"
-            size={16}
-            color={theme.colors.semantic.success}
-          />
-          <Text className="text-sm text-txt-secondary">Refeição Livre</Text>
-          <Badge
-            text="1/1"
-            color={theme.colors.semantic.success}
-          />
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center gap-2">
+            <Ionicons
+              name="restaurant-outline"
+              size={16}
+              color={theme.colors.semantic.success}
+            />
+            <Text className="text-sm text-txt-secondary">Refeição Livre</Text>
+            <Badge
+              text="1/1"
+              color={theme.colors.semantic.success}
+            />
+          </View>
+          <Pressable
+            onPress={handleDesfazerRefeicaoLivre}
+            className="flex-row items-center gap-1 rounded-lg px-2.5 py-1"
+            style={{
+              backgroundColor: theme.colors.semantic.error + "15",
+            }}
+          >
+            <Ionicons
+              name="arrow-undo-outline"
+              size={14}
+              color={theme.colors.semantic.error}
+            />
+            <Text
+              className="text-xs font-medium"
+              style={{ color: theme.colors.semantic.error }}
+            >
+              Desfazer
+            </Text>
+          </Pressable>
         </View>
       )}
 
