@@ -5,6 +5,7 @@ import { theme } from "@/constants/theme";
 import { usePhysiqueStore, MODE_LABELS, type PhysiqueCheckIn } from "@/stores/usePhysiqueStore";
 import { Card } from "@/components/ui/Card";
 import { WeightDelta } from "@/components/physique/WeightDelta";
+import { EvolutionChart } from "@/components/physique/EvolutionChart";
 
 function CheckInCard({ checkIn }: { checkIn: PhysiqueCheckIn }) {
   return (
@@ -125,6 +126,7 @@ export default function ProgressoScreen() {
                 Novo Check-in
               </Text>
             </Pressable>
+            <EvolutionChart />
             {sorted.map((c) => (
               <CheckInCard key={c.id} checkIn={c} />
             ))}
