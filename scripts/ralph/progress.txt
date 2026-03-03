@@ -136,3 +136,19 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
   - Link component from expo-router with `asChild` wrapping a Pressable works well for inline text links
   - GuideSection data-driven approach with icon/title/items array keeps the component clean
 ---
+
+## 2026-03-03 - US-008
+- Created `app/(tabs)/(progresso)/compare.tsx` — side-by-side photo comparison screen
+- Added compare screen to `_layout.tsx` as formSheet
+- Added compare button (icon) next to "Novo Check-in" in progresso index
+- Two dropdown pickers for Week A and Week B selection
+- Weight delta header showing weight change between weeks
+- Tab bar to switch between Frontal/Lateral/Costas angle pairs
+- Empty "Sem foto" placeholder when a week has fewer photos
+- Minimum 2 check-ins required guard with empty state
+- Files changed: app/(tabs)/(progresso)/compare.tsx (new), _layout.tsx, index.tsx
+- **Learnings for future iterations:**
+  - `borderCurve: 'continuous'` is NOT valid on RN Image `style` prop (only View) — causes TS error, omit for Image
+  - Photo index mapping: Frontal=0, Lateral=1, Costas=2 matches PHOTO_LABELS order in usePhysiqueStore
+  - `Dimensions.get("window").width` for calculating responsive photo widths in side-by-side layout
+---
