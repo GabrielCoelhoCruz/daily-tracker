@@ -13,7 +13,8 @@ import { useLocalSearchParams } from "expo-router";
 import Markdown from "@ronradtke/react-native-markdown-display";
 import { theme } from "@/constants/theme";
 import { usePhysiqueStore, PHOTO_LABELS, MODE_LABELS } from "@/stores/usePhysiqueStore";
-import { CATEGORY_LABELS } from "@/services/physiqueAnalysis";
+import { CATEGORY_LABELS, STAGE_READINESS_LABELS, STAGE_READINESS_ORDER } from "@/services/physiqueAnalysis";
+import type { StageReadinessLevel } from "@/services/physiqueAnalysis";
 import { WeightDelta } from "@/components/physique/WeightDelta";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
@@ -172,25 +173,28 @@ export default function ResultScreen() {
                   </Text>
                   <Text style={[theme.typography.body, { color: theme.colors.accent.DEFAULT, fontWeight: "700", marginBottom: 6 }]}>
                     {checkIn.scores.stageReadiness != null
-                      ? `${checkIn.scores.stageReadiness}%`
+                      ? STAGE_READINESS_LABELS[checkIn.scores.stageReadiness as StageReadinessLevel] ?? checkIn.scores.stageReadiness
                       : "--"}
                   </Text>
-                  <View
-                    style={{
-                      height: 6,
-                      backgroundColor: theme.colors.bg.primary,
-                      borderRadius: 3,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <View
-                      style={{
-                        height: 6,
-                        width: `${checkIn.scores.stageReadiness ?? 0}%`,
-                        backgroundColor: theme.colors.accent.DEFAULT,
-                        borderRadius: 3,
-                      }}
-                    />
+                  <View className="flex-row" style={{ gap: 3 }}>
+                    {STAGE_READINESS_ORDER.map((level, i) => {
+                      const currentIdx = checkIn.scores?.stageReadiness
+                        ? STAGE_READINESS_ORDER.indexOf(checkIn.scores.stageReadiness as StageReadinessLevel)
+                        : -1;
+                      return (
+                        <View
+                          key={level}
+                          style={{
+                            flex: 1,
+                            height: 6,
+                            borderRadius: 3,
+                            backgroundColor: i <= currentIdx
+                              ? theme.colors.accent.DEFAULT
+                              : theme.colors.bg.primary,
+                          }}
+                        />
+                      );
+                    })}
                   </View>
                 </View>
 

@@ -36,7 +36,7 @@ export type PhysiqueCheckIn = {
   weeksToCompetition?: number;
   scores?: {
     overallConditioning?: number;
-    stageReadiness?: number;
+    stageReadiness?: string;
     vTaper?: number;
   };
 };
