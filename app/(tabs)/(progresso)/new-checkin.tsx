@@ -105,6 +105,7 @@ export default function NewCheckInScreen() {
         photoPaths: savedPaths,
         analysis,
         mode: effectiveMode,
+        targetCategory: usePhysiqueStore.getState().lastCategory,
       });
 
       router.replace({

@@ -13,7 +13,14 @@ export const MODE_LABELS: Record<string, string> = {
   full: "Completa",
   comparative: "Comparativa",
   quick: "Quick",
+  posing: "Posing",
 };
+
+export type TargetCategory =
+  | "mens_physique"
+  | "classic_physique"
+  | "bodybuilding"
+  | "undecided";
 
 export type PhysiqueCheckIn = {
   id: string;
@@ -24,16 +31,25 @@ export type PhysiqueCheckIn = {
   notes?: string;
   photoPaths: string[];
   analysis?: string;
-  mode: "full" | "comparative" | "quick";
+  mode: "full" | "comparative" | "quick" | "posing";
+  targetCategory: TargetCategory;
+  weeksToCompetition?: number;
+  scores?: {
+    overallConditioning?: number;
+    stageReadiness?: number;
+    vTaper?: number;
+  };
 };
 
 type PhysiqueState = {
   checkIns: PhysiqueCheckIn[];
+  lastCategory: TargetCategory;
 };
 
 type PhysiqueActions = {
   addCheckIn: (checkIn: Omit<PhysiqueCheckIn, "id">) => string;
   updateAnalysis: (id: string, analysis: string) => void;
+  setLastCategory: (category: TargetCategory) => void;
 };
 
 function generateId(): string {
@@ -44,11 +60,13 @@ export const usePhysiqueStore = create<PhysiqueState & PhysiqueActions>()(
   persist(
     (set) => ({
       checkIns: [],
+      lastCategory: "undecided" as TargetCategory,
 
       addCheckIn: (checkIn) => {
         const id = generateId();
         set((state) => ({
           checkIns: [...state.checkIns, { ...checkIn, id }],
+          lastCategory: checkIn.targetCategory,
         }));
         return id;
       },
@@ -59,6 +77,8 @@ export const usePhysiqueStore = create<PhysiqueState & PhysiqueActions>()(
             c.id === id ? { ...c, analysis } : c
           ),
         })),
+
+      setLastCategory: (category) => set({ lastCategory: category }),
     }),
     {
       name: "physique-store",
