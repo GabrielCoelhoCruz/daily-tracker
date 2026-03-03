@@ -7,6 +7,7 @@ import {
   Pressable,
   FlatList,
   Modal,
+  Share,
   useWindowDimensions,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
@@ -56,6 +57,30 @@ export default function ResultScreen() {
   const checkIn = usePhysiqueStore((s) => s.checkIns.find((c) => c.id === id));
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
 
+  const handleShare = async () => {
+    if (!checkIn) return;
+
+    const categoryLabel = checkIn.targetCategory
+      ? CATEGORY_LABELS[checkIn.targetCategory]
+      : "";
+    const header = [
+      `📊 Physique Check-in — Semana ${checkIn.week}`,
+      `📅 ${checkIn.date}`,
+      `⚖️ ${checkIn.weight}kg`,
+      categoryLabel ? `🏆 ${categoryLabel}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const message = [header, "", checkIn.analysis ?? "Análise não disponível"].join("\n");
+
+    try {
+      await Share.share({ message });
+    } catch {
+      // user cancelled or share failed — no action needed
+    }
+  };
+
   if (!checkIn) {
     return (
       <View className="flex-1 bg-primary items-center justify-center">
@@ -102,10 +127,24 @@ export default function ResultScreen() {
                 </View>
               )}
             </View>
-            <View className="flex-row items-center" style={{ gap: 12 }}>
-              <Text style={theme.typography.footnote}>{checkIn.date}</Text>
-              <Text style={theme.typography.body}>{checkIn.weight}kg</Text>
-              <WeightDelta weight={checkIn.weight} previousWeight={checkIn.previousWeight} />
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center" style={{ gap: 12 }}>
+                <Text style={theme.typography.footnote}>{checkIn.date}</Text>
+                <Text style={theme.typography.body}>{checkIn.weight}kg</Text>
+                <WeightDelta weight={checkIn.weight} previousWeight={checkIn.previousWeight} />
+              </View>
+              <Pressable
+                onPress={handleShare}
+                accessibilityLabel="Compartilhar análise"
+                accessibilityRole="button"
+                style={{ minHeight: 44, minWidth: 44, alignItems: "center", justifyContent: "center" }}
+              >
+                <MaterialCommunityIcons
+                  name="share-variant"
+                  size={22}
+                  color={theme.colors.accent.DEFAULT}
+                />
+              </Pressable>
             </View>
           </View>
 
