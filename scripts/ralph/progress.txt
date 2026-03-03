@@ -125,3 +125,14 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
   - API route files use `+api.ts` suffix convention in `app/` directory
   - System prompt is built client-side and sent to API route to avoid duplicating prompt logic server-side
 ---
+
+## 2026-03-03 - US-007
+- Created `app/(tabs)/(progresso)/photo-guide.tsx` — photo guide screen with 6 sections (when, where, lighting, required photos, optional, rules)
+- Added photo-guide to `_layout.tsx` as formSheet
+- Added '📸 Guia de fotos' link above photo slots in new-checkin.tsx
+- Uses Ionicons for section icons, Card component for sections, dark theme consistent
+- Files changed: app/(tabs)/(progresso)/photo-guide.tsx (new), _layout.tsx, new-checkin.tsx
+- **Learnings for future iterations:**
+  - Link component from expo-router with `asChild` wrapping a Pressable works well for inline text links
+  - GuideSection data-driven approach with icon/title/items array keeps the component clean
+---
