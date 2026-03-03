@@ -89,7 +89,7 @@ export default function NewCheckInScreen() {
       const store = usePhysiqueStore.getState();
 
       // Call AI analysis BEFORE saving to store
-      const analysis = await analyzePhysique(savedPaths, effectiveMode, {
+      const { analysis, scores } = await analyzePhysique(savedPaths, effectiveMode, {
         week: weekNum,
         weight: Number(weight),
         previousWeight: prevCheckIn?.weight,
@@ -107,6 +107,7 @@ export default function NewCheckInScreen() {
         notes: notes || undefined,
         photoPaths: savedPaths,
         analysis,
+        scores,
         mode: effectiveMode,
         targetCategory: usePhysiqueStore.getState().lastCategory,
       });

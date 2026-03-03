@@ -262,11 +262,43 @@ function buildPosingPrompt(ctx: AnalysisContext): string {
   return `## Avaliação de Posing\n\nCategoria alvo: ${CATEGORY_LABELS[ctx.targetCategory]}\n\nAvalie cada pose: execução, o que favorece, o que expõe, como melhorar. Sugira a melhor favorite classic pose baseado no meu físico.`;
 }
 
+export type PhysiqueScores = {
+  overallConditioning?: number;
+  stageReadiness?: number;
+  vTaper?: number;
+};
+
+type AnalysisResult = {
+  analysis: string;
+  scores?: PhysiqueScores;
+};
+
+function parseScores(raw: string): { analysis: string; scores?: PhysiqueScores } {
+  const match = raw.match(/```json\s*(\{[\s\S]*?\})\s*```\s*$/);
+  if (!match) return { analysis: raw };
+
+  try {
+    const parsed = JSON.parse(match[1]) as Record<string, unknown>;
+    const scores: PhysiqueScores = {};
+    if (typeof parsed.overallConditioning === "number") scores.overallConditioning = parsed.overallConditioning;
+    if (typeof parsed.stageReadiness === "number") scores.stageReadiness = parsed.stageReadiness;
+    if (typeof parsed.vTaper === "number") scores.vTaper = parsed.vTaper;
+
+    const analysis = raw.slice(0, match.index).trimEnd();
+    return {
+      analysis,
+      scores: Object.keys(scores).length > 0 ? scores : undefined,
+    };
+  } catch {
+    return { analysis: raw };
+  }
+}
+
 export async function analyzePhysique(
   photoPaths: string[],
   mode: "full" | "comparative" | "quick" | "posing",
   context: AnalysisContext
-): Promise<string> {
+): Promise<AnalysisResult> {
   const content: Content[] = [];
 
   // Current photos
@@ -338,7 +370,7 @@ export async function analyzePhysique(
     if (typeof text !== "string") {
       throw new Error("Resposta inesperada da API. Tente novamente.");
     }
-    return text;
+    return parseScores(text);
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
       throw new Error("Timeout - a análise demorou mais de 60 segundos. Tente novamente.");
