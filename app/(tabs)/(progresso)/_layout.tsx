@@ -50,6 +50,17 @@ export default function ProgressoLayout() {
         }}
       />
       <Stack.Screen
+        name="photo-guide"
+        options={{
+          presentation: "formSheet",
+          sheetGrabberVisible: true,
+          sheetAllowedDetents: [0.75, 1.0],
+          title: "Guia de Fotos",
+          headerLargeTitle: false,
+          contentStyle: { backgroundColor: theme.colors.bg.card },
+        }}
+      />
+      <Stack.Screen
         name="result"
         options={{
           title: "Análise",

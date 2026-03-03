@@ -8,7 +8,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { router } from "expo-router";
+import { router, Link } from "expo-router";
 import { Paths, Directory, File } from "expo-file-system";
 import { theme } from "@/constants/theme";
 import { usePhysiqueStore, PHOTO_LABELS } from "@/stores/usePhysiqueStore";
@@ -347,7 +347,16 @@ export default function NewCheckInScreen() {
 
         {/* Photos */}
         <View style={{ gap: 6 }}>
-          <Text style={theme.typography.footnote}>Fotos *</Text>
+          <View className="flex-row items-center justify-between">
+            <Text style={theme.typography.footnote}>Fotos *</Text>
+            <Link href={"./photo-guide" as any} asChild>
+              <Pressable accessibilityRole="link">
+                <Text style={[theme.typography.caption, { color: theme.colors.accent.DEFAULT }]}>
+                  📸 Guia de fotos
+                </Text>
+              </Pressable>
+            </Link>
+          </View>
           <PhotoSlots
             photos={photos}
             onAdd={handleAddPhoto}
