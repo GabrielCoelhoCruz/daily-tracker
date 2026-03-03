@@ -23,6 +23,12 @@ const CATEGORY_PILLS: { key: TargetCategory; label: string }[] = [
   { key: "undecided", label: "A definir" },
 ];
 
+const POSING_LABELS: Partial<Record<TargetCategory, string[]>> = {
+  mens_physique: ["Front Pose", "Side Esquerdo", "Back Pose", "Side Direito"],
+  classic_physique: ["Front Double Biceps", "Side Chest", "Back Double Biceps", "Abs & Thighs", "Favorite Classic"],
+  bodybuilding: ["Front Double Biceps", "Front Lat Spread", "Side Chest", "Back Double Biceps", "Back Lat Spread", "Side Triceps", "Abs & Thighs", "Most Muscular"],
+};
+
 type PhotoSlot = { uri: string; label: string } | null;
 
 export default function NewCheckInScreen() {
@@ -39,21 +45,23 @@ export default function NewCheckInScreen() {
   const [weight, setWeight] = useState("");
   const [week, setWeek] = useState(String(lastWeek + 1));
   const [notes, setNotes] = useState("");
-  const [mode, setMode] = useState<"full" | "quick">("full");
+  const [mode, setMode] = useState<"full" | "quick" | "posing">("full");
   const [category, setCategory] = useState<TargetCategory>(lastCategory);
   const [weeksToCompetition, setWeeksToCompetition] = useState("");
-  const [photos, setPhotos] = useState<PhotoSlot[]>([null, null, null, null]);
+  const [photos, setPhotos] = useState<PhotoSlot[]>([null, null, null, null, null, null, null, null]);
   const [loading, setLoading] = useState(false);
 
-  const visibleSlots = mode === "quick" ? 1 : 4;
+  const posingLabels = mode === "posing" ? POSING_LABELS[category] : undefined;
+  const posingNeedsCategory = mode === "posing" && category === "undecided";
+  const visibleSlots = mode === "quick" ? 1 : mode === "posing" ? (posingLabels?.length ?? 0) : 4;
   const photoCount = photos.slice(0, visibleSlots).filter(Boolean).length;
   const isValid =
-    Number(weight) > 0 && Number(week) > 0 && photoCount >= 1;
+    Number(weight) > 0 && Number(week) > 0 && photoCount >= 1 && !posingNeedsCategory;
 
   const handleAddPhoto = (index: number, uri: string) => {
     setPhotos((prev) => {
       const next = [...prev];
-      next[index] = { uri, label: PHOTO_LABELS[index] };
+      next[index] = { uri, label: (posingLabels ?? PHOTO_LABELS)[index] ?? `Foto ${index + 1}` };
       return next;
     });
   };
@@ -92,22 +100,29 @@ export default function NewCheckInScreen() {
       const weekNum = Number(week);
       const prevCheckIn = checkIns.find((c) => c.week === weekNum - 1);
       const effectiveMode: "full" | "comparative" | "quick" | "posing" =
-        mode === "quick"
-          ? "quick"
-          : prevCheckIn
-            ? "comparative"
-            : "full";
+        mode === "posing"
+          ? "posing"
+          : mode === "quick"
+            ? "quick"
+            : prevCheckIn
+              ? "comparative"
+              : "full";
 
       // Call AI analysis BEFORE saving to store
-      const { analysis, scores } = await analyzePhysique(savedPaths, effectiveMode, {
-        week: weekNum,
-        weight: Number(weight),
-        previousWeight: prevCheckIn?.weight,
-        notes: notes || undefined,
-        previousPhotoPaths: prevCheckIn?.photoPaths,
-        targetCategory: category,
-        weeksToCompetition: weeksToCompetition ? Number(weeksToCompetition) : undefined,
-      });
+      const { analysis, scores } = await analyzePhysique(
+        savedPaths,
+        effectiveMode,
+        {
+          week: weekNum,
+          weight: Number(weight),
+          previousWeight: prevCheckIn?.weight,
+          notes: notes || undefined,
+          previousPhotoPaths: prevCheckIn?.photoPaths,
+          targetCategory: category,
+          weeksToCompetition: weeksToCompetition ? Number(weeksToCompetition) : undefined,
+        },
+        effectiveMode === "posing" ? 90_000 : 60_000
+      );
 
       setLastCategory(category);
 
@@ -157,7 +172,7 @@ export default function NewCheckInScreen() {
       <View className="p-4" style={{ gap: 20 }}>
         {/* Mode selector */}
         <View className="flex-row" style={{ gap: 8 }}>
-          {(["full", "quick"] as const).map((m) => (
+          {(["full", "quick", "posing"] as const).map((m) => (
             <Pressable
               key={m}
               onPress={() => setMode(m)}
@@ -181,7 +196,7 @@ export default function NewCheckInScreen() {
                   fontSize: 14,
                 }}
               >
-                {m === "full" ? "Análise Completa" : "Quick Check"}
+                {m === "full" ? "Completa" : m === "quick" ? "Quick" : "Posing"}
               </Text>
             </Pressable>
           ))}
@@ -220,6 +235,11 @@ export default function NewCheckInScreen() {
               </Pressable>
             ))}
           </View>
+          {posingNeedsCategory && (
+            <Text style={[theme.typography.caption, { color: theme.colors.text.muted }]}>
+              Selecione uma categoria para o modo Posing
+            </Text>
+          )}
         </View>
 
         {/* Weeks to competition */}
@@ -316,6 +336,7 @@ export default function NewCheckInScreen() {
             onAdd={handleAddPhoto}
             onRemove={handleRemovePhoto}
             visibleSlots={visibleSlots}
+            labels={posingLabels}
           />
         </View>
 

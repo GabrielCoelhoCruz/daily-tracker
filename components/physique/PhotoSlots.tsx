@@ -12,6 +12,7 @@ type Props = {
   onAdd: (index: number, uri: string) => void;
   onRemove: (index: number) => void;
   visibleSlots?: number;
+  labels?: string[];
 };
 
 async function requestAndPick(source: "camera" | "gallery"): Promise<string | null> {
@@ -64,7 +65,8 @@ function showSourcePicker(onPick: (source: "camera" | "gallery") => void) {
   }
 }
 
-export function PhotoSlots({ photos, onAdd, onRemove, visibleSlots = 4 }: Props) {
+export function PhotoSlots({ photos, onAdd, onRemove, visibleSlots = 4, labels }: Props) {
+  const slotLabels = labels ?? LABELS;
   const handleAdd = (index: number) => {
     showSourcePicker(async (source) => {
       const uri = await requestAndPick(source);
@@ -74,7 +76,7 @@ export function PhotoSlots({ photos, onAdd, onRemove, visibleSlots = 4 }: Props)
 
   return (
     <View className="flex-row flex-wrap" style={{ gap: 12 }}>
-      {LABELS.slice(0, visibleSlots).map((label, i) => {
+      {slotLabels.slice(0, visibleSlots).map((label, i) => {
         const photo = photos[i];
         return (
           <View key={label} style={{ width: "47%" }}>

@@ -297,7 +297,8 @@ function parseScores(raw: string): { analysis: string; scores?: PhysiqueScores }
 export async function analyzePhysique(
   photoPaths: string[],
   mode: "full" | "comparative" | "quick" | "posing",
-  context: AnalysisContext
+  context: AnalysisContext,
+  timeout: number = 60_000
 ): Promise<AnalysisResult> {
   const content: Content[] = [];
 
@@ -341,7 +342,7 @@ export async function analyzePhysique(
   content.push({ type: "text", text: userPrompt });
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 60_000);
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -373,13 +374,13 @@ export async function analyzePhysique(
     return parseScores(text);
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      throw new Error("Timeout - a análise demorou mais de 60 segundos. Tente novamente.");
+      throw new Error(`Timeout - a análise demorou mais de ${Math.round(timeout / 1000)} segundos. Tente novamente.`);
     }
     if (error instanceof TypeError) {
       throw new Error("Sem conexão com a internet. Verifique sua rede e tente novamente.");
     }
     throw error;
   } finally {
-    clearTimeout(timeout);
+    clearTimeout(timeoutId);
   }
 }
