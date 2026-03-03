@@ -30,6 +30,7 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
 - Typed routes: use `as any` cast for new route groups not yet in generated types
 - Physique feature files: `(progresso)/_layout.tsx`, `index.tsx`, `new-checkin.tsx`, `result.tsx`, `PhotoSlots.tsx`, `usePhysiqueStore.ts`, `physiqueAnalysis.ts`, `api.ts`
 - Product prompt reference: `docs/physique-check-product-prompt.md` — source of truth for all category data
+- Expo API Routes: use standard `Request`/`Response` (not ExpoRequest/ExpoResponse), file suffix `+api.ts` in `app/` dir
 - CATEGORY_LABELS exists in BOTH `usePhysiqueStore.ts` AND `physiqueAnalysis.ts` — update both when adding categories
 - `useAthleteStore.getState()` for reading athlete data outside React components (e.g., in service files)
 - `isProfileComplete()` is a Zustand getter — call as function: `useAthleteStore((s) => s.isProfileComplete)()`
@@ -107,4 +108,20 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
   - System prompt is very large (~4K tokens for categories alone) — split into helper functions for readability
   - Gender filtering in prompt avoids confusing the model with irrelevant categories
   - The product prompt doc (docs/physique-check-product-prompt.md) is the source of truth for all category data
+---
+
+## 2026-03-03 - US-006
+- Created `app/api/analyze+api.ts` Expo API Route — POST endpoint proxying Claude API calls
+- Validates payload (photos, athlete profile fields), reads ANTHROPIC_API_KEY from process.env
+- Model configurable via ANTHROPIC_MODEL env var, defaults to claude-sonnet-4-20250514
+- 120s timeout on API route, 90s timeout on client fetch
+- Updated `services/physiqueAnalysis.ts`: now POSTs to `/api/analyze` instead of calling Anthropic directly
+- Removed ANTHROPIC_API_KEY import from client-side code (constants/api.ts already gitignored)
+- Removed unused Content/ImageContent/TextContent types from physiqueAnalysis.ts
+- Client sends systemPrompt + userPrompt + photos as structured JSON; API route builds Claude content array
+- Files changed: app/api/analyze+api.ts (new), services/physiqueAnalysis.ts
+- **Learnings for future iterations:**
+  - Expo API Routes use standard Web API Request/Response — ExpoRequest/ExpoResponse are deprecated type aliases
+  - API route files use `+api.ts` suffix convention in `app/` directory
+  - System prompt is built client-side and sent to API route to avoid duplicating prompt logic server-side
 ---

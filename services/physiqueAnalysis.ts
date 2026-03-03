@@ -1,5 +1,4 @@
 import { File } from "expo-file-system";
-import { ANTHROPIC_API_KEY } from "@/constants/api";
 import type { TargetCategory } from "@/stores/usePhysiqueStore";
 import { useAthleteStore } from "@/stores/useAthleteStore";
 
@@ -415,15 +414,6 @@ type AnalysisContext = {
   poseLabels?: string[];
 };
 
-type ImageContent = {
-  type: "image";
-  source: { type: "base64"; media_type: "image/jpeg"; data: string };
-};
-
-type TextContent = { type: "text"; text: string };
-
-type Content = ImageContent | TextContent;
-
 async function readPhotoBase64(path: string): Promise<string> {
   const file = new File(path);
   return file.base64();
@@ -512,29 +502,21 @@ export async function analyzePhysique(
   photoPaths: string[],
   mode: "full" | "comparative" | "quick" | "posing",
   context: AnalysisContext,
-  timeout: number = 60_000
+  timeout: number = 90_000
 ): Promise<AnalysisResult> {
-  const content: Content[] = [];
+  const photos: { base64: string; label: string }[] = [];
 
   // Current photos
   for (let i = 0; i < photoPaths.length; i++) {
     const data = await readPhotoBase64(photoPaths[i]);
-    content.push({
-      type: "image",
-      source: { type: "base64", media_type: "image/jpeg", data },
-    });
-    content.push({ type: "text", text: `[ATUAL] Foto ${i + 1}` });
+    photos.push({ base64: data, label: `[ATUAL] Foto ${i + 1}` });
   }
 
   // Previous photos for comparative mode
   if (mode === "comparative" && context.previousPhotoPaths) {
     for (let i = 0; i < context.previousPhotoPaths.length; i++) {
       const data = await readPhotoBase64(context.previousPhotoPaths[i]);
-      content.push({
-        type: "image",
-        source: { type: "base64", media_type: "image/jpeg", data },
-      });
-      content.push({ type: "text", text: `[ANTERIOR] Foto ${i + 1}` });
+      photos.push({ base64: data, label: `[ANTERIOR] Foto ${i + 1}` });
     }
   }
 
@@ -553,35 +535,39 @@ export async function analyzePhysique(
     default:
       userPrompt = buildFullPrompt(context);
   }
-  content.push({ type: "text", text: userPrompt });
+
+  const athlete = useAthleteStore.getState();
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("/api/analyze", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 8192,
-        system: buildSystemPrompt(),
-        messages: [{ role: "user", content }],
+        photos,
+        systemPrompt: buildSystemPrompt(),
+        userPrompt,
+        athleteProfile: {
+          name: athlete.name,
+          gender: athlete.gender,
+          heightCm: athlete.heightCm,
+          currentWeightKg: athlete.currentWeightKg,
+          phase: athlete.phase,
+          coachName: athlete.coachName,
+        },
       }),
       signal: controller.signal,
     });
 
     if (!response.ok) {
-      const errorBody = await response.text().catch(() => "");
-      throw new Error(`Erro na API (${response.status}): ${errorBody}`);
+      const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+      throw new Error((errorData as { error?: string }).error || `Erro na API (${response.status})`);
     }
 
     const data = await response.json();
-    const text = data?.content?.[0]?.text;
+    const text = (data as { analysis: string }).analysis;
     if (typeof text !== "string") {
       throw new Error("Resposta inesperada da API. Tente novamente.");
     }
