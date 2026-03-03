@@ -39,6 +39,17 @@ export default function ProgressoLayout() {
         }}
       />
       <Stack.Screen
+        name="categories"
+        options={{
+          presentation: "formSheet",
+          sheetGrabberVisible: true,
+          sheetAllowedDetents: [0.75, 1.0],
+          title: "Category Finder",
+          headerLargeTitle: false,
+          contentStyle: { backgroundColor: theme.colors.bg.card },
+        }}
+      />
+      <Stack.Screen
         name="result"
         options={{
           title: "Análise",

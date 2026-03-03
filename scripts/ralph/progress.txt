@@ -63,3 +63,17 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
   - Jest haste-map warns about duplicate package.json in .claude/skills and .agents/skills — harmless
   - CategoryMetadata type includes musculatureLevel and conditioningLevel as string union types
 ---
+
+## 2026-03-03 - US-003
+- Created `app/(tabs)/(progresso)/categories.tsx` — Category Finder results screen
+- Added categories screen to `_layout.tsx` as formSheet
+- Added Category Finder button to progresso index (after profile card, before check-in)
+- Categories sorted by status: ✅ first, then ⚠️, then ❌
+- Expandable cards show attire, poses, judging criteria, musculature/conditioning levels, summary
+- Recommendation section at bottom: "Mais acessível agora" + "Se quiser evoluir"
+- Files changed: app/(tabs)/(progresso)/categories.tsx (new), _layout.tsx, index.tsx
+- **Learnings for future iterations:**
+  - CategoryMetadata lookup: match by `name` field between CategoryResult and MALE/FEMALE_CATEGORIES arrays
+  - Status color with alpha for badge backgrounds: `statusColor + "20"` for 12.5% opacity hex suffix
+  - formSheet detents [0.75, 1.0] work well for scrollable list screens
+---

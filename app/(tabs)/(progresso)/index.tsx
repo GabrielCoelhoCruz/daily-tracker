@@ -149,6 +149,33 @@ export default function ProgressoScreen() {
           </Card>
         </Pressable>
 
+        <Pressable
+          onPress={() => router.push("./categories" as any)}
+          accessibilityRole="button"
+          accessibilityLabel="Category Finder"
+        >
+          <Card className="p-0">
+            <View
+              className="flex-row items-center justify-between"
+              style={{ padding: 12 }}
+            >
+              <View className="flex-row items-center" style={{ gap: 8 }}>
+                <MaterialCommunityIcons
+                  name="magnify"
+                  size={20}
+                  color={theme.colors.accent.DEFAULT}
+                />
+                <Text style={theme.typography.body}>Category Finder</Text>
+              </View>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={20}
+                color={theme.colors.text.muted}
+              />
+            </View>
+          </Card>
+        </Pressable>
+
         {sorted.length === 0 ? (
           <View className="items-center py-16" style={{ gap: 12 }}>
             <MaterialCommunityIcons
