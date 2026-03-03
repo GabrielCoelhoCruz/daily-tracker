@@ -208,22 +208,47 @@ export default function ProgressoScreen() {
           </View>
         ) : (
           <>
-            <Pressable
-              onPress={() => router.push("./new-checkin" as any)}
-              style={{
-                backgroundColor: theme.colors.accent.DEFAULT,
-                paddingVertical: 14,
-                borderRadius: theme.radius.lg,
-                alignItems: "center",
-                minHeight: 44,
-              }}
-              accessibilityRole="button"
-              accessibilityLabel="Novo check-in"
-            >
-              <Text style={{ color: "#000", fontWeight: "700", fontSize: 15 }}>
-                Novo Check-in
-              </Text>
-            </Pressable>
+            <View className="flex-row" style={{ gap: 8 }}>
+              <Pressable
+                onPress={() => router.push("./new-checkin" as any)}
+                style={{
+                  flex: 1,
+                  backgroundColor: theme.colors.accent.DEFAULT,
+                  paddingVertical: 14,
+                  borderRadius: theme.radius.lg,
+                  alignItems: "center",
+                  minHeight: 44,
+                }}
+                accessibilityRole="button"
+                accessibilityLabel="Novo check-in"
+              >
+                <Text
+                  style={{ color: "#000", fontWeight: "700", fontSize: 15 }}
+                >
+                  Novo Check-in
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => router.push("./compare" as any)}
+                style={{
+                  backgroundColor: theme.colors.bg.elevated,
+                  paddingVertical: 14,
+                  paddingHorizontal: 16,
+                  borderRadius: theme.radius.lg,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: 44,
+                }}
+                accessibilityRole="button"
+                accessibilityLabel="Comparar check-ins"
+              >
+                <MaterialCommunityIcons
+                  name="compare"
+                  size={20}
+                  color={theme.colors.text.primary}
+                />
+              </Pressable>
+            </View>
             <EvolutionChart />
             {sorted.map((c) => (
               <CheckInCard key={c.id} checkIn={c} />

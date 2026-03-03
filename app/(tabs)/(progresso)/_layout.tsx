@@ -61,6 +61,17 @@ export default function ProgressoLayout() {
         }}
       />
       <Stack.Screen
+        name="compare"
+        options={{
+          presentation: "formSheet",
+          sheetGrabberVisible: true,
+          sheetAllowedDetents: [0.75, 1.0],
+          title: "Comparar",
+          headerLargeTitle: false,
+          contentStyle: { backgroundColor: theme.colors.bg.card },
+        }}
+      />
+      <Stack.Screen
         name="result"
         options={{
           title: "Análise",
