@@ -13,13 +13,22 @@ import { Paths, Directory, File } from "expo-file-system";
 import { theme } from "@/constants/theme";
 import { usePhysiqueStore, PHOTO_LABELS } from "@/stores/usePhysiqueStore";
 import type { TargetCategory } from "@/stores/usePhysiqueStore";
+import { useAthleteStore } from "@/stores/useAthleteStore";
 import { PhotoSlots } from "@/components/physique/PhotoSlots";
 import { analyzePhysique } from "@/services/physiqueAnalysis";
 
-const CATEGORY_PILLS: { key: TargetCategory; label: string }[] = [
+const MALE_CATEGORY_PILLS: { key: TargetCategory; label: string }[] = [
   { key: "mens_physique", label: "Physique" },
   { key: "classic_physique", label: "Classic" },
   { key: "bodybuilding", label: "Bodybuilding" },
+  { key: "undecided", label: "A definir" },
+];
+
+const FEMALE_CATEGORY_PILLS: { key: TargetCategory; label: string }[] = [
+  { key: "bikini", label: "Bikini" },
+  { key: "wellness", label: "Wellness" },
+  { key: "figure", label: "Figure" },
+  { key: "womens_physique", label: "Physique" },
   { key: "undecided", label: "A definir" },
 ];
 
@@ -27,6 +36,11 @@ const POSING_LABELS: Partial<Record<TargetCategory, string[]>> = {
   mens_physique: ["Front Pose", "Side Esquerdo", "Back Pose", "Side Direito"],
   classic_physique: ["Front Double Biceps", "Side Chest", "Back Double Biceps", "Abs & Thighs", "Favorite Classic"],
   bodybuilding: ["Front Double Biceps", "Front Lat Spread", "Side Chest", "Back Double Biceps", "Back Lat Spread", "Side Triceps", "Abs & Thighs", "Most Muscular"],
+  bikini: ["Front Pose", "Side Esquerdo", "Back Pose", "Side Direito"],
+  wellness: ["Front Pose", "Side Esquerdo", "Back Pose", "Side Direito"],
+  figure: ["Front Pose", "Side Esquerdo", "Back Pose", "Side Direito"],
+  womens_physique: ["Front Double Biceps", "Side Chest", "Side Triceps", "Back Double Biceps"],
+  womens_bodybuilding: ["Front Double Biceps", "Front Lat Spread", "Side Chest", "Back Double Biceps", "Back Lat Spread", "Side Triceps", "Abs & Thighs", "Most Muscular"],
 };
 
 type PhotoSlot = { uri: string; label: string } | null;
@@ -37,6 +51,8 @@ export default function NewCheckInScreen() {
   const updateAnalysis = usePhysiqueStore((s) => s.updateAnalysis);
   const lastCategory = usePhysiqueStore((s) => s.lastCategory);
   const setLastCategory = usePhysiqueStore((s) => s.setLastCategory);
+  const gender = useAthleteStore((s) => s.gender);
+  const categoryPills = gender === "female" ? FEMALE_CATEGORY_PILLS : MALE_CATEGORY_PILLS;
 
   const lastWeek = checkIns.length > 0
     ? Math.max(...checkIns.map((c) => c.week))
@@ -207,7 +223,7 @@ export default function NewCheckInScreen() {
         <View style={{ gap: 6 }}>
           <Text style={theme.typography.footnote}>Categoria alvo</Text>
           <View className="flex-row" style={{ gap: 8 }}>
-            {CATEGORY_PILLS.map((c) => (
+            {categoryPills.map((c) => (
               <Pressable
                 key={c.key}
                 onPress={() => setCategory(c.key)}

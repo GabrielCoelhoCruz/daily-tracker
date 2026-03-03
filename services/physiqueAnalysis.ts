@@ -7,6 +7,11 @@ export const CATEGORY_LABELS: Record<TargetCategory, string> = {
   mens_physique: "Men's Physique",
   classic_physique: "Classic Physique",
   bodybuilding: "Bodybuilding",
+  bikini: "Bikini",
+  wellness: "Wellness",
+  figure: "Figure",
+  womens_physique: "Women's Physique",
+  womens_bodybuilding: "Women's Bodybuilding",
   undecided: "A definir (sugira)",
 };
 
