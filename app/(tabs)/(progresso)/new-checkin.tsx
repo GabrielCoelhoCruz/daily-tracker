@@ -79,12 +79,14 @@ export default function NewCheckInScreen() {
       // Detect comparative mode
       const weekNum = Number(week);
       const prevCheckIn = checkIns.find((c) => c.week === weekNum - 1);
-      const effectiveMode: "full" | "comparative" | "quick" =
+      const effectiveMode: "full" | "comparative" | "quick" | "posing" =
         mode === "quick"
           ? "quick"
           : prevCheckIn
             ? "comparative"
             : "full";
+
+      const store = usePhysiqueStore.getState();
 
       // Call AI analysis BEFORE saving to store
       const analysis = await analyzePhysique(savedPaths, effectiveMode, {
@@ -93,6 +95,7 @@ export default function NewCheckInScreen() {
         previousWeight: prevCheckIn?.weight,
         notes: notes || undefined,
         previousPhotoPaths: prevCheckIn?.photoPaths,
+        targetCategory: store.lastCategory,
       });
 
       // Only save to store after successful API call

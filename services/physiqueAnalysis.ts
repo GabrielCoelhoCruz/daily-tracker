@@ -6,6 +6,14 @@ import {
   ATHLETE_HEIGHT,
   ATHLETE_PHASE,
 } from "@/stores/usePhysiqueStore";
+import type { TargetCategory } from "@/stores/usePhysiqueStore";
+
+export const CATEGORY_LABELS: Record<TargetCategory, string> = {
+  mens_physique: "Men's Physique",
+  classic_physique: "Classic Physique",
+  bodybuilding: "Bodybuilding",
+  undecided: "A definir (sugira)",
+};
 
 const SYSTEM_PROMPT = `Você é um bodybuilding coach e prep coach experiente com mais de 15 anos preparando atletas para competições de fisiculturismo nas federações IFBB, NPC Worldwide e federações nacionais brasileiras. Você possui conhecimento profundo dos critérios oficiais de julgamento de cada categoria, das poses mandatórias, e do que os juízes realmente procuram no palco.
 
@@ -208,6 +216,8 @@ type AnalysisContext = {
   previousWeight?: number;
   notes?: string;
   previousPhotoPaths?: string[];
+  targetCategory: TargetCategory;
+  weeksToCompetition?: number;
 };
 
 type ImageContent = {
@@ -224,25 +234,37 @@ async function readPhotoBase64(path: string): Promise<string> {
   return file.base64();
 }
 
+function formatCompetitionTimeline(weeks?: number): string {
+  return weeks != null ? `${weeks} semanas` : "sem data definida";
+}
+
 function buildFullPrompt(ctx: AnalysisContext): string {
-  const prev = ctx.previousWeight ? `\nPeso semana anterior: ${ctx.previousWeight}kg` : "";
-  return `## Check-in de Progresso — Semana ${ctx.week}\n\nPeso atual: ${ctx.weight}kg${prev}\n\nObservações: ${ctx.notes || "Nenhuma"}\n\nAnalise meu condicionamento atual seguindo o protocolo completo.`;
+  const delta =
+    ctx.previousWeight != null
+      ? ` (${(ctx.weight - ctx.previousWeight) >= 0 ? "+" : ""}${(ctx.weight - ctx.previousWeight).toFixed(1)}kg)`
+      : "";
+  const prev = ctx.previousWeight != null ? `\nPeso semana anterior: ${ctx.previousWeight}kg` : "";
+  return `## Check-in de Progresso — Semana ${ctx.week}\n\nPeso atual: ${ctx.weight}kg${delta}${prev}\nCategoria alvo: ${CATEGORY_LABELS[ctx.targetCategory]}\nSemanas para competição: ${formatCompetitionTimeline(ctx.weeksToCompetition)}\n\nObservações: ${ctx.notes || "Nenhuma"}\n\nAnalise meu condicionamento atual seguindo o protocolo completo.`;
 }
 
 function buildComparativePrompt(ctx: AnalysisContext): string {
-  const delta = ctx.previousWeight
+  const delta = ctx.previousWeight != null
     ? (ctx.weight - ctx.previousWeight).toFixed(1)
     : "N/A";
-  return `## Check-in Comparativo — Semana ${ctx.week} vs Semana ${ctx.week - 1}\n\nPeso atual: ${ctx.weight}kg\nPeso anterior: ${ctx.previousWeight}kg\nDelta: ${delta}kg\n\nObservações: ${ctx.notes || "Nenhuma"}\n\nCompare as fotos atuais com as anteriores seguindo o protocolo completo, com ênfase na seção de comparativo.`;
+  return `## Check-in Comparativo — Semana ${ctx.week} vs Semana ${ctx.week - 1}\n\nPeso atual: ${ctx.weight}kg\nPeso anterior: ${ctx.previousWeight ?? "N/A"}kg\nDelta: ${delta}kg\nCategoria alvo: ${CATEGORY_LABELS[ctx.targetCategory]}\nSemanas para competição: ${formatCompetitionTimeline(ctx.weeksToCompetition)}\n\nObservações: ${ctx.notes || "Nenhuma"}\n\nAnalise o progresso seguindo o protocolo completo com ênfase no comparativo e na recomendação de categoria.`;
 }
 
 function buildQuickPrompt(ctx: AnalysisContext): string {
-  return `## Quick Check\n\nPeso: ${ctx.weight}kg\nFoto: frontal relaxado\n\nMe dê uma avaliação rápida e direta: como está o condicionamento? O cutting está no ritmo? O que chama mais atenção positiva e negativamente?`;
+  return `## Quick Check\n\nPeso: ${ctx.weight}kg\nCategoria alvo: ${CATEGORY_LABELS[ctx.targetCategory]}\n\nMe dê uma avaliação rápida e direta: como está o condicionamento? O cutting está no ritmo? O que chama mais atenção positiva e negativamente?`;
+}
+
+function buildPosingPrompt(ctx: AnalysisContext): string {
+  return `## Avaliação de Posing\n\nCategoria alvo: ${CATEGORY_LABELS[ctx.targetCategory]}\n\nAvalie cada pose: execução, o que favorece, o que expõe, como melhorar. Sugira a melhor favorite classic pose baseado no meu físico.`;
 }
 
 export async function analyzePhysique(
   photoPaths: string[],
-  mode: "full" | "comparative" | "quick",
+  mode: "full" | "comparative" | "quick" | "posing",
   context: AnalysisContext
 ): Promise<string> {
   const content: Content[] = [];
@@ -277,6 +299,9 @@ export async function analyzePhysique(
       break;
     case "quick":
       userPrompt = buildQuickPrompt(context);
+      break;
+    case "posing":
+      userPrompt = buildPosingPrompt(context);
       break;
     default:
       userPrompt = buildFullPrompt(context);
