@@ -1,0 +1,239 @@
+# Ralph Progress Log
+Started: Wed, Feb 26, 2026
+Feature: UI/UX Overhaul
+---
+
+## Codebase Patterns
+- Expo SDK 54 with Expo Router file-based routing (`app/` directory)
+- NativeWind v4 with Tailwind CSS for styling (`className` prop on RN components)
+- Import global.css in root `app/_layout.tsx`
+- Custom Tailwind colors in `tailwind.config.js`: bg-primary (#0c0a09), bg-card (#1c1917), bg-elevated (#292524), accent (#f59e0b), txt-primary (#fafaf9), txt-secondary (#a8a29e), txt-muted (#78716c)
+- `constants/theme.ts` exports `theme` object with all color tokens — use for inline styles when NativeWind classes aren't sufficient
+- `@/` path alias for project root imports
+- `npx tsc --noEmit` for typecheck
+- Zustand stores in `stores/` with persist middleware + AsyncStorage
+- Access stores outside React: `useStore.getState()` / `useStore.subscribe()`
+- NativeWind `className` for static layout styles, inline `style` for dynamic colors and typography
+- expo-haptics already used in CheckItem, HidratacaoCard, CardioCard, index.tsx (Light impact)
+- Tab bar: NativeTabs from `expo-router/unstable-native-tabs` with SF Symbols via `Icon` component
+- All icons now use `MaterialCommunityIcons` from `@expo/vector-icons/MaterialCommunityIcons` (default import)
+- Import style: `import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"` (NOT named import)
+- Route structure: `app/(tabs)/(hoje)/index.tsx`, `(treino)/index.tsx`, `(historico)/index.tsx`, `(historico)/dia-detalhe.tsx`
+- All screens use ScrollView as first child with `contentInsetAdjustmentBehavior="automatic"`
+- react-native-reanimated installed but NOT used anywhere
+- expo-blur installed but NOT imported anywhere
+- SDK 54 NativeTabs: use standalone `Icon`, `Label`, `VectorIcon` imports (NOT compound `NativeTabs.Trigger.X`)
+- SDK 54 NativeTabs: `md` prop NOT available — use `VectorIcon` with MaterialCommunityIcons for Android fallback
+- NativeTabs don't render headers — must nest Stack inside each tab group
+- ScrollView must be first opaque child of each screen for tab bar transparency on iOS 18
+- formSheet presentation requires a route in a Stack — cannot be used with in-screen `<Modal>`
+- Route structure now: `app/(tabs)/(hoje)/index.tsx`, `(treino)/index.tsx`, `(historico)/index.tsx`, `(historico)/dia-detalhe.tsx`
+- Tab group names in Tabs.Screen must match directory names exactly: `(hoje)`, `(treino)`, `(historico)`
+- ThemeProvider with DarkTheme wraps root Stack in `app/_layout.tsx`
+- Typed routes auto-generate from file structure — run `npx expo customize tsconfig.json` to regenerate `.expo/types/router.d.ts`
+- For typed routes: use `/dia-detalhe?date=...` (short form) not `/(historico)/dia-detalhe?date=...`
+- `theme.typography` has pre-built TextStyle objects (caption, footnote, body, callout, headline, title3) — use via `style={theme.typography.callout}` for consistent text hierarchy
+- Add `fontVariant: ['tabular-nums']` to any numeric display that changes dynamically (prevents layout jumps)
+- Add `selectable` prop to Text elements showing user data (stats, percentages, counts)
+- Always use `<Card>` component for card-style containers — never duplicate `cardShadow`/border styles inline
+- `<Card className="p-0">` when the component manages its own internal padding (e.g., collapsible sections with header + content areas)
+- Card has: borderRadius 16, borderCurve 'continuous', iOS shadow + Android elevation, bg-bg-card, p-4 default padding
+- Screen content gaps use `gap-3` (12px) between cards
+- Settings/nav buttons go in `headerRight` of Stack.Screen options, not inline in screen JSX
+- Use `minHeight: 44` via inline `style` for touch target compliance on interactive elements
+- CheckItem uses `checkbox-marked-circle-outline` / `checkbox-blank-circle-outline` from MaterialCommunityIcons
+- SerieBadge/pill badges: use inline `style` with `borderCurve: 'continuous'`, `borderRadius: 6` — NativeWind `rounded` doesn't set borderCurve
+- Circular number badges: `width`/`height` + `borderRadius: half` + accent color at `"20"` opacity suffix for background
+- ExercicioItem uses `<Card className="p-0">` with internal p-3 padding sections
+- Haptics: always guard with `process.env.EXPO_OS === "ios"` — not `Platform.OS === "ios"`
+- LayoutAnimation: call `LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)` BEFORE the state change
+- Android LayoutAnimation: `UIManager.setLayoutAnimationEnabledExperimental?.(true)` at module level in `app/_layout.tsx`
+- `npm install --legacy-peer-deps` required due to react-native-web peer dependency conflict with React 19
+- `import "react-native-reanimated"` in root layout is required by expo-router — do NOT remove
+
+---
+
+## 2026-02-26 11:30 - US-001
+- Implemented ThemeProvider with DarkTheme wrapping root Stack
+- Created tab group directories: `(hoje)`, `(treino)`, `(historico)` with Stack layouts
+- Moved screen content from flat files to group index files
+- Created `dia-detalhe.tsx` route with formSheet presentation, sheetGrabberVisible, sheetAllowedDetents [0.5, 1.0]
+- Converted historico from `<Modal>` to `router.push('/dia-detalhe?date=...')`
+- Updated tabs `_layout.tsx` to reference new group names with `headerShown: false`
+- All Stack headers: headerLargeTitle, headerTransparent, headerShadowVisible false, headerBlurEffect none
+- Files changed: `app/_layout.tsx`, `app/(tabs)/_layout.tsx`, created 7 new files in tab groups, deleted 3 old flat files
+- **Learnings for future iterations:**
+  - Expo Router typed routes use short-form paths (e.g., `/dia-detalhe`) not full group paths
+  - Must delete old flat route files after moving content to group dirs to avoid route conflicts
+  - `headerShown: false` on Tabs screens is required when nested Stacks provide their own headers
+---
+
+## 2026-02-26 12:00 - US-002
+- Replaced custom GlassTabBar + JS Tabs with NativeTabs from `expo-router/unstable-native-tabs`
+- Used SDK 54 standalone imports: `Icon`, `Label` (not compound `NativeTabs.Trigger.X`)
+- SF Symbol icons: checkmark.circle(.fill) for Hoje, dumbbell(.fill) for Treino, calendar for Histórico
+- Set `tintColor="#f59e0b"` on NativeTabs
+- Removed all expo-glass-effect imports and GlassTabBar code from tab layout
+- Added `contentInsetAdjustmentBehavior="automatic"` to all screen ScrollViews
+- Converted treino empty state (dia off) from View to ScrollView for tab bar transparency
+- Files changed: `app/(tabs)/_layout.tsx`, `app/(tabs)/(hoje)/index.tsx`, `app/(tabs)/(treino)/index.tsx`, `app/(tabs)/(historico)/index.tsx`
+- **Learnings for future iterations:**
+  - SDK 54 NativeTabs use standalone `Icon`, `Label`, `VectorIcon` imports — no `NativeTabs.Trigger.Icon` compound syntax
+  - Empty state screens also need ScrollView as first child for proper tab bar transparency
+  - NativeTabs automatically handles headerShown — no need for explicit `headerShown: false` on triggers
+  - `contentContainerClassName` works with NativeWind for ScrollView content padding (same as contentContainerStyle)
+---
+
+## 2026-02-26 - US-003
+- Replaced ALL FontAwesome and Ionicons imports with MaterialCommunityIcons across 14 files
+- FontAwesome: removed from `app/_layout.tsx` (font loading), replaced with MaterialCommunityIcons.font
+- Ionicons: replaced in 13 files (4 route files, 9 component files)
+- Icon name mapping applied: checkmark→check, checkmark-circle→check-circle, moon/moon-outline→moon-waning-crescent, settings-outline→cog-outline, restaurant-outline→food-apple/food-apple-outline, bicycle-outline→run-fast, notifications-outline→bell-outline, information-circle-outline→information-outline, nutrition-outline→food-apple, barbell-outline→dumbbell, chevron-back→chevron-left, chevron-forward→chevron-right, stats-chart→chart-bar, flame→fire, calendar-outline→calendar-month-outline, calendar→calendar-month, arrow-undo-outline→undo
+- Zero remaining FontAwesome or Ionicons imports (grep confirmed)
+- Typecheck passes clean
+- Files changed: `app/_layout.tsx`, `app/config.tsx`, `app/(tabs)/(hoje)/index.tsx`, `app/(tabs)/(treino)/index.tsx`, `app/(tabs)/(historico)/index.tsx`, `app/(tabs)/(historico)/dia-detalhe.tsx`, `components/checklist/CheckItem.tsx`, `components/checklist/PeriodoSection.tsx`, `components/hidratacao/HidratacaoCard.tsx`, `components/cardio/CardioCard.tsx`, `components/dicas/DicasSection.tsx`, `components/historico/Calendario.tsx`, `components/historico/StatsCard.tsx`, `components/historico/DiaDetalhe.tsx`
+- **Learnings for future iterations:**
+  - Use default import `import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"` — NOT `import { MaterialCommunityIcons } from "@expo/vector-icons"`
+  - When using sed for icon replacement, ternary expressions (e.g., `condition ? "iconA" : "iconB"`) won't match `name="iconA"` patterns — need separate handling
+  - MaterialCommunityIcons type reference: `keyof typeof MaterialCommunityIcons.glyphMap` for typed icon props
+  - Icon names between Ionicons and MCI often differ subtly: Ionicons `checkmark-circle` → MCI `check-circle`, Ionicons `flame` → MCI `fire`
+---
+
+## 2026-02-26 - US-004
+- Added `typography` object to `constants/theme.ts` with TextStyle objects: caption (11px), footnote (13px), body (15px), callout (16px, 600), headline (17px, 700), title3 (20px, 700) — all with appropriate text colors
+- Added `fontVariant: ['tabular-nums']` to numeric displays: ProgressBar (count + percentage), HidratacaoCard (amounts + percentage), CardioCard (minutes + percentage + session items + total), StatsCard (stat values + missed percentages), Badge (count text), Calendario (already had it)
+- Added `selectable` prop to data Text elements: ProgressBar counts, HidratacaoCard amounts, CardioCard metrics, StatsCard values
+- Applied typography scale via inline `style` across all screens: headline for screen titles/dates, callout for card/section headers, footnote for subtitles/descriptions, caption for small labels/weekday headers, body for empty state text
+- Typecheck passes clean
+- Files changed (14): `constants/theme.ts`, `components/checklist/ProgressBar.tsx`, `components/hidratacao/HidratacaoCard.tsx`, `components/cardio/CardioCard.tsx`, `components/historico/StatsCard.tsx`, `components/historico/Calendario.tsx`, `components/ui/Badge.tsx`, `components/checklist/PeriodoSection.tsx`, `components/dicas/DicasSection.tsx`, `app/(tabs)/(hoje)/index.tsx`, `app/(tabs)/(treino)/index.tsx`, `app/(tabs)/(historico)/index.tsx`, `app/(tabs)/(historico)/dia-detalhe.tsx`, `app/config.tsx`
+- **Learnings for future iterations:**
+  - Typography styles use `as TextStyle` assertion in const theme to satisfy TypeScript's fontWeight literal types
+  - `fontVariant: ['tabular-nums']` prevents layout jumps when numbers change (e.g., timers, counters, percentages)
+  - Use spread `{ ...theme.typography.body, color: ... }` when overriding typography color for specific states
+  - Keep `className` for layout (flex, padding, gap) and use `style` for typography — they compose cleanly
+---
+
+## 2026-02-26 - US-005
+- Redesigned Card component: borderRadius 16, borderCurve 'continuous', shadow (iOS shadow props + Android elevation), removed hard border
+- Card.tsx already had correct shadow and continuous corners — main change was removing `border border-border` class and using shadow for depth
+- Consolidated all card-style containers to use `<Card>` component: PeriodoSection, DicasSection, Calendario (previously had inline duplicated styles)
+- PeriodoSection and DicasSection use `<Card className="p-0">` since they manage own internal padding for collapsible header/content layout
+- Calendario uses `<Card>` directly (already had p-4 padding matching Card's default)
+- HidratacaoCard, CardioCard, StatsCard already used `<Card>` — verified they still render correctly
+- Changed screen content gaps from `gap-4` (16px) to `gap-3` (12px) in all screen layouts: hoje, treino, historico, config
+- Typecheck passes clean
+- Files changed (8): `components/ui/Card.tsx`, `components/checklist/PeriodoSection.tsx`, `components/dicas/DicasSection.tsx`, `components/historico/Calendario.tsx`, `app/(tabs)/(hoje)/index.tsx`, `app/(tabs)/(treino)/index.tsx`, `app/(tabs)/(historico)/index.tsx`, `app/config.tsx`
+- **Learnings for future iterations:**
+  - Components with collapsible sections (header + expandable content) should use `<Card className="p-0">` and manage their own internal padding
+  - Never duplicate shadow/border styles inline — always use the `<Card>` component for consistency
+  - `borderCurve: 'continuous'` gives iOS-style smooth/squircle corners — must be set via inline `style`, not NativeWind class
+  - `boxShadow` CSS property doesn't work in React Native — use platform-specific shadow props (iOS: shadowColor/Offset/Opacity/Radius, Android: elevation)
+---
+
+## 2026-02-26 - US-006
+- Moved settings button (cog icon) to `headerRight` in `(hoje)/_layout.tsx` Stack.Screen options
+- Moved date display below header as standalone footnote text
+- Redesigned Dia Off toggle as a prominent card with moon icon, title, subtitle, and check indicator
+- Thickened ProgressBar track to height 12 with rounded ends, percentage color-coded (green at 100%, amber otherwise)
+- CheckItem now uses `checkbox-marked-circle-outline` / `checkbox-blank-circle-outline` icons at 24px with min 44pt touch target height
+- HidratacaoCard stepper buttons redesigned with `minus-circle-outline` / `plus-circle-outline` icons at 28px flanking the +250ml/+500ml quick-add buttons
+- CardioCard input area cleaned up: 44pt height input, accent-colored circular plus-icon add button (44x44)
+- Removed `useRouter` import from Hoje screen (settings nav now in layout header)
+- Typecheck passes clean
+- Files changed (6): `app/(tabs)/(hoje)/_layout.tsx`, `app/(tabs)/(hoje)/index.tsx`, `components/checklist/ProgressBar.tsx`, `components/checklist/CheckItem.tsx`, `components/hidratacao/HidratacaoCard.tsx`, `components/cardio/CardioCard.tsx`
+- **Learnings for future iterations:**
+  - Settings buttons belong in `headerRight` of Stack.Screen options, not inline in screen content — keeps the native iOS feel
+  - Use `minHeight: 44` via inline `style` for touch target compliance (NativeWind doesn't have `min-h-11` equivalent that maps to exactly 44pt)
+  - `checkbox-marked-circle-outline` / `checkbox-blank-circle-outline` are cleaner than custom View+border checkbox implementations
+  - For add buttons, a solid accent-colored circle with plus icon (44x44) provides clear affordance
+---
+
+## 2026-02-26 - US-007
+- Redesigned ExercicioItem: exercise number as accent-colored circular badge (28x28), name using callout typography, series aligned below with marginLeft offset
+- Updated SerieBadge: consistent pill design with borderCurve 'continuous', borderRadius 6, inline styles instead of NativeWind classes
+- ExercicioItem now uses `<Card className="p-0">` for card-style container instead of bare bg-bg-elevated View
+- Treino screen: moved day name + muscle group to footnote subtitle below native large title header, exercise count as caption
+- Dia Off empty state: moon-waning-crescent icon reduced from 64px to 48px per spec, cleaner text layout
+- DicasSection SeriesLegend: updated badge pills to match SerieBadge style (borderCurve continuous, inline styles)
+- DicasSection already had SeriesLegend at top of training tips — no change needed
+- Files changed (3): `components/treino/ExercicioItem.tsx`, `app/(tabs)/(treino)/index.tsx`, `components/dicas/DicasSection.tsx`
+- **Learnings for future iterations:**
+  - iOS settings page pattern: `SectionHeader` above `<Card className="p-0">` with `SettingRow` components inside, using `StyleSheet.hairlineWidth` for dividers inset 16px from left
+- ExercicioItem uses `<Card className="p-0">` since it manages its own padding for the two-section layout (header + series row)
+  - SerieBadge pill styling should use inline `style` with `borderCurve: 'continuous'` for iOS squircle corners — NativeWind `rounded` doesn't set borderCurve
+  - Circular number badges: use exact width/height + borderRadius = half for a perfect circle, with accent color at 20% opacity background
+  - Keep `className` for flexbox layout (flex-row, gap, items-center) and `style` for visual design (borderRadius, borderCurve, colors)
+---
+
+## 2026-02-26 - US-008
+- Redesigned Calendario: larger cells (padding 3 vs 2), bolder today indicator (borderWidth 2.5, fontWeight 800), larger borderRadius 10, larger font size 14
+- Redesigned StatsCard: replaced vertical StatRow layout with horizontal MetricColumn layout — three columns (streak, weekly, monthly) each showing icon (20px) + value (title3 style) + label (caption style) stacked vertically
+- Changed streak display from verbose "X dias consecutivos 100%" to clean number-only display
+- Used `calendar-week` icon for weekly adherence to differentiate from monthly `calendar-month`
+- Empty state already correctly implemented: calendar-month-outline at 48px + "Nenhum dado ainda" text
+- DiaDetalhe route already renders correctly with date param, progress bar, and missed items (implemented in US-001)
+- Typecheck passes clean
+- Files changed (2): `components/historico/Calendario.tsx`, `components/historico/StatsCard.tsx`
+- **Learnings for future iterations:**
+  - `calendar-week` is a valid MaterialCommunityIcons name — useful to distinguish weekly from monthly calendar icons
+  - Horizontal metric layouts work well with `flex-1 items-center gap-1` on each column and `flex-row` on the parent
+  - The `MetricColumn` pattern (icon + big number + small label) is a clean way to display dashboard-style stats
+---
+
+## 2026-02-26 - US-009
+- Redesigned Config screen as native iOS settings page with grouped sections
+- Added `SectionHeader` component: footnote style, uppercase, text.secondary color, horizontal padding
+- Added `SettingRow` component: min 44pt height, label left with optional subtitle, right-aligned control, hairline divider inset 16px from left
+- Refactored `PeriodoNotificacao` to use `SettingRow` with `isLast` prop for proper divider control
+- Time inputs: cleaner iOS-style with borderCurve continuous, no border, bg-elevated background, tabular-nums fontVariant
+- Hydration interval: segmented-control style — three joined segments in a row with borderRadius 8, borderCurve continuous, overflow hidden, hairline dividers between segments
+- Switch components: accent trackColor when on, bg-elevated when off (already correct)
+- Cards use `className="p-0"` since SettingRow manages its own px-4 padding
+- ScrollView has `contentInsetAdjustmentBehavior="automatic"` for native header integration
+- Removed icon+callout card headers in favor of uppercase section headers above cards (iOS settings pattern)
+- Typecheck passes clean
+- Files changed (1): `app/config.tsx`
+- **Learnings for future iterations:**
+  - iOS settings page pattern: `SectionHeader` (footnote, uppercase, above card) + `Card className="p-0"` + `SettingRow` rows inside
+  - `StyleSheet.hairlineWidth` is the correct way to get a 1-pixel-device divider line in RN
+  - Segmented controls: use a row of Pressables inside a `borderRadius + overflow: hidden` container with `StyleSheet.hairlineWidth` right borders between segments
+  - `SettingRow` with `showDivider` prop enables conditional last-item divider control — cleaner than `index > 0` check
+---
+
+## 2026-02-26 - US-010
+- Enabled `UIManager.setLayoutAnimationEnabledExperimental(true)` on Android in `app/_layout.tsx`
+- Added `LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)` before state changes:
+  - PeriodoSection expand/collapse
+  - DicasSection expand/collapse
+  - CheckItem check/uncheck
+  - HidratacaoCard stepper add/remove
+  - CardioCard add/remove sessions
+  - ProgressBar width changes (via useEffect on percentage change)
+  - Hoje screen: Dia Off toggle, refeição livre, desfazer refeição livre
+- Made all haptics (expo-haptics Light impact) iOS-only using `process.env.EXPO_OS === "ios"` guard
+- Verified: no Reanimated entering/exiting animations — lightweight LayoutAnimation only
+- Typecheck passes clean
+- Files changed (8): `app/_layout.tsx`, `app/(tabs)/(hoje)/index.tsx`, `components/checklist/PeriodoSection.tsx`, `components/checklist/CheckItem.tsx`, `components/checklist/ProgressBar.tsx`, `components/dicas/DicasSection.tsx`, `components/hidratacao/HidratacaoCard.tsx`, `components/cardio/CardioCard.tsx`
+- **Learnings for future iterations:**
+  - `process.env.EXPO_OS === "ios"` is the Expo-recommended way to conditionally run iOS-only code (replaces `Platform.OS === "ios"` checks)
+  - `LayoutAnimation.configureNext` must be called BEFORE the state change that triggers the layout shift
+  - For animated progress bars driven by external props, use a `useEffect` + `useRef` to detect percentage changes and call `LayoutAnimation.configureNext`
+  - `UIManager.setLayoutAnimationEnabledExperimental?.(true)` must be called at module level (not inside a component) for Android LayoutAnimation support
+---
+
+## 2026-02-26 - US-011
+- Removed `expo-glass-effect` and `expo-blur` from package.json (both unused since US-002/US-003)
+- Ran `npm install --legacy-peer-deps` to update node_modules and lock file (removed 2 packages)
+- Verified zero FontAwesome or Ionicons imports remain in source code (grep confirmed clean)
+- Old flat route files already removed in US-001: `app/(tabs)/index.tsx`, `treino.tsx`, `historico.tsx`
+- Deleted unused `components/historico/DiaDetalhe.tsx` (old modal component replaced by route in US-001)
+- GlassTabBar code already removed in US-002
+- All 11 remaining component files verified as actively imported and used
+- Kept `react-native-reanimated` — side-effect import in `_layout.tsx` required by expo-router for navigation transitions
+- `npx tsc --noEmit` passes clean with zero errors
+- Files changed (3): `package.json`, `package-lock.json`, deleted `components/historico/DiaDetalhe.tsx`
+- **Learnings for future iterations:**
+  - `npm install --legacy-peer-deps` is needed for this project due to react-native-web peer dependency conflict with React 19
+  - `import "react-native-reanimated"` in root layout is a side-effect import required by expo-router — do NOT remove even though no Reanimated APIs are directly used
+  - Always grep for component imports before deleting — some components may only be imported via barrel exports or dynamic imports
+---

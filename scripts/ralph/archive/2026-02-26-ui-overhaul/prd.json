@@ -1,0 +1,201 @@
+{
+  "project": "DailyTracker",
+  "branchName": "ralph/ui-overhaul",
+  "description": "UI/UX Overhaul - Polish the DailyTracker app with NativeTabs, SF Symbols, typography scale, card redesign, and smooth layout transitions on SDK 54",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Add ThemeProvider and restructure routes into tab groups",
+      "description": "As a developer, I need the route structure reorganized into tab groups with Stack layouts so NativeTabs can be added next.",
+      "acceptanceCriteria": [
+        "Wrap root Stack in `app/_layout.tsx` with `ThemeProvider` using `DarkTheme` from `@react-navigation/native`",
+        "Create `app/(tabs)/(hoje)/_layout.tsx` with Stack: `title: 'Hoje'`, `headerLargeTitle: true`, transparent header styles",
+        "Move `app/(tabs)/index.tsx` content to `app/(tabs)/(hoje)/index.tsx`",
+        "Create `app/(tabs)/(treino)/_layout.tsx` with Stack: `title: 'Treino'`, `headerLargeTitle: true`, transparent header styles",
+        "Move `app/(tabs)/treino.tsx` content to `app/(tabs)/(treino)/index.tsx`",
+        "Create `app/(tabs)/(historico)/_layout.tsx` with Stack: `title: 'Histórico'`, `headerLargeTitle: true`, transparent header styles",
+        "Move `app/(tabs)/historico.tsx` content to `app/(tabs)/(historico)/index.tsx`",
+        "Create `app/(tabs)/(historico)/dia-detalhe.tsx` route with `presentation: 'formSheet'`, `sheetGrabberVisible: true`, `sheetAllowedDetents: [0.5, 1.0]`",
+        "Move DiaDetalhe modal logic into the new route — accept `date` search param, read from useHistoryStore",
+        "Remove old `<Modal>` usage from historico screen, replace with `router.push('/(historico)/dia-detalhe?date=...')`",
+        "Update `app/(tabs)/_layout.tsx` to reference new group names in Tabs.Screen: `(hoje)`, `(treino)`, `(historico)`",
+        "Stack header styles: `headerTransparent: true`, `headerShadowVisible: false`, `headerLargeTitleShadowVisible: false`, `headerLargeStyle: { backgroundColor: 'transparent' }`, `headerBlurEffect: 'none'`",
+        "All three screens render correctly with native Stack headers",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Replace JS Tabs with NativeTabs",
+      "description": "As a user, I want a system-native tab bar so the app feels like a first-class iOS/Android citizen.",
+      "acceptanceCriteria": [
+        "Replace custom `GlassTabBar` + JS `Tabs` in `app/(tabs)/_layout.tsx` with `NativeTabs` from `expo-router/unstable-native-tabs`",
+        "SDK 54 syntax: use standalone `Icon`, `Label`, `VectorIcon` imports (not compound `NativeTabs.Trigger.X`)",
+        "Tab icons use SF Symbols via `Icon` with `sf` prop: Hoje `sf={{ default: 'checkmark.circle', selected: 'checkmark.circle.fill' }}`, Treino `sf={{ default: 'dumbbell', selected: 'dumbbell.fill' }}`, Histórico `sf={{ default: 'calendar', selected: 'calendar' }}`",
+        "Labels: `<Label>Hoje</Label>`, `<Label>Treino</Label>`, `<Label>Histórico</Label>`",
+        "NativeTabs trigger `name` matches route group exactly: `name='(hoje)'`, `name='(treino)'`, `name='(historico)'`",
+        "Set `tintColor='#f59e0b'` on NativeTabs",
+        "Remove `expo-glass-effect` import from tab layout",
+        "Remove old `GlassTabBar` component code from the file",
+        "Each screen has `ScrollView` as first child with `contentInsetAdjustmentBehavior='automatic'` (required for tab bar transparency on iOS 18)",
+        "Content uses `contentContainerStyle` for padding (not wrapper View padding)",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Replace all FontAwesome and Ionicons with MaterialCommunityIcons",
+      "description": "As a user, I want consistent, meaningful icons throughout the app so the interface is easy to scan.",
+      "acceptanceCriteria": [
+        "Replace ALL `FontAwesome` and `Ionicons` imports with `MaterialCommunityIcons` from `@expo/vector-icons`",
+        "Icon mapping: checkbox-marked-circle-outline/checkbox-blank-circle-outline (check items), water/water-outline (water), tea/tea-outline (tea), run-fast (cardio), dumbbell (treino), food-apple (food), pill (pills), calendar-month (calendar), fire (streak), cog (settings), moon-waning-crescent (dia off), lightbulb-outline (tips), chevron-down/chevron-up (expand/collapse), close (close), plus (add), minus-circle-outline (remove), trophy (trophy), alert-circle-outline (alert), information-outline (info)",
+        "Icon size scale: 16px inline, 20px list items, 24px cards/headers, 28px empty states",
+        "Zero remaining FontAwesome or Ionicons imports in codebase",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Add typography scale to theme constants",
+      "description": "As a user, I want clear visual hierarchy in text so I can scan information quickly.",
+      "acceptanceCriteria": [
+        "Add `typography` object to `constants/theme.ts` with inline style objects: caption (fontSize 11, text.secondary), footnote (fontSize 13, text.secondary), body (fontSize 15, text.primary), callout (fontSize 16, fontWeight '600', text.primary), headline (fontSize 17, fontWeight '700', text.primary), title3 (fontSize 20, fontWeight '700', text.primary)",
+        "Add `fontVariant: ['tabular-nums']` to all numeric displays (ProgressBar percentage, HidratacaoCard amounts, CardioCard minutes, StatsCard numbers, Calendario day numbers)",
+        "Add `selectable` prop to Text elements showing data (stats, percentages, counts)",
+        "Apply typography scale via inline `style` prop across all screens (NativeWind className stays for layout)",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Redesign Card component with continuous corners and shadows",
+      "description": "As a user, I want cards that feel tactile and polished with proper depth and spacing.",
+      "acceptanceCriteria": [
+        "Update `components/ui/Card.tsx`: borderRadius 16, borderCurve 'continuous', boxShadow '0 1px 3px rgba(0,0,0,0.3)'",
+        "If boxShadow doesn't render on RN 0.81.5, fall back to shadowColor/shadowOffset/shadowOpacity/shadowRadius on iOS + elevation on Android",
+        "Remove hard border — use shadow for depth instead",
+        "Consistent inner padding 16px, gap 12px between cards",
+        "Card used by: PeriodoSection, HidratacaoCard, CardioCard, StatsCard, DicasSection — verify all still render correctly",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Redesign Hoje screen layout and components",
+      "description": "As a user, I want the daily checklist screen to feel organized and scannable.",
+      "acceptanceCriteria": [
+        "Settings button as `headerRight` in Stack.Screen options inside `app/(tabs)/(hoje)/_layout.tsx` — uses MaterialCommunityIcons 'cog' icon",
+        "Move date display below header (not a custom header text)",
+        "Dia Off toggle as a prominent card at the top (not inline with date)",
+        "Progress bar: thicker track (height 12), rounded ends, percentage label right-aligned with fontVariant tabular-nums",
+        "PeriodoSection: cleaner expand/collapse with chevron-up/chevron-down icon rotation",
+        "CheckItem: min 44pt touch target height, checkbox icons using MaterialCommunityIcons checkbox-marked-circle-outline / checkbox-blank-circle-outline",
+        "HidratacaoCard: stepper buttons with plus/minus-circle-outline icons, cleaner progress display",
+        "CardioCard: cleaner input area with plus icon add button",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Redesign Treino screen layout and components",
+      "description": "As a user, I want the workout screen to clearly show my exercises with visual weight.",
+      "acceptanceCriteria": [
+        "Workout day name + muscle group shown as subtitle below header (not custom text element)",
+        "ExercicioItem: exercise number as accent-colored badge, clearer series display",
+        "SerieBadge: consistent pill design with borderCurve 'continuous', keep color coding (WS=amber, TS=red, BS=green, CS=warning)",
+        "Dia Off empty state: centered, moon-waning-crescent icon at 48px, descriptive text",
+        "DicasSection with SeriesLegend at top of training tips",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Redesign Histórico screen and StatsCard layout",
+      "description": "As a user, I want the history screen to feel like a native calendar experience with clear stats.",
+      "acceptanceCriteria": [
+        "Calendario: slightly larger cells, bolder today indicator with accent border, borderCurve 'continuous' on day cells",
+        "StatsCard: horizontal layout for key metrics (streak, weekly, monthly) — each metric shows icon + number (title3 style) + label (caption style) stacked vertically",
+        "Empty state: calendar-outline icon at 48px + 'Nenhum dado ainda' descriptive text",
+        "DiaDetalhe route (created in US-001) renders correctly with date param, shows progress bar and missed items",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Redesign Config screen as native settings page",
+      "description": "As a user, I want the settings screen to feel like a native iOS settings page.",
+      "acceptanceCriteria": [
+        "Group related settings into sections with section headers (footnote style, uppercase, text.secondary color)",
+        "Each setting row: min 44pt height, label left, control right",
+        "Time inputs: cleaner inline style resembling iOS time display",
+        "Hydration interval selector: segmented-control style (1h, 2h, 3h in a row)",
+        "Switch components: accent trackColor when on, muted when off",
+        "Proper dividers between rows (hairline width, inset 16px from left)",
+        "ScrollView with contentInsetAdjustmentBehavior='automatic'",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Add LayoutAnimation transitions and verify haptics",
+      "description": "As a user, I want smooth visual feedback when UI state changes so the app feels responsive.",
+      "acceptanceCriteria": [
+        "Enable LayoutAnimation on Android: `UIManager.setLayoutAnimationEnabledExperimental?.(true)` in `app/_layout.tsx`",
+        "Add `LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)` before state changes: PeriodoSection expand/collapse, DicasSection expand/collapse, check/uncheck items, adding/removing cardio sessions, progress bar width changes",
+        "Verify haptic feedback (expo-haptics Light impact) exists on: check/uncheck, stepper +/- buttons, Dia Off toggle",
+        "Haptics conditionally called only on iOS using `process.env.EXPO_OS === 'ios'`",
+        "No Reanimated entering/exiting animations — lightweight LayoutAnimation only",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Clean up unused dependencies and dead code",
+      "description": "As a developer, I want to remove unused dependencies and dead code from the migration.",
+      "acceptanceCriteria": [
+        "Remove `expo-glass-effect` from package.json and run npm install",
+        "Remove `expo-blur` from package.json and run npm install",
+        "Zero remaining FontAwesome or Ionicons imports (grep confirms none)",
+        "Old flat route files removed: `app/(tabs)/index.tsx`, `app/(tabs)/treino.tsx`, `app/(tabs)/historico.tsx` (if not already removed in US-001)",
+        "Old GlassTabBar code fully removed (if not already removed in US-002)",
+        "Old DiaDetalhe Modal component removed from `components/historico/` (if not already removed in US-001)",
+        "No unused component files remain in `components/`",
+        "Run `npx tsc --noEmit` — passes clean with zero errors",
+        "App runs in Expo Go without crashes"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": ""
+    }
+  ]
+}
