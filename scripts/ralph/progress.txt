@@ -1,6 +1,6 @@
 # Ralph Progress Log
-Started: Mon, Mar 3, 2026
-Feature: AI Physique Analysis v2 Upgrade
+Started: 2026-03-03
+Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
 ---
 
 ## Codebase Patterns
@@ -14,7 +14,7 @@ Feature: AI Physique Analysis v2 Upgrade
 - NativeWind `className` for static layout styles, inline `style` for dynamic colors and typography
 - Tab bar in `app/(tabs)/_layout.tsx` uses regular `Tabs` from expo-router with `Ionicons` for tab icons
 - All other components use `MaterialCommunityIcons` from `@expo/vector-icons/MaterialCommunityIcons` (default import, NOT named import)
-- Route structure: `app/(tabs)/(hoje)/index.tsx`, `(treino)/index.tsx`, `(historico)/index.tsx`, `(historico)/dia-detalhe.tsx`
+- Route structure: `app/(tabs)/(hoje)/index.tsx`, `(treino)/index.tsx`, `(historico)/index.tsx`, `(progresso)/index.tsx`
 - Sub-routes use formSheet presentation: `presentation: 'formSheet'`, `sheetGrabberVisible: true`, `sheetAllowedDetents: [0.5, 1.0]`
 - All screens use ScrollView as first child with `contentInsetAdjustmentBehavior="automatic"`
 - `<Card>` component in `components/ui/Card.tsx` — always use for card-style containers
@@ -29,6 +29,37 @@ Feature: AI Physique Analysis v2 Upgrade
 - Use `file.base64()` instead of `readAsStringAsync` with `EncodingType.Base64`
 - Typed routes: use `as any` cast for new route groups not yet in generated types
 - Physique feature files: `(progresso)/_layout.tsx`, `index.tsx`, `new-checkin.tsx`, `result.tsx`, `PhotoSlots.tsx`, `usePhysiqueStore.ts`, `physiqueAnalysis.ts`, `api.ts`
-- v2 prompt reference doc: `ai-physique-analysis-prompt-v2.md` in project root
+- Product prompt reference: `docs/physique-check-product-prompt.md` — source of truth for all category data
+- `useAthleteStore.getState()` for reading athlete data outside React components (e.g., in service files)
+- `isProfileComplete()` is a Zustand getter — call as function: `useAthleteStore((s) => s.isProfileComplete)()`
 
+---
+
+## 2026-03-03 - US-001
+- Created `stores/useAthleteStore.ts` with Zustand persist: name, gender, heightCm, currentWeightKg, phase, coachName, competitiveExperience
+- Created `app/(tabs)/(progresso)/profile.tsx` with form, validation (name required, gender required, height 140-220, weight 40-180)
+- Added profile screen to `_layout.tsx` as formSheet
+- Added profile redirect in progresso index when profile incomplete, profile card when complete
+- Removed hardcoded ATHLETE_NAME/AGE/HEIGHT/PHASE from usePhysiqueStore.ts
+- Updated `services/physiqueAnalysis.ts`: converted SYSTEM_PROMPT to `buildSystemPrompt()` function reading from useAthleteStore.getState()
+- Files changed: stores/useAthleteStore.ts (new), app/(tabs)/(progresso)/profile.tsx (new), _layout.tsx, index.tsx, usePhysiqueStore.ts, physiqueAnalysis.ts
+- **Learnings for future iterations:**
+  - Zustand method `isProfileComplete` returns a function — must be called: `useStore((s) => s.isProfileComplete)()`
+  - SYSTEM_PROMPT was a constant template literal using hardcoded vars; converted to a function for dynamic athlete data
+  - Profile redirect pattern: check profile completeness at top of screen, return early with setup CTA
+---
+
+## 2026-03-03 - US-002
+- Created `services/categoryFinder.ts` with `findCategories()` function and full metadata constants (MALE_CATEGORIES, FEMALE_CATEGORIES)
+- 6 male categories: Men's Physique, Muscular Men's Physique, Classic Physique, Classic Bodybuilding, Bodybuilding IFBB, Bodybuilding NPC
+- 7 female categories: Bikini, Wellness, Figure, Women's Physique, Women's Bodybuilding, Bodyfitness, Fit Model
+- Weight formula logic for Classic Physique/Classic Bodybuilding with status ✅/⚠️/❌
+- Created `services/__tests__/categoryFinder.test.ts` with 20 tests covering all categories, class assignments, and weight formula edge cases
+- Installed jest + ts-jest + @types/jest, created jest.config.js
+- Files changed: services/categoryFinder.ts (new), services/__tests__/categoryFinder.test.ts (new), jest.config.js (new), package.json (deps)
+- **Learnings for future iterations:**
+  - Men's Physique classes are by height with ≤ comparison — 172cm falls in Class B (≤173), not C (≤176)
+  - `npm install --legacy-peer-deps` still required for all installs
+  - Jest haste-map warns about duplicate package.json in .claude/skills and .agents/skills — harmless
+  - CategoryMetadata type includes musculatureLevel and conditioningLevel as string union types
 ---
