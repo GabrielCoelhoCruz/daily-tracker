@@ -152,3 +152,14 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
   - Photo index mapping: Frontal=0, Lateral=1, Costas=2 matches PHOTO_LABELS order in usePhysiqueStore
   - `Dimensions.get("window").width` for calculating responsive photo widths in side-by-side layout
 ---
+
+## 2026-03-03 - US-009
+- Added share button to result.tsx header using React Native's built-in `Share` API
+- Share button placed in header row next to date/weight info with `share-variant` MaterialCommunityIcons icon
+- Formatted share text includes: week, date, weight, category, and full analysis markdown
+- Text-only share (no photos) as specified for v1
+- Files changed: app/(tabs)/(progresso)/result.tsx
+- **Learnings for future iterations:**
+  - React Native's built-in `Share.share({ message })` works for text sharing without extra dependencies
+  - No need for expo-sharing for text-only shares — RN Share API is sufficient
+---
