@@ -30,6 +30,7 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
 - Typed routes: use `as any` cast for new route groups not yet in generated types
 - Physique feature files: `(progresso)/_layout.tsx`, `index.tsx`, `new-checkin.tsx`, `result.tsx`, `PhotoSlots.tsx`, `usePhysiqueStore.ts`, `physiqueAnalysis.ts`, `api.ts`
 - Product prompt reference: `docs/physique-check-product-prompt.md` — source of truth for all category data
+- CATEGORY_LABELS exists in BOTH `usePhysiqueStore.ts` AND `physiqueAnalysis.ts` — update both when adding categories
 - `useAthleteStore.getState()` for reading athlete data outside React components (e.g., in service files)
 - `isProfileComplete()` is a Zustand getter — call as function: `useAthleteStore((s) => s.isProfileComplete)()`
 
@@ -76,4 +77,34 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
   - CategoryMetadata lookup: match by `name` field between CategoryResult and MALE/FEMALE_CATEGORIES arrays
   - Status color with alpha for badge backgrounds: `statusColor + "20"` for 12.5% opacity hex suffix
   - formSheet detents [0.75, 1.0] work well for scrollable list screens
+---
+
+## 2026-03-03 - US-004
+- Expanded TargetCategory union with 5 female categories: bikini, wellness, figure, womens_physique, womens_bodybuilding
+- Added CATEGORY_LABELS record to usePhysiqueStore.ts (also updated duplicate in physiqueAnalysis.ts)
+- Split CATEGORY_PILLS into MALE_CATEGORY_PILLS and FEMALE_CATEGORY_PILLS in new-checkin.tsx
+- Category selector reads gender from useAthleteStore to show gender-appropriate pills
+- Added female posing labels: Bikini/Wellness/Figure use 4 quarter turns, Women's Physique uses 4 muscular poses, Women's BB uses same 8 as men's BB
+- Files changed: stores/usePhysiqueStore.ts, app/(tabs)/(progresso)/new-checkin.tsx, services/physiqueAnalysis.ts
+- **Learnings for future iterations:**
+  - CATEGORY_LABELS exists in BOTH usePhysiqueStore.ts and physiqueAnalysis.ts — both must be updated when adding categories
+  - When expanding a Record<TargetCategory, ...> type, ALL files using it must be updated or typecheck fails
+---
+
+## 2026-03-03 - US-005
+- Replaced buildSystemPrompt() with v3 system prompt based on docs/physique-check-product-prompt.md
+- Role changed from "coach" to "copiloto de progresso" — educational, NOT prescriptive
+- Added explicit limitations section (lighting, angle, photo vs stage, pump/hydration)
+- Complete data for all 13 categories split into buildMaleCategoriesReference() and buildFemaleCategoriesReference()
+- Gender-filtered: only includes categories matching athlete's gender in the prompt
+- Analysis protocol uses 6 blocks: Resumo, Avaliação por grupo (with fit), Comparativo, Recomendação, Posing, Ações da semana
+- Fit indicators reduced to 3: ✅ No nível, 📈 Acima, 📉 Abaixo (removed ⚖️ NO LIMITE)
+- General classification: 🟢 Destaque, 🟡 Adequado, 🔴 Atenção
+- Muscle groups are gender-specific (male vs female groups)
+- JSON scores block preserved at end
+- Files changed: services/physiqueAnalysis.ts
+- **Learnings for future iterations:**
+  - System prompt is very large (~4K tokens for categories alone) — split into helper functions for readability
+  - Gender filtering in prompt avoids confusing the model with irrelevant categories
+  - The product prompt doc (docs/physique-check-product-prompt.md) is the source of truth for all category data
 ---
