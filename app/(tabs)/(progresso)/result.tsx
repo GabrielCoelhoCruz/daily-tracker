@@ -13,6 +13,7 @@ import { useLocalSearchParams } from "expo-router";
 import Markdown from "@ronradtke/react-native-markdown-display";
 import { theme } from "@/constants/theme";
 import { usePhysiqueStore, PHOTO_LABELS, MODE_LABELS } from "@/stores/usePhysiqueStore";
+import { CATEGORY_LABELS } from "@/services/physiqueAnalysis";
 import { WeightDelta } from "@/components/physique/WeightDelta";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
@@ -85,6 +86,20 @@ export default function ResultScreen() {
                   {MODE_LABELS[checkIn.mode] ?? checkIn.mode}
                 </Text>
               </View>
+              {checkIn.targetCategory && (
+                <View
+                  style={{
+                    backgroundColor: theme.colors.bg.elevated,
+                    paddingHorizontal: 8,
+                    paddingVertical: 2,
+                    borderRadius: theme.radius.sm,
+                  }}
+                >
+                  <Text style={[theme.typography.caption, { color: theme.colors.accent.DEFAULT }]}>
+                    {CATEGORY_LABELS[checkIn.targetCategory]}
+                  </Text>
+                </View>
+              )}
             </View>
             <View className="flex-row items-center" style={{ gap: 12 }}>
               <Text style={theme.typography.footnote}>{checkIn.date}</Text>
@@ -117,6 +132,88 @@ export default function ResultScreen() {
               </Pressable>
             ))}
           </ScrollView>
+
+          {/* Scores */}
+          {checkIn.scores &&
+            (checkIn.scores.overallConditioning != null ||
+              checkIn.scores.stageReadiness != null ||
+              checkIn.scores.vTaper != null) && (
+              <View className="flex-row" style={{ gap: 8 }}>
+                {/* Condicionamento */}
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: theme.colors.bg.elevated,
+                    borderRadius: theme.radius.lg,
+                    padding: 12,
+                  }}
+                >
+                  <Text style={[theme.typography.caption, { color: theme.colors.text.secondary, marginBottom: 4 }]}>
+                    Condicionamento
+                  </Text>
+                  <Text style={[theme.typography.body, { color: theme.colors.accent.DEFAULT, fontWeight: "700" }]}>
+                    {checkIn.scores.overallConditioning != null
+                      ? `${checkIn.scores.overallConditioning}/10`
+                      : "--"}
+                  </Text>
+                </View>
+
+                {/* Stage Ready */}
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: theme.colors.bg.elevated,
+                    borderRadius: theme.radius.lg,
+                    padding: 12,
+                  }}
+                >
+                  <Text style={[theme.typography.caption, { color: theme.colors.text.secondary, marginBottom: 4 }]}>
+                    Stage Ready
+                  </Text>
+                  <Text style={[theme.typography.body, { color: theme.colors.accent.DEFAULT, fontWeight: "700", marginBottom: 6 }]}>
+                    {checkIn.scores.stageReadiness != null
+                      ? `${checkIn.scores.stageReadiness}%`
+                      : "--"}
+                  </Text>
+                  <View
+                    style={{
+                      height: 6,
+                      backgroundColor: theme.colors.bg.primary,
+                      borderRadius: 3,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <View
+                      style={{
+                        height: 6,
+                        width: `${checkIn.scores.stageReadiness ?? 0}%`,
+                        backgroundColor: theme.colors.accent.DEFAULT,
+                        borderRadius: 3,
+                      }}
+                    />
+                  </View>
+                </View>
+
+                {/* V-Taper */}
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: theme.colors.bg.elevated,
+                    borderRadius: theme.radius.lg,
+                    padding: 12,
+                  }}
+                >
+                  <Text style={[theme.typography.caption, { color: theme.colors.text.secondary, marginBottom: 4 }]}>
+                    V-Taper
+                  </Text>
+                  <Text style={[theme.typography.body, { color: theme.colors.accent.DEFAULT, fontWeight: "700" }]}>
+                    {checkIn.scores.vTaper != null
+                      ? `${checkIn.scores.vTaper}/10`
+                      : "--"}
+                  </Text>
+                </View>
+              </View>
+            )}
 
           {/* Analysis */}
           {checkIn.analysis ? (
