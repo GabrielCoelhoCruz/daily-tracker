@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Image, Alert, ActionSheetIOS, Platform } from "react-native";
+import { View, Text, Pressable, Image, Alert, ActionSheetIOS } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import { theme } from "@/constants/theme";
@@ -47,7 +47,7 @@ async function requestAndPick(source: "camera" | "gallery"): Promise<string | nu
 }
 
 function showSourcePicker(onPick: (source: "camera" | "gallery") => void) {
-  if (Platform.OS === "ios") {
+  if (process.env.EXPO_OS === "ios") {
     ActionSheetIOS.showActionSheetWithOptions(
       { options: ["Cancelar", "Câmera", "Galeria"], cancelButtonIndex: 0 },
       (index) => {

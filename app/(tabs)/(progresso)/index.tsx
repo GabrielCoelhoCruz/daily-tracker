@@ -2,21 +2,11 @@ import { ScrollView, View, Text, Pressable, Image } from "react-native";
 import { router } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
-import { usePhysiqueStore, type PhysiqueCheckIn } from "@/stores/usePhysiqueStore";
+import { usePhysiqueStore, MODE_LABELS, type PhysiqueCheckIn } from "@/stores/usePhysiqueStore";
 import { Card } from "@/components/ui/Card";
-
-const MODE_LABELS: Record<string, string> = {
-  full: "Completa",
-  comparative: "Comparativa",
-  quick: "Quick",
-};
+import { WeightDelta } from "@/components/physique/WeightDelta";
 
 function CheckInCard({ checkIn }: { checkIn: PhysiqueCheckIn }) {
-  const delta =
-    checkIn.previousWeight != null
-      ? (checkIn.weight - checkIn.previousWeight).toFixed(1)
-      : null;
-
   return (
     <Pressable
       onPress={() =>
@@ -64,21 +54,11 @@ function CheckInCard({ checkIn }: { checkIn: PhysiqueCheckIn }) {
             <Text style={theme.typography.footnote}>{checkIn.date}</Text>
             <View className="flex-row items-center" style={{ gap: 6 }}>
               <Text style={theme.typography.body}>{checkIn.weight}kg</Text>
-              {delta && (
-                <Text
-                  style={{
-                    color:
-                      Number(delta) < 0
-                        ? theme.colors.semantic.success
-                        : theme.colors.semantic.error,
-                    fontSize: 12,
-                    fontWeight: "600",
-                  }}
-                >
-                  {Number(delta) > 0 ? "+" : ""}
-                  {delta}kg
-                </Text>
-              )}
+              <WeightDelta
+                weight={checkIn.weight}
+                previousWeight={checkIn.previousWeight}
+                fontSize={12}
+              />
             </View>
           </View>
         </View>
@@ -100,7 +80,7 @@ export default function ProgressoScreen() {
         {sorted.length === 0 ? (
           <View className="items-center py-16" style={{ gap: 12 }}>
             <MaterialCommunityIcons
-              name="chart-line"
+              name="chart-timeline-variant-shimmer"
               size={48}
               color={theme.colors.text.muted}
             />

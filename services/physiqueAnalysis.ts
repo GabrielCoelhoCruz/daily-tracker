@@ -172,12 +172,16 @@ export async function analyzePhysique(
     }
 
     const data = await response.json();
-    return data.content[0].text;
+    const text = data?.content?.[0]?.text;
+    if (typeof text !== "string") {
+      throw new Error("Resposta inesperada da API. Tente novamente.");
+    }
+    return text;
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
       throw new Error("Timeout - a análise demorou mais de 60 segundos. Tente novamente.");
     }
-    if (error instanceof TypeError && error.message.includes("Network")) {
+    if (error instanceof TypeError) {
       throw new Error("Sem conexão com a internet. Verifique sua rede e tente novamente.");
     }
     throw error;

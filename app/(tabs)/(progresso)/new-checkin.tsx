@@ -11,7 +11,7 @@ import {
 import { router } from "expo-router";
 import { Paths, Directory, File } from "expo-file-system";
 import { theme } from "@/constants/theme";
-import { usePhysiqueStore } from "@/stores/usePhysiqueStore";
+import { usePhysiqueStore, PHOTO_LABELS } from "@/stores/usePhysiqueStore";
 import { PhotoSlots } from "@/components/physique/PhotoSlots";
 import { analyzePhysique } from "@/services/physiqueAnalysis";
 
@@ -41,7 +41,7 @@ export default function NewCheckInScreen() {
   const handleAddPhoto = (index: number, uri: string) => {
     setPhotos((prev) => {
       const next = [...prev];
-      next[index] = { uri, label: ["Frontal", "Lateral", "Costas", "Extra"][index] };
+      next[index] = { uri, label: PHOTO_LABELS[index] };
       return next;
     });
   };
@@ -59,7 +59,7 @@ export default function NewCheckInScreen() {
     setLoading(true);
 
     try {
-      const id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      const fileId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
       const dir = new Directory(Paths.document, "physique/");
       if (!dir.exists) {
         dir.create();
@@ -69,7 +69,7 @@ export default function NewCheckInScreen() {
       for (let i = 0; i < visibleSlots; i++) {
         const photo = photos[i];
         if (photo) {
-          const dest = new File(dir, `${id}-${i}.jpg`);
+          const dest = new File(dir, `${fileId}-${i}.jpg`);
           const src = new File(photo.uri);
           src.copy(dest);
           savedPaths.push(dest.uri);
@@ -86,17 +86,7 @@ export default function NewCheckInScreen() {
             ? "comparative"
             : "full";
 
-      const checkInId = addCheckIn({
-        week: weekNum,
-        date: new Date().toISOString().split("T")[0],
-        weight: Number(weight),
-        previousWeight: prevCheckIn?.weight,
-        notes: notes || undefined,
-        photoPaths: savedPaths,
-        mode: effectiveMode,
-      });
-
-      // Call AI analysis
+      // Call AI analysis BEFORE saving to store
       const analysis = await analyzePhysique(savedPaths, effectiveMode, {
         week: weekNum,
         weight: Number(weight),
@@ -105,7 +95,18 @@ export default function NewCheckInScreen() {
         previousPhotoPaths: prevCheckIn?.photoPaths,
       });
 
-      updateAnalysis(checkInId, analysis);
+      // Only save to store after successful API call
+      const checkInId = addCheckIn({
+        week: weekNum,
+        date: new Date().toISOString().split("T")[0],
+        weight: Number(weight),
+        previousWeight: prevCheckIn?.weight,
+        notes: notes || undefined,
+        photoPaths: savedPaths,
+        analysis,
+        mode: effectiveMode,
+      });
+
       router.replace({
         pathname: "./result" as any,
         params: { id: checkInId },
