@@ -218,6 +218,7 @@ type AnalysisContext = {
   previousPhotoPaths?: string[];
   targetCategory: TargetCategory;
   weeksToCompetition?: number;
+  poseLabels?: string[];
 };
 
 type ImageContent = {
@@ -259,7 +260,10 @@ function buildQuickPrompt(ctx: AnalysisContext): string {
 }
 
 function buildPosingPrompt(ctx: AnalysisContext): string {
-  return `## Avaliação de Posing\n\nCategoria alvo: ${CATEGORY_LABELS[ctx.targetCategory]}\n\nAvalie cada pose: execução, o que favorece, o que expõe, como melhorar. Sugira a melhor favorite classic pose baseado no meu físico.`;
+  const poseList = ctx.poseLabels?.length
+    ? `\nPoses fotografadas: ${ctx.poseLabels.join(", ")}`
+    : "";
+  return `## Avaliação de Posing\n\nCategoria alvo: ${CATEGORY_LABELS[ctx.targetCategory]}${poseList}\n\nAvalie cada pose: execução, o que favorece, o que expõe, como melhorar. Sugira a melhor favorite classic pose baseado no meu físico.`;
 }
 
 export type PhysiqueScores = {

@@ -9,7 +9,7 @@ export const ATHLETE_PHASE = "Cutting";
 
 export const PHOTO_LABELS = ["Frontal", "Lateral", "Costas", "Extra"] as const;
 
-export const MODE_LABELS: Record<string, string> = {
+export const MODE_LABELS: Record<PhysiqueCheckIn["mode"], string> = {
   full: "Completa",
   comparative: "Comparativa",
   quick: "Quick",
@@ -32,7 +32,7 @@ export type PhysiqueCheckIn = {
   photoPaths: string[];
   analysis?: string;
   mode: "full" | "comparative" | "quick" | "posing";
-  targetCategory: TargetCategory;
+  targetCategory?: TargetCategory;
   weeksToCompetition?: number;
   scores?: {
     overallConditioning?: number;
@@ -66,7 +66,7 @@ export const usePhysiqueStore = create<PhysiqueState & PhysiqueActions>()(
         const id = generateId();
         set((state) => ({
           checkIns: [...state.checkIns, { ...checkIn, id }],
-          lastCategory: checkIn.targetCategory,
+          lastCategory: checkIn.targetCategory ?? state.lastCategory,
         }));
         return id;
       },

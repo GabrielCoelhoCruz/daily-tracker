@@ -120,6 +120,7 @@ export default function NewCheckInScreen() {
           previousPhotoPaths: prevCheckIn?.photoPaths,
           targetCategory: category,
           weeksToCompetition: weeksToCompetition ? Number(weeksToCompetition) : undefined,
+          poseLabels: mode === "posing" ? posingLabels : undefined,
         },
         effectiveMode === "posing" ? 90_000 : 60_000
       );
