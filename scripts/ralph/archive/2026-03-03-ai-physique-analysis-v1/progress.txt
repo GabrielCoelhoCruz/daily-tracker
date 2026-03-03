@@ -1,6 +1,6 @@
 # Ralph Progress Log
 Started: Mon, Mar 3, 2026
-Feature: AI Physique Analysis v2 Upgrade
+Feature: AI Physique Analysis
 ---
 
 ## Codebase Patterns
@@ -28,7 +28,11 @@ Feature: AI Physique Analysis v2 Upgrade
 - expo-file-system SDK 55: use `File`/`Directory`/`Paths` from root import; legacy API at `/legacy` throws at runtime
 - Use `file.base64()` instead of `readAsStringAsync` with `EncodingType.Base64`
 - Typed routes: use `as any` cast for new route groups not yet in generated types
-- Physique feature files: `(progresso)/_layout.tsx`, `index.tsx`, `new-checkin.tsx`, `result.tsx`, `PhotoSlots.tsx`, `usePhysiqueStore.ts`, `physiqueAnalysis.ts`, `api.ts`
-- v2 prompt reference doc: `ai-physique-analysis-prompt-v2.md` in project root
 
+---
+
+## 2026-03-03 - US-001 through US-009
+- Implemented all 9 user stories for AI Physique Analysis feature
+- Files: `(progresso)/_layout.tsx`, `index.tsx`, `new-checkin.tsx`, `result.tsx`, `PhotoSlots.tsx`, `usePhysiqueStore.ts`, `physiqueAnalysis.ts`, `api.ts`
+- Modified: `_layout.tsx` (added Progresso tab), `.gitignore` (added constants/api.ts)
 ---
