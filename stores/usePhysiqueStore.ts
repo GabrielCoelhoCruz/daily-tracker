@@ -2,11 +2,6 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const ATHLETE_NAME = "Gabriel Cruz";
-export const ATHLETE_AGE = 26;
-export const ATHLETE_HEIGHT = "1.72m";
-export const ATHLETE_PHASE = "Cutting";
-
 export const PHOTO_LABELS = ["Frontal", "Lateral", "Costas", "Extra"] as const;
 
 export const MODE_LABELS: Record<PhysiqueCheckIn["mode"], string> = {

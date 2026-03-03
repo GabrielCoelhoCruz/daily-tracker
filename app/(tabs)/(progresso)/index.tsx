@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { usePhysiqueStore, MODE_LABELS, type PhysiqueCheckIn } from "@/stores/usePhysiqueStore";
+import { useAthleteStore } from "@/stores/useAthleteStore";
 import { Card } from "@/components/ui/Card";
 import { WeightDelta } from "@/components/physique/WeightDelta";
 import { EvolutionChart } from "@/components/physique/EvolutionChart";
@@ -71,6 +72,49 @@ function CheckInCard({ checkIn }: { checkIn: PhysiqueCheckIn }) {
 export default function ProgressoScreen() {
   const checkIns = usePhysiqueStore((s) => s.checkIns);
   const sorted = [...checkIns].sort((a, b) => b.week - a.week);
+  const profileComplete = useAthleteStore((s) => s.isProfileComplete)();
+  const athleteName = useAthleteStore((s) => s.name);
+
+  if (!profileComplete) {
+    return (
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        className="flex-1 bg-primary"
+      >
+        <View className="items-center py-16 px-4" style={{ gap: 12 }}>
+          <MaterialCommunityIcons
+            name="account-outline"
+            size={48}
+            color={theme.colors.text.muted}
+          />
+          <Text style={theme.typography.callout}>Configure seu perfil</Text>
+          <Text
+            style={[theme.typography.footnote, { textAlign: "center" }]}
+          >
+            Precisamos do seu perfil para personalizar categorias e análises
+          </Text>
+          <Pressable
+            onPress={() => router.push("./profile" as any)}
+            style={{
+              backgroundColor: theme.colors.accent.DEFAULT,
+              paddingHorizontal: 20,
+              paddingVertical: 12,
+              borderRadius: theme.radius.lg,
+              marginTop: 8,
+              minHeight: 44,
+              justifyContent: "center",
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Configurar perfil"
+          >
+            <Text style={{ color: "#000", fontWeight: "700", fontSize: 15 }}>
+              Configurar Perfil
+            </Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    );
+  }
 
   return (
     <ScrollView
@@ -78,6 +122,33 @@ export default function ProgressoScreen() {
       className="flex-1 bg-primary"
     >
       <View className="p-4" style={{ gap: 12 }}>
+        <Pressable
+          onPress={() => router.push("./profile" as any)}
+          accessibilityRole="button"
+          accessibilityLabel="Editar perfil"
+        >
+          <Card className="p-0">
+            <View
+              className="flex-row items-center justify-between"
+              style={{ padding: 12 }}
+            >
+              <View className="flex-row items-center" style={{ gap: 8 }}>
+                <MaterialCommunityIcons
+                  name="account-circle-outline"
+                  size={20}
+                  color={theme.colors.accent.DEFAULT}
+                />
+                <Text style={theme.typography.body}>{athleteName}</Text>
+              </View>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={20}
+                color={theme.colors.text.muted}
+              />
+            </View>
+          </Card>
+        </Pressable>
+
         {sorted.length === 0 ? (
           <View className="items-center py-16" style={{ gap: 12 }}>
             <MaterialCommunityIcons

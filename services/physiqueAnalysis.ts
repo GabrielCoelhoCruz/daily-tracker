@@ -1,12 +1,7 @@
 import { File } from "expo-file-system";
 import { ANTHROPIC_API_KEY } from "@/constants/api";
-import {
-  ATHLETE_NAME,
-  ATHLETE_AGE,
-  ATHLETE_HEIGHT,
-  ATHLETE_PHASE,
-} from "@/stores/usePhysiqueStore";
 import type { TargetCategory } from "@/stores/usePhysiqueStore";
+import { useAthleteStore } from "@/stores/useAthleteStore";
 
 export const CATEGORY_LABELS: Record<TargetCategory, string> = {
   mens_physique: "Men's Physique",
@@ -15,7 +10,18 @@ export const CATEGORY_LABELS: Record<TargetCategory, string> = {
   undecided: "A definir (sugira)",
 };
 
-const SYSTEM_PROMPT = `Você é um bodybuilding coach e prep coach experiente com mais de 15 anos preparando atletas para competições de fisiculturismo nas federações IFBB, NPC Worldwide e federações nacionais brasileiras. Você possui conhecimento profundo dos critérios oficiais de julgamento de cada categoria, das poses mandatórias, e do que os juízes realmente procuram no palco.
+function buildSystemPrompt(): string {
+  const athlete = useAthleteStore.getState();
+  const heightM = (athlete.heightCm / 100).toFixed(2) + "m";
+  const coachLine = athlete.coachName
+    ? `- Consultoria: ${athlete.coachName}`
+    : "";
+  const phaseLine = athlete.phase ? `- Fase atual: ${athlete.phase}` : "";
+  const experienceLine = athlete.competitiveExperience
+    ? `- Experiência competitiva: ${athlete.competitiveExperience}`
+    : "- Experiência competitiva: não informada";
+
+  return `Você é um bodybuilding coach e prep coach experiente com mais de 15 anos preparando atletas para competições de fisiculturismo nas federações IFBB, NPC Worldwide e federações nacionais brasileiras. Você possui conhecimento profundo dos critérios oficiais de julgamento de cada categoria, das poses mandatórias, e do que os juízes realmente procuram no palco.
 
 ## Limitações da Análise por Foto
 
@@ -25,16 +31,16 @@ Antes de qualquer análise, lembre-se:
 - NÃO dê valores absolutos de BF% — use comparações relativas ("mais seco que semana passada", "retenção visível na região abdominal")
 - NÃO dê scores numéricos absolutos de stage readiness — use faixas qualitativas (longe / progredindo / se aproximando / quase pronto / stage ready)
 - Quando a iluminação ou ângulo parecer diferente entre fotos, AVISE que a comparação pode estar enviesada
-- Seu papel é documentar progresso e levantar pontos de atenção — o coach presencial (Team GB) toma as decisões finais
+- Seu papel é documentar progresso e levantar pontos de atenção — o coach presencial toma as decisões finais
 
 ## Contexto do Atleta
-- Nome: ${ATHLETE_NAME}
-- Idade: ${ATHLETE_AGE} anos
-- Altura: ${ATHLETE_HEIGHT}
-- Peso atual: variável (informado em cada check-in)
-- Fase atual: ${ATHLETE_PHASE}
-- Consultoria: Team GB (Bodybuilding Coach)
-- Experiência competitiva: primeiro ciclo competitivo / iniciante competitivo
+- Nome: ${athlete.name}
+- Sexo: ${athlete.gender === "male" ? "Masculino" : "Feminino"}
+- Altura: ${heightM}
+- Peso atual: ${athlete.currentWeightKg}kg (atualizado em cada check-in)
+${phaseLine}
+${coachLine}
+${experienceLine}
 
 ## Categorias Elegíveis (baseado em 1.72m)
 
@@ -252,6 +258,7 @@ Ao final da sua análise, SEMPRE inclua um bloco JSON com scores extraídos no s
 \`\`\`json
 {"overallConditioning": <1-10>, "stageReadiness": "<longe|progredindo|se_aproximando|quase_pronto|stage_ready>", "vTaper": <1-10>}
 \`\`\``;
+}
 
 type AnalysisContext = {
   week: number;
@@ -418,7 +425,7 @@ export async function analyzePhysique(
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
         max_tokens: 8192,
-        system: SYSTEM_PROMPT,
+        system: buildSystemPrompt(),
         messages: [{ role: "user", content }],
       }),
       signal: controller.signal,
