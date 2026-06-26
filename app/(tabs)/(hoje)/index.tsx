@@ -353,7 +353,6 @@ export default function HojeScreen() {
       >
         <GlassChip
           label={`${percentage}%`}
-          sfSymbol="checkmark.circle.fill"
           style={{}}
         />
       </View>
