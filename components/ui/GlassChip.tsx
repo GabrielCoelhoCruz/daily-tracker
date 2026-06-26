@@ -1,20 +1,13 @@
 import { useEffect, useState } from "react";
 import {
   AccessibilityInfo,
+  NativeModules,
   Platform,
   Pressable,
   Text as RNText,
   View,
   ViewStyle,
 } from "react-native";
-import { Host, HStack, Text } from "@expo/ui/swift-ui";
-import {
-  font,
-  foregroundStyle,
-  glassEffect,
-  padding,
-  cornerRadius,
-} from "@expo/ui/swift-ui/modifiers";
 import { theme } from "@/constants/theme";
 
 type GlassChipProps = {
@@ -26,6 +19,20 @@ type GlassChipProps = {
   sfSymbol?: string;
   style?: ViewStyle;
 };
+
+// `@expo/ui/swift-ui/modifiers` calls `requireNativeModule('ExpoUI')` at module
+// top level, which throws in Expo Go (no native module). So we only require the
+// SwiftUI packages when the ExpoUI native module is actually present — i.e. in
+// a development/production build that includes @expo/ui. In Expo Go this stays
+// null and we render the solid fallback, keeping the app bootable.
+const EXPO_UI_AVAILABLE = Platform.OS === "ios" && !!(NativeModules as { ExpoUI?: unknown }).ExpoUI;
+
+const SwiftUI = EXPO_UI_AVAILABLE
+  ? (require("@expo/ui/swift-ui") as typeof import("@expo/ui/swift-ui"))
+  : null;
+const SwiftUIMods = EXPO_UI_AVAILABLE
+  ? (require("@expo/ui/swift-ui/modifiers") as typeof import("@expo/ui/swift-ui/modifiers"))
+  : null;
 
 // Liquid Glass SwiftUI modifier requires iOS 26+. `glassEffect` is a no-op on
 // earlier iOS, so we fall back to a solid translucent View below that threshold
@@ -45,12 +52,16 @@ function useShouldRenderGlass() {
     return () => sub.remove();
   }, []);
 
+  if (!EXPO_UI_AVAILABLE || !SwiftUI || !SwiftUIMods) return false;
   if (Platform.OS !== "ios") return false;
   if (reduceTransparency) return false;
   return typeof Platform.Version === "number" && Platform.Version >= IOS_26_VERSION;
 }
 
 function SwiftUIGlassChip({ label, sfSymbol, style }: Omit<GlassChipProps, "onPress">) {
+  const { Host, HStack, Text } = SwiftUI!;
+  const { font, foregroundStyle, glassEffect, padding, cornerRadius } = SwiftUIMods!;
+
   return (
     <Host style={style} matchContents>
       <HStack
@@ -106,8 +117,10 @@ function FallbackChip({ label, style }: Omit<GlassChipProps, "onPress">) {
 
 /**
  * Adaptive glass chip: renders a native SwiftUI Liquid Glass surface on iOS 26+
- * (unless Reduce Transparency is on), and a solid translucent fallback elsewhere.
- * Use only for floating controls/navigation chrome — never for primary content.
+ * inside a dev/production build that includes @expo/ui (unless Reduce
+ * Transparency is on), and a solid translucent fallback in Expo Go / Android /
+ * iOS < 26. Use only for floating controls/navigation chrome — never for
+ * primary content.
  */
 export function GlassChip({ label, onPress, sfSymbol, style }: GlassChipProps) {
   const shouldRenderGlass = useShouldRenderGlass();
