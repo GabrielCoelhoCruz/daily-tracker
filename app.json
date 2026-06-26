@@ -52,6 +52,12 @@
         "projectId": "345aaf7d-051b-43fb-94f8-dd2becbf78c2"
       }
     },
-    "owner": "gabrielcoelho_cruz"
+    "owner": "gabrielcoelho_cruz",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/345aaf7d-051b-43fb-94f8-dd2becbf78c2"
+    }
   }
 }
