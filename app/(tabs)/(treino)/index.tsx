@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { theme, withAlpha } from "@/constants/theme";
 import { DAY_NAMES_FULL } from "@/constants/days";
 import { getTreinoDoDia } from "@/utils/diaUtils";
 import { useDayStore } from "@/stores/useDayStore";
-import { getLogicalDayOfWeek } from "@/utils/dateUtils";
+import { getLogicalDayOfWeek, getLogicalDate } from "@/utils/dateUtils";
+import { GymLogPanel } from "@/components/treino/GymLogPanel";
 import {
   FocalExercicioCard,
   ExercicioItem,
@@ -15,6 +16,7 @@ import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
 
 export default function TreinoScreen() {
   const todayDay = getLogicalDayOfWeek(new Date());
+  const todayDate = getLogicalDate(new Date());
   const [selectedDay, setSelectedDay] = useState(() => getInitialWorkoutDay(todayDay));
   const diaOffManual = useDayStore((s) => s.diaOffManual);
   const bottomPadding = useTabContentBottomPadding();
@@ -110,6 +112,7 @@ export default function TreinoScreen() {
   // ─── Training Day ──────────────────────────────────────────────────
 
   const [firstExercise, ...remainingExercises] = treino.exercicios;
+  const showGymLog = isViewingToday && !diaOffManual;
 
   return (
     <ScrollView
@@ -126,6 +129,8 @@ export default function TreinoScreen() {
         diaOffManual={diaOffManual}
         onSelectDay={setSelectedDay}
       />
+
+      <GymLogPanel treino={treino} date={todayDate} visible={showGymLog} />
 
       {/* ── Header Section ── */}
       <View style={{ marginBottom: 32, marginTop: 20 }}>
