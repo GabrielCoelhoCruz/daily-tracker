@@ -226,6 +226,8 @@ DailyTracker is an **offline-first** React Native app built for competitive body
 | **FRI** | E | Full Body / Specialty |
 | **SAT–SUN** | — | Rest Day |
 
+**GymLog (v1)** — on today's training tab, tap **Registrar treino**, enter load (kg) per exercise; data persists locally and appears under **Treino registrado** in day history.
+
 <br/>
 </details>
 
@@ -240,6 +242,7 @@ DailyTracker is an **offline-first** React Native app built for competitive body
 
 - **Calendar** — interactive with visual markers for tracked days
 - **Day detail** — completion percentage + missed items list
+- **GymLog history** — registered workout loads (kg) per exercise for that day
 - **Stats card** — aggregate completion trends across weeks
 
 <br/>
@@ -396,10 +399,14 @@ planTracker/
 │   ├── physique/                     # PhotoSlots, WeightDelta, EvolutionChart
 │   ├── historico/                    # Calendario, StatsCard
 │   ├── dicas/                        # DicasSection (tips)
-│   └── treino/                       # ExercicioItem
+│   └── treino/                       # ExercicioItem, GymLogPanel
+│
+├── hooks/
+│   └── useGymSession.ts              # Active gym session for today
 │
 ├── stores/                           # ZUSTAND (all persisted)
 │   ├── useDayStore.ts                # Checks, hydration, cardio, free meal
+│   ├── useGymStore.ts                # GymLog sessions (loads per exercise)
 │   ├── useAthleteStore.ts            # Profile (name, gender, height, weight)
 │   ├── usePhysiqueStore.ts           # Check-ins + analysis + scores
 │   ├── useHistoryStore.ts            # Daily completion records
@@ -693,7 +700,7 @@ eas build --profile production --platform all      # Production
 | ✅ **API Proxy** | Complete | Server-side prompt with rate limiting, input validation |
 | ✅ **Dynamic Profile** | Complete | Editable athlete profile with gender, height, weight |
 | 🟡 **AI Physique Analysis** | Beta | Claude Vision v3 prompt with 13 categories, female support |
-| ⬜ **GymLog (Workout Logging)** | Planned | Natural language training logging with AI parsing |
+| ✅ **GymLog (Workout Logging)** | Complete | Register today's workout loads (kg) per exercise; persisted locally; view in day history |
 | ⬜ **iOS Widget** | Planned | Home screen quick-glance of pending items |
 | ⬜ **Web Version** | Planned | Deploy to Vercel for portfolio demo |
 
