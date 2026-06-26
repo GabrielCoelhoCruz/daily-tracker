@@ -69,8 +69,10 @@ export default function ProfileScreen() {
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustKeyboardInsets
       className="flex-1 bg-primary"
       keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
     >
       <View className="p-4" style={{ gap: 12 }}>
         <Card>

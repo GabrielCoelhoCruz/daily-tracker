@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { Platform, View } from "react-native";
 import { theme } from "@/constants/theme";
 
 export const unstable_settings = {
@@ -11,55 +12,137 @@ export default function TabLayout() {
     <Tabs
       initialRouteName="(hoje)"
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.accent.DEFAULT,
-        tabBarInactiveTintColor: "#a8a29e",
+        tabBarActiveTintColor: theme.colors.primary.DEFAULT,
+        tabBarInactiveTintColor: theme.colors.onSurface.variant + "66",
+        tabBarLabelStyle: {
+          fontSize: 8,
+          fontWeight: "800",
+          letterSpacing: 2,
+          textTransform: "uppercase",
+        },
         tabBarStyle: {
-          backgroundColor: theme.colors.bg.primary,
-          borderTopColor: theme.colors.border,
+          backgroundColor: theme.colors.background,
+          borderTopColor: "rgba(255,255,255,0.05)",
+          borderTopWidth: 1,
+          height: Platform.OS === "ios" ? 88 : 68,
+          paddingTop: 8,
+          paddingBottom: Platform.OS === "ios" ? 28 : 8,
         },
         headerStyle: {
-          backgroundColor: theme.colors.bg.primary,
+          backgroundColor: theme.colors.background,
         },
-        headerTintColor: "#fafaf9",
+        headerTintColor: theme.colors.onSurface.DEFAULT,
       }}
     >
       <Tabs.Screen
         name="(hoje)"
         options={{
-          title: "Hoje",
+          title: "Dash",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="checkmark-circle-outline" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ alignItems: "center" }}>
+              {focused && (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: -12,
+                    width: 40,
+                    height: 3,
+                    borderRadius: 2,
+                    backgroundColor: theme.colors.primary.DEFAULT,
+                  }}
+                />
+              )}
+              <Ionicons
+                name={focused ? "grid" : "grid-outline"}
+                size={22}
+                color={color}
+              />
+            </View>
           ),
         }}
       />
       <Tabs.Screen
         name="(treino)"
         options={{
-          title: "Treino",
+          title: "Train",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="barbell-outline" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ alignItems: "center" }}>
+              {focused && (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: -12,
+                    width: 40,
+                    height: 3,
+                    borderRadius: 2,
+                    backgroundColor: theme.colors.primary.DEFAULT,
+                  }}
+                />
+              )}
+              <Ionicons
+                name={focused ? "barbell" : "barbell-outline"}
+                size={22}
+                color={color}
+              />
+            </View>
           ),
         }}
       />
       <Tabs.Screen
         name="(historico)"
         options={{
-          title: "Histórico",
+          title: "Logs",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ alignItems: "center" }}>
+              {focused && (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: -12,
+                    width: 40,
+                    height: 3,
+                    borderRadius: 2,
+                    backgroundColor: theme.colors.primary.DEFAULT,
+                  }}
+                />
+              )}
+              <Ionicons
+                name={focused ? "document-text" : "document-text-outline"}
+                size={22}
+                color={color}
+              />
+            </View>
           ),
         }}
       />
       <Tabs.Screen
         name="(progresso)"
         options={{
-          title: "Progresso",
+          title: "Stats",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="analytics-outline" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ alignItems: "center" }}>
+              {focused && (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: -12,
+                    width: 40,
+                    height: 3,
+                    borderRadius: 2,
+                    backgroundColor: theme.colors.primary.DEFAULT,
+                  }}
+                />
+              )}
+              <Ionicons
+                name={focused ? "analytics" : "analytics-outline"}
+                size={22}
+                color={color}
+              />
+            </View>
           ),
         }}
       />

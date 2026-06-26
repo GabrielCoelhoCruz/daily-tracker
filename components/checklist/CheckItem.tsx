@@ -1,7 +1,6 @@
 import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { theme } from "@/constants/theme";
-import { Badge } from "@/components/ui/Badge";
+import { theme, withAlpha } from "@/constants/theme";
 import { useDayStore } from "@/stores/useDayStore";
 import { animateWithHaptic } from "@/utils/animationUtils";
 import type { ItemDoPlano } from "@/data/plano";
@@ -24,10 +23,16 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
 
   if (hasSubItens) {
     return (
-      <View className="gap-1">
+      <View style={{ gap: 6 }}>
         <Text
-          className="text-sm font-semibold text-txt-secondary"
-          style={{ paddingLeft: indented ? 16 : 0 }}
+          style={{
+            fontSize: 11,
+            fontWeight: "700",
+            color: theme.colors.onSurface.variant,
+            letterSpacing: 1,
+            textTransform: "uppercase",
+            paddingLeft: indented ? 16 : 0,
+          }}
         >
           {item.nome}
         </Text>
@@ -44,40 +49,94 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
       accessibilityRole="checkbox"
       accessibilityState={{ checked: isChecked }}
       accessibilityLabel={item.nome}
-      className="flex-row items-center gap-3"
-      style={{ minHeight: 44, paddingLeft: indented ? 16 : 0 }}
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 14,
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        backgroundColor: withAlpha(theme.colors.background, 0.8),
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: isChecked
+          ? withAlpha(theme.colors.tertiary, 0.2)
+          : withAlpha(theme.colors.outline.variant, 0.2),
+        marginLeft: indented ? 16 : 0,
+      }}
     >
-      <MaterialCommunityIcons
-        name={
-          isChecked
-            ? "checkbox-marked-circle-outline"
-            : "checkbox-blank-circle-outline"
-        }
-        size={24}
-        color={
-          isChecked
-            ? theme.colors.semantic.success
-            : theme.colors.text.muted
-        }
-      />
+      {/* Checkbox */}
+      <View
+        style={{
+          width: 20,
+          height: 20,
+          borderRadius: 6,
+          borderWidth: 2,
+          borderColor: isChecked
+            ? theme.colors.tertiary
+            : theme.colors.outline.variant,
+          backgroundColor: isChecked
+            ? theme.colors.tertiary
+            : "transparent",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {isChecked && (
+          <MaterialCommunityIcons
+            name="check"
+            size={12}
+            color={theme.colors.background}
+          />
+        )}
+      </View>
 
-      <View className="flex-1 flex-row items-center gap-2">
+      {/* Label */}
+      <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8 }}>
         <Text
-          className="text-sm text-txt-primary"
-          style={{ opacity: isChecked ? 0.5 : 1 }}
+          style={{
+            fontSize: 13,
+            fontWeight: "500",
+            color: isChecked
+              ? withAlpha(theme.colors.onSurface.DEFAULT, 0.5)
+              : withAlpha(theme.colors.onSurface.DEFAULT, 0.9),
+            textDecorationLine: isChecked ? "line-through" : "none",
+          }}
         >
           {item.nome}
         </Text>
         {item.dosagem && (
           <Text
-            className="text-xs text-txt-secondary"
-            style={{ opacity: isChecked ? 0.5 : 1 }}
+            style={{
+              fontSize: 11,
+              fontWeight: "500",
+              color: theme.colors.onSurface.variant,
+              opacity: isChecked ? 0.5 : 1,
+            }}
           >
             {item.dosagem}
           </Text>
         )}
         {item.opcional && (
-          <Badge text="opcional" color={theme.colors.text.muted} />
+          <View
+            style={{
+              backgroundColor: withAlpha(theme.colors.onSurface.variant, 0.15),
+              paddingHorizontal: 6,
+              paddingVertical: 2,
+              borderRadius: 4,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 8,
+                fontWeight: "800",
+                color: theme.colors.onSurface.variant,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+              }}
+            >
+              OPC
+            </Text>
+          </View>
         )}
       </View>
     </Pressable>

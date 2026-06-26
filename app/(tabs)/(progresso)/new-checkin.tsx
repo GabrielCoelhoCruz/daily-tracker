@@ -52,6 +52,35 @@ export default function NewCheckInScreen() {
   const lastCategory = usePhysiqueStore((s) => s.lastCategory);
   const setLastCategory = usePhysiqueStore((s) => s.setLastCategory);
   const gender = useAthleteStore((s) => s.gender);
+  const profileComplete = useAthleteStore((s) => s.isProfileComplete());
+
+  if (!profileComplete) {
+    return (
+      <View className="flex-1 bg-primary items-center justify-center p-6" style={{ gap: 16 }}>
+        <Text style={[theme.typography.headline, { color: theme.colors.text.primary }]}>
+          Perfil incompleto
+        </Text>
+        <Text style={[theme.typography.body, { color: theme.colors.text.secondary, textAlign: "center" }]}>
+          Preencha seu perfil antes de fazer um check-in.
+        </Text>
+        <Pressable
+          onPress={() => router.push("./profile" as any)}
+          style={{
+            backgroundColor: theme.colors.accent.DEFAULT,
+            borderRadius: theme.radius.lg,
+            paddingVertical: 14,
+            paddingHorizontal: 24,
+            minHeight: 44,
+          }}
+          accessibilityRole="button"
+        >
+          <Text style={{ color: "#000", fontWeight: "700", fontSize: 16 }}>
+            Preencher Perfil
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
   const categoryPills = gender === "female" ? FEMALE_CATEGORY_PILLS : MALE_CATEGORY_PILLS;
 
   const lastWeek = checkIns.length > 0

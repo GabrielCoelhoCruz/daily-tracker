@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { theme } from "@/constants/theme";
+import { theme, withAlpha } from "@/constants/theme";
 import { plano } from "@/data/plano";
-import { Badge } from "@/components/ui/Badge";
-import { ProgressBar } from "@/components/checklist/ProgressBar";
+import { CircularProgress } from "@/components/ui/CircularProgress";
 import { PeriodoSection } from "@/components/checklist/PeriodoSection";
 import { HidratacaoCard } from "@/components/hidratacao/HidratacaoCard";
 import { CardioCard } from "@/components/cardio/CardioCard";
-import { DicasSection } from "@/components/dicas/DicasSection";
 import { useDayStore } from "@/stores/useDayStore";
 import { animateWithHaptic } from "@/utils/animationUtils";
 import {
@@ -19,11 +18,11 @@ import {
 } from "@/utils/diaUtils";
 import { checkAndReset } from "@/utils/resetUtils";
 import { cancelHydrationNotificacoes } from "@/utils/notificationUtils";
-import { getLogicalDayOfWeek, formatLogicalDate } from "@/utils/dateUtils";
-
+import { getLogicalDayOfWeek } from "@/utils/dateUtils";
+import type { Periodo, ItemDoPlano } from "@/data/plano";
 
 function countCheckedNonOptional(
-  periodos: ReturnType<typeof filtrarItensDoDia>,
+  periodos: Periodo[],
   checks: Record<string, { checked: boolean; timestamp: number }>,
   refeicaoLivreUsada: boolean,
   refeicaoLivrePeriodoId: string | null
@@ -52,6 +51,7 @@ function countCheckedNonOptional(
 
 export default function HojeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const checks = useDayStore((s) => s.checks);
   const diaOffManual = useDayStore((s) => s.diaOffManual);
   const setDiaOff = useDayStore((s) => s.setDiaOff);
@@ -98,6 +98,8 @@ export default function HojeScreen() {
     refeicaoLivrePeriodoId
   );
 
+  const percentage = total > 0 ? Math.round((completados / total) * 100) : 0;
+
   function handleToggleDiaOff() {
     animateWithHaptic(() => setDiaOff(!diaOffManual));
   }
@@ -111,181 +113,289 @@ export default function HojeScreen() {
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-bg-primary"
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerClassName="gap-3 px-4 pb-8 pt-4"
-    >
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-        <Text style={theme.typography.footnote}>
-          {formatLogicalDate(new Date())}
-        </Text>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      {/* ── Fixed Header ── */}
+      <View
+        style={{
+          paddingTop: insets.top + 8,
+          paddingBottom: 12,
+          paddingHorizontal: 24,
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          backgroundColor: withAlpha(theme.colors.surface.DEFAULT, 0.95),
+          borderBottomWidth: 1,
+          borderBottomColor: withAlpha(theme.colors.outline.variant, 0.3),
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <MaterialCommunityIcons
+            name="robot-industrial"
+            size={22}
+            color={theme.colors.primary.DEFAULT}
+          />
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: "700",
+              color: theme.colors.primary.DEFAULT,
+              letterSpacing: 3,
+              textTransform: "uppercase",
+            }}
+          >
+            DailyTracker
+          </Text>
+        </View>
+
         <Pressable
           onPress={() => router.push("/config")}
           accessibilityLabel="Configurações"
           accessibilityRole="button"
           hitSlop={8}
           style={{
-            width: 32,
-            height: 32,
-            borderRadius: 16,
-            backgroundColor: theme.colors.bg.elevated,
+            width: 38,
+            height: 38,
+            borderRadius: 19,
+            backgroundColor: theme.colors.surface.containerHighest,
+            borderWidth: 1,
+            borderColor: "rgba(255,255,255,0.05)",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
           <MaterialCommunityIcons
-            name="cog"
+            name="cog-outline"
             size={18}
-            color={theme.colors.text.muted}
+            color={theme.colors.onSurface.variant}
           />
         </Pressable>
       </View>
 
-      <Pressable
-        onPress={handleToggleDiaOff}
-        accessibilityRole="button"
-        accessibilityLabel={diaOffManual ? "Desativar Dia Off" : "Ativar Dia Off"}
-        className="flex-row items-center justify-between rounded-2xl px-4 py-3"
-        style={{
-          backgroundColor: diaOffManual
-            ? theme.colors.semantic.error + "15"
-            : theme.colors.bg.card,
-          borderCurve: "continuous",
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          paddingBottom: 120,
         }}
       >
-        <View className="flex-row items-center gap-3">
-          <MaterialCommunityIcons
-            name="moon-waning-crescent"
-            size={24}
-            color={
-              diaOffManual
-                ? theme.colors.semantic.error
-                : theme.colors.text.muted
-            }
-          />
-          <View>
-            <Text
-              style={{
-                ...theme.typography.callout,
-                color: diaOffManual
-                  ? theme.colors.semantic.error
-                  : theme.colors.text.primary,
-              }}
-            >
-              Dia Off
-            </Text>
-            <Text style={theme.typography.caption}>
-              {diaOffManual ? "Treino e dieta pausados" : "Pausar treino e dieta"}
-            </Text>
-          </View>
+        {/* ── Circular Progress ── */}
+        <View style={{ alignItems: "center", paddingVertical: 24 }}>
+          <CircularProgress percentage={percentage} />
         </View>
-        <View
-          className="h-7 w-7 items-center justify-center rounded-full"
+
+        {/* ── Day Off Toggle ── */}
+        <Pressable
+          onPress={handleToggleDiaOff}
+          accessibilityRole="button"
+          accessibilityLabel={
+            diaOffManual ? "Desativar Dia Off" : "Ativar Dia Off"
+          }
           style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingHorizontal: 20,
+            paddingVertical: 16,
+            borderRadius: 16,
             backgroundColor: diaOffManual
-              ? theme.colors.semantic.error
-              : theme.colors.bg.elevated,
+              ? withAlpha(theme.colors.semantic.error, 0.08)
+              : withAlpha(theme.colors.surface.variant, 0.3),
+            borderWidth: 1,
+            borderColor: diaOffManual
+              ? withAlpha(theme.colors.semantic.error, 0.2)
+              : "rgba(255,255,255,0.05)",
+            marginBottom: 32,
           }}
         >
-          {diaOffManual && (
-            <MaterialCommunityIcons
-              name="check"
-              size={16}
-              color={theme.colors.text.primary}
-            />
-          )}
-        </View>
-      </Pressable>
-
-      <ProgressBar completados={completados} total={total} />
-
-      {treino && !refeicaoLivreUsada && (
-        <View className="flex-row items-center gap-2">
-          <MaterialCommunityIcons
-            name="food-apple-outline"
-            size={16}
-            color={theme.colors.accent.DEFAULT}
-          />
-          <Text style={theme.typography.footnote}>Refeição Livre</Text>
-          <Badge
-            text="0/1"
-            color={theme.colors.accent.DEFAULT}
-          />
-        </View>
-      )}
-      {treino && refeicaoLivreUsada && (
-        <View className="flex-row items-center justify-between">
-          <View className="flex-row items-center gap-2">
-            <MaterialCommunityIcons
-              name="food-apple-outline"
-              size={16}
-              color={theme.colors.semantic.success}
-            />
-            <Text style={theme.typography.footnote}>Refeição Livre</Text>
-            <Badge
-              text="1/1"
-              color={theme.colors.semantic.success}
-            />
-          </View>
-          <Pressable
-            onPress={handleDesfazerRefeicaoLivre}
-            accessibilityLabel="Desfazer refeição livre"
-            className="flex-row items-center gap-1 rounded-lg px-2.5 py-1"
-            style={{
-              backgroundColor: theme.colors.semantic.error + "15",
-            }}
+          <View
+            style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
           >
             <MaterialCommunityIcons
-              name="undo"
-              size={14}
-              color={theme.colors.semantic.error}
+              name="moon-waning-crescent"
+              size={20}
+              color={
+                diaOffManual
+                  ? theme.colors.semantic.error
+                  : theme.colors.onSurface.variant
+              }
             />
-            <Text
-              className="text-xs font-medium"
-              style={{ color: theme.colors.semantic.error }}
-            >
-              Desfazer
-            </Text>
-          </Pressable>
-        </View>
-      )}
-
-      {periodosFiltrados.map((periodo) => (
-        <View key={periodo.id} className="gap-2">
-          <PeriodoSection periodo={periodo} />
-          {treino &&
-            !refeicaoLivreUsada &&
-            periodo.itens.some((i) => i.categoria === "refeicao") && (
-              <Pressable
-                onPress={() => handleRefeicaoLivre(periodo.id)}
-                accessibilityLabel={`Usar refeição livre em ${periodo.nome}`}
-                className="flex-row items-center justify-center gap-2 rounded-lg py-2"
+            <View>
+              <Text
                 style={{
-                  backgroundColor: theme.colors.accent.DEFAULT + "10",
+                  fontSize: 13,
+                  fontWeight: "700",
+                  color: diaOffManual
+                    ? theme.colors.semantic.error
+                    : theme.colors.onSurface.DEFAULT,
+                }}
+              >
+                Dia Off
+              </Text>
+              <Text
+                style={{
+                  fontSize: 10,
+                  color: theme.colors.onSurface.variant,
+                  marginTop: 2,
+                }}
+              >
+                {diaOffManual
+                  ? "Treino e dieta pausados"
+                  : "Pausar treino e dieta"}
+              </Text>
+            </View>
+          </View>
+
+          {/* Toggle indicator */}
+          <View
+            style={{
+              width: 44,
+              height: 24,
+              borderRadius: 12,
+              backgroundColor: diaOffManual
+                ? theme.colors.semantic.error
+                : theme.colors.surface.containerHighest,
+              justifyContent: "center",
+              paddingHorizontal: 3,
+            }}
+          >
+            <View
+              style={{
+                width: 18,
+                height: 18,
+                borderRadius: 9,
+                backgroundColor: diaOffManual
+                  ? theme.colors.onSurface.DEFAULT
+                  : theme.colors.onSurface.variant,
+                alignSelf: diaOffManual ? "flex-end" : "flex-start",
+              }}
+            />
+          </View>
+        </Pressable>
+
+        {/* ── Section: Essenciais ── */}
+        <View style={{ gap: 16, marginBottom: 40 }}>
+          <Text
+            style={{
+              ...theme.typography.labelMedium,
+              color: theme.colors.onSurface.variant,
+              paddingHorizontal: 4,
+            }}
+          >
+            ESSENCIAIS DO DIA
+          </Text>
+
+          <HidratacaoCard />
+          <CardioCard />
+        </View>
+
+        {/* ── Section: Nutrição & Dieta ── */}
+        <View style={{ gap: 16 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingHorizontal: 4,
+            }}
+          >
+            <Text
+              style={{
+                ...theme.typography.labelMedium,
+                color: theme.colors.onSurface.variant,
+              }}
+            >
+              NUTRIÇÃO & DIETA
+            </Text>
+
+            {/* Free meal status */}
+            {treino && refeicaoLivreUsada && (
+              <Pressable
+                onPress={handleDesfazerRefeicaoLivre}
+                accessibilityLabel="Desfazer refeição livre"
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 4,
+                  backgroundColor: withAlpha(
+                    theme.colors.semantic.error,
+                    0.1
+                  ),
+                  paddingHorizontal: 10,
+                  paddingVertical: 4,
+                  borderRadius: 8,
                 }}
               >
                 <MaterialCommunityIcons
-                  name="food-apple-outline"
-                  size={14}
-                  color={theme.colors.accent.DEFAULT}
+                  name="undo"
+                  size={12}
+                  color={theme.colors.semantic.error}
                 />
                 <Text
-                  className="text-xs font-medium"
-                  style={{ color: theme.colors.accent.DEFAULT }}
+                  style={{
+                    fontSize: 9,
+                    fontWeight: "800",
+                    color: theme.colors.semantic.error,
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
+                  }}
                 >
-                  Usar Refeição Livre
+                  DESFAZER LIVRE
                 </Text>
               </Pressable>
             )}
+          </View>
+
+          {periodosFiltrados.map((periodo) => (
+            <View key={periodo.id} style={{ gap: 8 }}>
+              <PeriodoSection periodo={periodo} />
+
+              {/* Refeição Livre button for this period */}
+              {treino &&
+                !refeicaoLivreUsada &&
+                periodo.itens.some((i) => i.categoria === "refeicao") && (
+                  <Pressable
+                    onPress={() => handleRefeicaoLivre(periodo.id)}
+                    accessibilityLabel={`Usar refeição livre em ${periodo.nome}`}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
+                      paddingVertical: 10,
+                      backgroundColor: withAlpha(
+                        theme.colors.primary.DEFAULT,
+                        0.06
+                      ),
+                      borderRadius: 12,
+                      borderWidth: 1,
+                      borderColor: withAlpha(
+                        theme.colors.primary.DEFAULT,
+                        0.15
+                      ),
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="food-apple-outline"
+                      size={14}
+                      color={theme.colors.primary.DEFAULT}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 10,
+                        fontWeight: "700",
+                        color: theme.colors.primary.DEFAULT,
+                        letterSpacing: 1,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      USAR REFEIÇÃO LIVRE
+                    </Text>
+                  </Pressable>
+                )}
+            </View>
+          ))}
         </View>
-      ))}
-
-      <HidratacaoCard />
-
-      <CardioCard />
-
-      <DicasSection categoria="nutricao" />
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }

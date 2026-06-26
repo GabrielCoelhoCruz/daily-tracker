@@ -1,76 +1,246 @@
 import { ScrollView, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { getTreinoDoDia } from "@/utils/diaUtils";
 import { useDayStore } from "@/stores/useDayStore";
 import { getLogicalDayOfWeek } from "@/utils/dateUtils";
-import { ExercicioItem } from "@/components/treino/ExercicioItem";
-import { DicasSection } from "@/components/dicas/DicasSection";
+import {
+  FocalExercicioCard,
+  ExercicioItem,
+} from "@/components/treino/ExercicioItem";
 
 const DAY_NAMES = [
-  "Domingo",
-  "Segunda",
-  "Ter\u00e7a",
-  "Quarta",
-  "Quinta",
-  "Sexta",
-  "S\u00e1bado",
+  "DOMINGO",
+  "SEGUNDA",
+  "TERÇA",
+  "QUARTA",
+  "QUINTA",
+  "SEXTA",
+  "SÁBADO",
 ];
 
 export default function TreinoScreen() {
+  const insets = useSafeAreaInsets();
   const dayOfWeek = getLogicalDayOfWeek(new Date());
   const diaOffManual = useDayStore((s) => s.diaOffManual);
   const treino = diaOffManual ? null : getTreinoDoDia(dayOfWeek);
   const dayName = DAY_NAMES[dayOfWeek];
 
+  // ─── Rest Day ──────────────────────────────────────────────────────
+
   if (!treino) {
     return (
       <ScrollView
-        className="flex-1 bg-bg-primary"
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerClassName="flex-1 items-center justify-center px-8"
+        style={{ flex: 1, backgroundColor: theme.colors.background }}
+        contentContainerStyle={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          paddingHorizontal: 32,
+          paddingTop: insets.top,
+        }}
       >
-        <MaterialCommunityIcons
-          name="moon-waning-crescent"
-          size={48}
-          color={theme.colors.text.muted}
-        />
-        <Text className="mt-4" style={theme.typography.title3}>
-          Dia Off
+        <View
+          style={{
+            width: 80,
+            height: 80,
+            borderRadius: 20,
+            backgroundColor: theme.colors.surface.container,
+            alignItems: "center",
+            justifyContent: "center",
+            borderWidth: 1,
+            borderColor: "rgba(255,255,255,0.05)",
+            marginBottom: 20,
+          }}
+        >
+          <MaterialCommunityIcons
+            name="moon-waning-crescent"
+            size={36}
+            color={theme.colors.onSurface.variant}
+          />
+        </View>
+
+        <Text style={theme.typography.labelSmall}>
+          {dayName}
         </Text>
-        <Text className="mt-2 text-center" style={theme.typography.footnote}>
-          {dayName} {"\u2014"} Aproveite para recuperar e voltar mais forte.
+        <Text
+          style={{
+            ...theme.typography.headlineLarge,
+            marginTop: 8,
+            textAlign: "center",
+          }}
+        >
+          DIA OFF
+        </Text>
+        <Text
+          style={{
+            ...theme.typography.footnote,
+            color: theme.colors.onSurface.variant,
+            textAlign: "center",
+            marginTop: 8,
+            lineHeight: 20,
+          }}
+        >
+          Aproveite para recuperar e voltar mais forte.
         </Text>
       </ScrollView>
     );
   }
 
+  // ─── Training Day ──────────────────────────────────────────────────
+
+  const [firstExercise, ...remainingExercises] = treino.exercicios;
+
   return (
     <ScrollView
-      className="flex-1 bg-bg-primary"
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerClassName="gap-3 px-4 pb-8 pt-4"
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      contentContainerStyle={{
+        paddingHorizontal: 24,
+        paddingBottom: 120,
+        paddingTop: insets.top + 16,
+      }}
     >
-      <View className="gap-1">
-        <Text style={theme.typography.footnote}>
-          {dayName} {"\u2014"} {treino.letra}: {treino.grupoMuscular}
+      {/* ── Header Section ── */}
+      <View style={{ marginBottom: 32 }}>
+        {/* Protocol label */}
+        <Text
+          style={{
+            ...theme.typography.labelSmall,
+            color: theme.colors.primary.container,
+            marginBottom: 4,
+          }}
+        >
+          PROTOCOLO • HOJE
         </Text>
-        <Text style={theme.typography.caption}>
-          {treino.exercicios.length} exerc{"\u00ed"}cios
-        </Text>
-      </View>
 
-      <View className="gap-2">
-        {treino.exercicios.map((exercicio, index) => (
-          <ExercicioItem
-            key={exercicio.id}
-            exercicio={exercicio}
-            index={index}
+        {/* Day name (large) */}
+        <Text style={theme.typography.titleLarge}>{dayName}</Text>
+
+        {/* Split info */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            marginTop: 12,
+          }}
+        >
+          <MaterialCommunityIcons
+            name="dumbbell"
+            size={16}
+            color={theme.colors.onSurface.variant}
           />
-        ))}
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: "700",
+              color: theme.colors.onSurface.variant,
+              letterSpacing: 2,
+              textTransform: "uppercase",
+            }}
+          >
+            Split {treino.letra}: {treino.grupoMuscular}
+          </Text>
+        </View>
       </View>
 
-      <DicasSection categoria="treino" />
+      {/* ── Focal Exercise (first) ── */}
+      <View style={{ marginBottom: 8 }}>
+        <FocalExercicioCard exercicio={firstExercise} index={0} />
+
+        {/* Muscle group tags */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            marginTop: 16,
+            paddingHorizontal: 4,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 9,
+              fontWeight: "900",
+              color: theme.colors.onSurface.variant + "66",
+              letterSpacing: 2,
+              textTransform: "uppercase",
+            }}
+          >
+            Grupo:
+          </Text>
+          <View
+            style={{
+              backgroundColor: theme.colors.surface.containerHigh,
+              paddingHorizontal: 10,
+              paddingVertical: 5,
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: "rgba(255,255,255,0.05)",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 9,
+                fontWeight: "900",
+                color: theme.colors.onSurface.DEFAULT,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+              }}
+            >
+              {treino.grupoMuscular}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* ── Remaining Exercises ── */}
+      {remainingExercises.length > 0 && (
+        <View style={{ marginTop: 32 }}>
+          {/* Section header */}
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              borderBottomWidth: 1,
+              borderBottomColor: "rgba(255,255,255,0.05)",
+              paddingBottom: 12,
+              marginBottom: 16,
+              paddingHorizontal: 4,
+            }}
+          >
+            <Text
+              style={{
+                ...theme.typography.labelSmall,
+                color: theme.colors.onSurface.variant + "99",
+              }}
+            >
+              PRÓXIMOS NO PROTOCOLO
+            </Text>
+            <Text
+              style={{
+                ...theme.typography.labelSmall,
+                color: theme.colors.onSurface.variant + "66",
+              }}
+            >
+              {remainingExercises.length} restantes
+            </Text>
+          </View>
+
+          {/* Exercise list */}
+          <View style={{ gap: 10 }}>
+            {remainingExercises.map((exercicio, index) => (
+              <ExercicioItem
+                key={exercicio.id}
+                exercicio={exercicio}
+                index={index + 1}
+              />
+            ))}
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 }

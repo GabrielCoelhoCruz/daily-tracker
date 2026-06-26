@@ -33,8 +33,15 @@ export const useAthleteStore = create<AthleteState & AthleteActions>()(
       updateProfile: (updates) => set(updates),
 
       isProfileComplete: () => {
-        const { name, gender } = get();
-        return name.trim().length > 0 && (gender === "male" || gender === "female");
+        const { name, gender, heightCm, currentWeightKg } = get();
+        return (
+          name.trim().length > 0 &&
+          (gender === "male" || gender === "female") &&
+          heightCm >= 140 &&
+          heightCm <= 220 &&
+          currentWeightKg >= 40 &&
+          currentWeightKg <= 180
+        );
       },
     }),
     {

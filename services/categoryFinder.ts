@@ -18,6 +18,7 @@ export type CategoryResult = {
 
 type MusculatureLevel =
   | "leve"
+  | "leve-moderado"
   | "moderado"
   | "moderado-alto"
   | "alto"
@@ -249,7 +250,7 @@ export const FEMALE_CATEGORIES: CategoryMetadata[] = [
       "Pele, cabelo, maquiagem — Total Package, pele lisa e saudável",
       "Apresentação — confiança, poise, graça, feminilidade",
     ],
-    musculatureLevel: "leve",
+    musculatureLevel: "leve-moderado",
     conditioningLevel: "moderado",
     summary:
       "Pra quem quer um físico saudável e fit com ênfase em shape, feminilidade e apresentação",

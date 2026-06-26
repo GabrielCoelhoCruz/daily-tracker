@@ -1,196 +1,412 @@
 import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { theme } from "@/constants/theme";
-import { Card } from "@/components/ui/Card";
+import LinearGradient from "react-native-linear-gradient";
+import { theme, withAlpha } from "@/constants/theme";
 import { useDayStore } from "@/stores/useDayStore";
 import { animateWithHaptic } from "@/utils/animationUtils";
 import { plano } from "@/data/plano";
 
-type HidratacaoSectionProps = {
-  label: string;
-  currentMl: number;
-  metaMl: number;
-  onAdd: (ml: number) => void;
-  onRemove: (ml: number) => void;
-};
-
 function formatLiters(ml: number): string {
-  if (ml >= 1000) {
-    const liters = ml / 1000;
-    return `${liters % 1 === 0 ? liters.toFixed(0) : liters.toFixed(1)}L`;
-  }
-  return `${ml}ml`;
+  return (ml / 1000).toFixed(2);
 }
 
-function HidratacaoSection({
-  label,
-  currentMl,
-  metaMl,
-  onAdd,
-  onRemove,
-}: HidratacaoSectionProps) {
-  const percentage = metaMl > 0 ? Math.min(100, Math.round((currentMl / metaMl) * 100)) : 0;
-  const isComplete = currentMl >= metaMl;
+function formatGoal(ml: number): string {
+  return (ml / 1000).toFixed(1) + "L";
+}
 
-  function handleAdd(ml: number) {
-    animateWithHaptic(() => onAdd(ml));
-  }
+// ─── Premium Card wrapper ────────────────────────────────────────────
 
-  function handleRemove(ml: number) {
-    animateWithHaptic(() => onRemove(ml));
-  }
+function PremiumCard({ children }: { children: React.ReactNode }) {
+  return (
+    <LinearGradient
+      colors={[
+        withAlpha(theme.colors.surface.variant, 0.4),
+        withAlpha(theme.colors.surface.DEFAULT, 0.4),
+      ]}
+      start={{ x: 0.1, y: 0 }}
+      end={{ x: 0.9, y: 1 }}
+      style={{
+        borderRadius: 16,
+        padding: 20,
+        borderWidth: 1,
+        borderColor: withAlpha(theme.colors.primary.DEFAULT, 0.08),
+      }}
+    >
+      {children}
+    </LinearGradient>
+  );
+}
+
+// ─── Water Card ──────────────────────────────────────────────────────
+
+function WaterCard() {
+  const aguaMl = useDayStore((s) => s.aguaMl);
+  const addAgua = useDayStore((s) => s.addAgua);
+  const removeAgua = useDayStore((s) => s.removeAgua);
+  const metaAgua = plano.metaHidratacao.aguaMl;
+  const percentage = Math.min(100, Math.round((aguaMl / metaAgua) * 100));
+  const isComplete = aguaMl >= metaAgua;
 
   return (
-    <View className="gap-2">
-      <View className="flex-row items-center justify-between">
-        <View className="flex-row items-center gap-2">
+    <PremiumCard>
+      {/* Header */}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 16,
+        }}
+      >
+        <View
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 10,
+            backgroundColor: withAlpha(theme.colors.primary.DEFAULT, 0.1),
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <MaterialCommunityIcons
             name="water-outline"
-            size={16}
-            color={isComplete ? theme.colors.semantic.success : theme.colors.accent.DEFAULT}
+            size={18}
+            color={theme.colors.primary.DEFAULT}
           />
-          <Text className="text-sm font-semibold text-txt-primary">{label}</Text>
         </View>
-        <View className="flex-row items-center gap-1.5">
-          {isComplete && (
-            <MaterialCommunityIcons
-              name="check-circle"
-              size={16}
-              color={theme.colors.semantic.success}
-            />
-          )}
-          <Text
-            selectable
-            className="text-sm text-txt-secondary"
-            style={{ fontVariant: ["tabular-nums"] }}
-          >
-            {formatLiters(currentMl)} / {formatLiters(metaMl)}
-          </Text>
-          <Text
-            selectable
-            className="text-sm font-medium"
-            style={{
-              fontVariant: ["tabular-nums"],
-              color: isComplete
-                ? theme.colors.semantic.success
-                : theme.colors.accent.DEFAULT,
-            }}
-          >
-            {percentage}%
-          </Text>
-        </View>
+        <Text
+          style={{
+            ...theme.typography.labelSmall,
+            color: theme.colors.onSurface.variant,
+          }}
+        >
+          ÁGUA
+        </Text>
       </View>
 
-      <View className="h-2.5 overflow-hidden rounded-full bg-bg-elevated">
-        <View
-          className="h-full rounded-full"
+      {/* Value */}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "baseline",
+          gap: 4,
+        }}
+      >
+        <Text
           style={{
+            fontSize: 24,
+            fontWeight: "700",
+            color: theme.colors.onSurface.DEFAULT,
+            fontVariant: ["tabular-nums"],
+          }}
+        >
+          {formatLiters(aguaMl)}
+        </Text>
+        <Text
+          style={{
+            fontSize: 10,
+            fontWeight: "500",
+            color: theme.colors.onSurface.variant,
+            textTransform: "uppercase",
+          }}
+        >
+          / {formatGoal(metaAgua)}
+        </Text>
+      </View>
+
+      {/* Progress bar */}
+      <View
+        style={{
+          height: 5,
+          backgroundColor: theme.colors.surface.containerHighest,
+          borderRadius: 3,
+          marginTop: 12,
+          overflow: "hidden",
+        }}
+      >
+        <LinearGradient
+          colors={[
+            withAlpha(theme.colors.primary.DEFAULT, 0.8),
+            theme.colors.primary.DEFAULT,
+          ]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{
+            height: "100%",
             width: `${percentage}%`,
-            backgroundColor: isComplete
-              ? theme.colors.semantic.success
-              : theme.colors.accent.DEFAULT,
+            borderRadius: 3,
           }}
         />
       </View>
 
-      <View className="flex-row items-center gap-3">
-        <Pressable
-          onPress={() => handleRemove(250)}
-          accessibilityLabel={`Remover 250ml de ${label}`}
-          hitSlop={4}
-          style={{ minHeight: 44, justifyContent: "center" }}
+      {/* Action button */}
+      {isComplete ? (
+        <View
+          style={{
+            marginTop: 16,
+            paddingVertical: 12,
+            backgroundColor: withAlpha(theme.colors.tertiary, 0.1),
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: withAlpha(theme.colors.tertiary, 0.2),
+            alignItems: "center",
+          }}
         >
-          <MaterialCommunityIcons
-            name="minus-circle-outline"
-            size={28}
-            color={theme.colors.text.muted}
-          />
-        </Pressable>
-        <View className="flex-1 flex-row items-center gap-2">
+          <Text
+            style={{
+              fontSize: 10,
+              fontWeight: "800",
+              color: theme.colors.tertiary,
+              letterSpacing: 2,
+              textTransform: "uppercase",
+            }}
+          >
+            META BATIDA
+          </Text>
+        </View>
+      ) : (
+        <View style={{ flexDirection: "row", gap: 8, marginTop: 16 }}>
           <Pressable
-            onPress={() => handleAdd(250)}
-            accessibilityLabel={`Adicionar 250ml de ${label}`}
-            className="flex-1 items-center justify-center rounded-lg py-2"
-            style={{ backgroundColor: theme.colors.accent.DEFAULT + "15" }}
+            onPress={() => animateWithHaptic(() => removeAgua(250))}
+            accessibilityLabel="Remover 250ml de água"
+            style={{
+              flex: 1,
+              paddingVertical: 12,
+              backgroundColor: theme.colors.surface.containerHighest,
+              borderRadius: 12,
+              alignItems: "center",
+            }}
           >
             <Text
-              className="text-xs font-semibold"
-              style={{ color: theme.colors.accent.DEFAULT }}
+              style={{
+                fontSize: 10,
+                fontWeight: "800",
+                color: theme.colors.onSurface.variant,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+              }}
             >
-              +250ml
+              − 250ML
             </Text>
           </Pressable>
           <Pressable
-            onPress={() => handleAdd(500)}
-            accessibilityLabel={`Adicionar 500ml de ${label}`}
-            className="flex-1 items-center justify-center rounded-lg py-2"
-            style={{ backgroundColor: theme.colors.accent.DEFAULT + "15" }}
+            onPress={() => animateWithHaptic(() => addAgua(250))}
+            accessibilityLabel="Adicionar 250ml de água"
+            style={{
+              flex: 1,
+              paddingVertical: 12,
+              backgroundColor: theme.colors.onSurface.DEFAULT,
+              borderRadius: 12,
+              alignItems: "center",
+            }}
           >
             <Text
-              className="text-xs font-semibold"
-              style={{ color: theme.colors.accent.DEFAULT }}
+              style={{
+                fontSize: 10,
+                fontWeight: "800",
+                color: theme.colors.background,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+              }}
             >
-              +500ml
+              + 250ML
             </Text>
           </Pressable>
         </View>
-        <Pressable
-          onPress={() => handleAdd(250)}
-          accessibilityLabel={`Adicionar 250ml de ${label}`}
-          hitSlop={4}
-          style={{ minHeight: 44, justifyContent: "center" }}
-        >
-          <MaterialCommunityIcons
-            name="plus-circle-outline"
-            size={28}
-            color={theme.colors.accent.DEFAULT}
-          />
-        </Pressable>
-      </View>
-    </View>
+      )}
+    </PremiumCard>
   );
 }
 
-export function HidratacaoCard() {
-  const aguaMl = useDayStore((s) => s.aguaMl);
+// ─── Tea Card ────────────────────────────────────────────────────────
+
+function TeaCard() {
   const chaMl = useDayStore((s) => s.chaMl);
-  const addAgua = useDayStore((s) => s.addAgua);
-  const removeAgua = useDayStore((s) => s.removeAgua);
   const addCha = useDayStore((s) => s.addCha);
   const removeCha = useDayStore((s) => s.removeCha);
-
-  const { aguaMl: metaAgua, chaMl: metaCha } = plano.metaHidratacao;
+  const metaCha = plano.metaHidratacao.chaMl;
+  const percentage = Math.min(100, Math.round((chaMl / metaCha) * 100));
+  const isComplete = chaMl >= metaCha;
 
   return (
-    <Card className="gap-4">
-      <View className="flex-row items-center gap-2">
-        <MaterialCommunityIcons
-          name="water"
-          size={20}
-          color={theme.colors.accent.DEFAULT}
-        />
-        <Text style={theme.typography.callout}>
-          Hidratação
+    <PremiumCard>
+      {/* Header */}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 16,
+        }}
+      >
+        <View
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 10,
+            backgroundColor: withAlpha(theme.colors.tertiary, 0.1),
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <MaterialCommunityIcons
+            name="tea-outline"
+            size={18}
+            color={theme.colors.tertiary}
+          />
+        </View>
+        <Text
+          style={{
+            ...theme.typography.labelSmall,
+            color: theme.colors.onSurface.variant,
+          }}
+        >
+          INFUSÃO
         </Text>
       </View>
 
-      <HidratacaoSection
-        label="Água"
-        currentMl={aguaMl}
-        metaMl={metaAgua}
-        onAdd={addAgua}
-        onRemove={removeAgua}
-      />
+      {/* Value */}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "baseline",
+          gap: 4,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 24,
+            fontWeight: "700",
+            color: isComplete
+              ? theme.colors.tertiary
+              : theme.colors.onSurface.DEFAULT,
+            fontVariant: ["tabular-nums"],
+          }}
+        >
+          {formatLiters(chaMl)}
+        </Text>
+        <Text
+          style={{
+            fontSize: 10,
+            fontWeight: "500",
+            color: theme.colors.onSurface.variant,
+            textTransform: "uppercase",
+          }}
+        >
+          / {formatGoal(metaCha)}
+        </Text>
+      </View>
 
-      <View className="h-px bg-border" />
+      {/* Progress bar */}
+      <View
+        style={{
+          height: 5,
+          backgroundColor: theme.colors.surface.containerHighest,
+          borderRadius: 3,
+          marginTop: 12,
+          overflow: "hidden",
+        }}
+      >
+        <View
+          style={{
+            height: "100%",
+            width: `${percentage}%`,
+            borderRadius: 3,
+            backgroundColor: theme.colors.tertiary,
+          }}
+        />
+      </View>
 
-      <HidratacaoSection
-        label="Chá de Cavalinha"
-        currentMl={chaMl}
-        metaMl={metaCha}
-        onAdd={addCha}
-        onRemove={removeCha}
-      />
-    </Card>
+      {/* Action */}
+      {isComplete ? (
+        <View
+          style={{
+            marginTop: 16,
+            paddingVertical: 12,
+            backgroundColor: withAlpha(theme.colors.tertiary, 0.1),
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: withAlpha(theme.colors.tertiary, 0.2),
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 10,
+              fontWeight: "800",
+              color: theme.colors.tertiary,
+              letterSpacing: 2,
+              textTransform: "uppercase",
+            }}
+          >
+            META BATIDA
+          </Text>
+        </View>
+      ) : (
+        <View style={{ flexDirection: "row", gap: 8, marginTop: 16 }}>
+          <Pressable
+            onPress={() => animateWithHaptic(() => removeCha(250))}
+            accessibilityLabel="Remover 250ml de chá"
+            style={{
+              flex: 1,
+              paddingVertical: 12,
+              backgroundColor: theme.colors.surface.containerHighest,
+              borderRadius: 12,
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: "800",
+                color: theme.colors.onSurface.variant,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+              }}
+            >
+              − 250ML
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => animateWithHaptic(() => addCha(250))}
+            accessibilityLabel="Adicionar 250ml de chá"
+            style={{
+              flex: 1,
+              paddingVertical: 12,
+              backgroundColor: theme.colors.onSurface.DEFAULT,
+              borderRadius: 12,
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: "800",
+                color: theme.colors.background,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+              }}
+            >
+              + 250ML
+            </Text>
+          </Pressable>
+        </View>
+      )}
+    </PremiumCard>
+  );
+}
+
+// ─── Grid Export ──────────────────────────────────────────────────────
+
+export function HidratacaoCard() {
+  return (
+    <View style={{ flexDirection: "row", gap: 16 }}>
+      <View style={{ flex: 1 }}>
+        <WaterCard />
+      </View>
+      <View style={{ flex: 1 }}>
+        <TeaCard />
+      </View>
+    </View>
   );
 }

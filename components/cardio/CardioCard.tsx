@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { theme } from "@/constants/theme";
-import { Card } from "@/components/ui/Card";
+import LinearGradient from "react-native-linear-gradient";
+import { theme, withAlpha } from "@/constants/theme";
 import { useDayStore } from "@/stores/useDayStore";
 import { animateWithHaptic } from "@/utils/animationUtils";
 import { plano } from "@/data/plano";
@@ -16,13 +16,14 @@ export function CardioCard() {
 
   const metaMinutos = plano.metaCardioMin;
   const totalMinutos = sessoesCardio.reduce((sum, s) => sum + s.minutos, 0);
-  const percentage = metaMinutos > 0 ? Math.min(100, Math.round((totalMinutos / metaMinutos) * 100)) : 0;
+  const percentage = metaMinutos > 0
+    ? Math.min(100, Math.round((totalMinutos / metaMinutos) * 100))
+    : 0;
   const isComplete = totalMinutos >= metaMinutos;
 
   function handleAddSessao() {
     const minutos = parseInt(inputMinutos, 10);
     if (isNaN(minutos) || minutos <= 0 || minutos > 240) return;
-
     animateWithHaptic(() => {
       addSessaoCardio(minutos);
       setInputMinutos("");
@@ -33,136 +34,237 @@ export function CardioCard() {
     animateWithHaptic(() => removeSessaoCardio(index));
   }
 
-  const totalText =
-    sessoesCardio.length > 1
-      ? sessoesCardio.map((s) => `${s.minutos}min`).join(" + ") +
-        ` = ${totalMinutos}min`
-      : `${totalMinutos}min`;
-
   return (
-    <Card className="gap-4">
-      <View className="flex-row items-center justify-between">
-        <View className="flex-row items-center gap-2">
+    <LinearGradient
+      colors={[
+        withAlpha(theme.colors.surface.variant, 0.4),
+        withAlpha(theme.colors.surface.DEFAULT, 0.4),
+      ]}
+      start={{ x: 0.1, y: 0 }}
+      end={{ x: 0.9, y: 1 }}
+      style={{
+        borderRadius: 16,
+        padding: 24,
+        borderWidth: 1,
+        borderColor: withAlpha(theme.colors.primary.DEFAULT, 0.08),
+      }}
+    >
+      {/* Header */}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 20,
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
           <MaterialCommunityIcons
             name="run-fast"
             size={20}
-            color={theme.colors.accent.DEFAULT}
+            color={theme.colors.primary.DEFAULT}
           />
-          <Text style={theme.typography.callout}>
-            Cardio
+          <Text
+            style={{
+              ...theme.typography.labelMedium,
+              color: theme.colors.onSurface.DEFAULT,
+            }}
+          >
+            REGISTRO DE CARDIO
           </Text>
         </View>
         {isComplete && (
           <MaterialCommunityIcons
             name="check-circle"
             size={20}
-            color={theme.colors.semantic.success}
+            color={theme.colors.tertiary}
           />
         )}
       </View>
 
-      <View className="gap-1">
-        <View className="flex-row items-center justify-between">
+      {/* Progress */}
+      <View style={{ marginBottom: 16 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+            marginBottom: 8,
+          }}
+        >
+          <View style={{ flexDirection: "row", alignItems: "baseline", gap: 4 }}>
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "700",
+                color: theme.colors.onSurface.DEFAULT,
+                fontVariant: ["tabular-nums"],
+              }}
+            >
+              {totalMinutos}
+            </Text>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: "500",
+                color: theme.colors.onSurface.variant,
+                textTransform: "uppercase",
+              }}
+            >
+              / {metaMinutos}min
+            </Text>
+          </View>
           <Text
-            selectable
-            className="text-sm text-txt-secondary"
-            style={{ fontVariant: ["tabular-nums"] }}
-          >
-            {totalMinutos}min / {metaMinutos}min
-          </Text>
-          <Text
-            selectable
-            className="text-sm font-medium"
             style={{
-              fontVariant: ["tabular-nums"],
+              fontSize: 12,
+              fontWeight: "700",
               color: isComplete
-                ? theme.colors.semantic.success
-                : theme.colors.accent.DEFAULT,
+                ? theme.colors.tertiary
+                : theme.colors.primary.DEFAULT,
+              fontVariant: ["tabular-nums"],
             }}
           >
             {percentage}%
           </Text>
         </View>
-        <View className="h-2.5 overflow-hidden rounded-full bg-bg-elevated">
+        <View
+          style={{
+            height: 5,
+            backgroundColor: theme.colors.surface.containerHighest,
+            borderRadius: 3,
+            overflow: "hidden",
+          }}
+        >
           <View
-            className="h-full rounded-full"
             style={{
+              height: "100%",
               width: `${percentage}%`,
+              borderRadius: 3,
               backgroundColor: isComplete
-                ? theme.colors.semantic.success
-                : theme.colors.accent.DEFAULT,
+                ? theme.colors.tertiary
+                : theme.colors.primary.DEFAULT,
             }}
           />
         </View>
       </View>
 
+      {/* Session list */}
       {sessoesCardio.length > 0 && (
-        <View className="gap-2">
+        <View style={{ gap: 8, marginBottom: 16 }}>
           {sessoesCardio.map((sessao, index) => (
             <View
               key={`${index}-${sessao.timestamp}`}
-              className="flex-row items-center justify-between rounded-lg bg-bg-elevated px-3 py-2"
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                backgroundColor: withAlpha(theme.colors.background, 0.6),
+                borderRadius: 12,
+                paddingHorizontal: 14,
+                paddingVertical: 10,
+                borderWidth: 1,
+                borderColor: withAlpha(theme.colors.outline.variant, 0.2),
+              }}
             >
-              <Text
-                className="text-sm text-txt-primary"
-                style={{ fontVariant: ["tabular-nums"] }}
-              >
-                {sessao.minutos}min
-              </Text>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <MaterialCommunityIcons
+                  name="clock-outline"
+                  size={14}
+                  color={theme.colors.onSurface.variant}
+                />
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontWeight: "600",
+                    color: theme.colors.onSurface.DEFAULT,
+                    fontVariant: ["tabular-nums"],
+                  }}
+                >
+                  {sessao.minutos}min
+                </Text>
+              </View>
               <Pressable
                 onPress={() => handleRemoveSessao(index)}
                 accessibilityLabel={`Remover sessão de ${sessao.minutos} minutos`}
                 hitSlop={8}
               >
                 <MaterialCommunityIcons
-                  name="close-circle"
-                  size={18}
-                  color={theme.colors.text.muted}
+                  name="close-circle-outline"
+                  size={16}
+                  color={theme.colors.onSurface.variant}
                 />
               </Pressable>
             </View>
           ))}
-
-          {sessoesCardio.length > 1 && (
-            <Text
-              className="text-xs text-txt-secondary"
-              style={{ fontVariant: ["tabular-nums"] }}
-            >
-              {totalText}
-            </Text>
-          )}
         </View>
       )}
 
-      <View className="flex-row items-center gap-2">
-        <TextInput
-          className="flex-1 rounded-lg bg-bg-elevated px-3 text-sm text-txt-primary"
-          style={{ height: 44 }}
-          placeholder="Minutos"
-          placeholderTextColor={theme.colors.text.muted}
-          keyboardType="number-pad"
-          value={inputMinutos}
-          onChangeText={setInputMinutos}
-          onSubmitEditing={handleAddSessao}
-          returnKeyType="done"
-        />
-        <Pressable
-          onPress={handleAddSessao}
-          accessibilityLabel="Adicionar sessão de cardio"
-          className="items-center justify-center rounded-xl"
+      {/* Input */}
+      <View style={{ flexDirection: "row", gap: 12 }}>
+        <View style={{ flex: 1 }}>
+          <Text
+            style={{
+              fontSize: 9,
+              fontWeight: "800",
+              color: theme.colors.onSurface.variant,
+              letterSpacing: 2,
+              textTransform: "uppercase",
+              marginBottom: 6,
+              marginLeft: 4,
+            }}
+          >
+            DURAÇÃO (MIN)
+          </Text>
+          <TextInput
+            style={{
+              backgroundColor: theme.colors.background,
+              borderWidth: 1,
+              borderColor: withAlpha(theme.colors.outline.variant, 0.3),
+              borderRadius: 12,
+              paddingHorizontal: 16,
+              paddingVertical: 14,
+              fontSize: 18,
+              fontWeight: "700",
+              color: theme.colors.onSurface.DEFAULT,
+              textAlign: "center",
+            }}
+            placeholder="00"
+            placeholderTextColor={theme.colors.surface.containerHighest}
+            keyboardType="number-pad"
+            value={inputMinutos}
+            onChangeText={setInputMinutos}
+            onSubmitEditing={handleAddSessao}
+            returnKeyType="done"
+          />
+        </View>
+      </View>
+
+      {/* Submit */}
+      <Pressable
+        onPress={handleAddSessao}
+        accessibilityLabel="Finalizar atividade de cardio"
+        style={{
+          marginTop: 16,
+          paddingVertical: 16,
+          backgroundColor: withAlpha(theme.colors.primary.DEFAULT, 0.1),
+          borderWidth: 1,
+          borderColor: withAlpha(theme.colors.primary.DEFAULT, 0.3),
+          borderRadius: 12,
+          alignItems: "center",
+        }}
+      >
+        <Text
           style={{
-            height: 44,
-            width: 44,
-            backgroundColor: theme.colors.accent.DEFAULT,
+            fontSize: 10,
+            fontWeight: "800",
+            color: theme.colors.primary.DEFAULT,
+            letterSpacing: 3,
+            textTransform: "uppercase",
           }}
         >
-          <MaterialCommunityIcons
-            name="plus"
-            size={24}
-            color={theme.colors.bg.primary}
-          />
-        </Pressable>
-      </View>
-    </Card>
+          FINALIZAR ATIVIDADE
+        </Text>
+      </Pressable>
+    </LinearGradient>
   );
 }
