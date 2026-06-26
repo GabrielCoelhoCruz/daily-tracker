@@ -33,6 +33,7 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
 - Expo API Routes: use standard `Request`/`Response` (not ExpoRequest/ExpoResponse), file suffix `+api.ts` in `app/` dir
 - CATEGORY_LABELS exists in BOTH `usePhysiqueStore.ts` AND `physiqueAnalysis.ts` — update both when adding categories
 - `useAthleteStore.getState()` for reading athlete data outside React components (e.g., in service files)
+- Liquid Glass experiment (branch experiment/liquid-glass-swiftui): `@expo/ui` SwiftUI works on SDK 54, beta package `@expo/ui@0.2.0-canary`. Imports: `@expo/ui/swift-ui` (Host, HStack, Text, etc.) and `@expo/ui/swift-ui/modifiers` (glassEffect, padding, foregroundStyle, font, cornerRadius). `glassEffect({ glass: { variant: 'regular' }, shape: 'capsule' })` requires iOS 26+; no-op on earlier iOS. `Text` from `@expo/ui/swift-ui` does NOT accept `style` — use `foregroundStyle`/`font` modifiers instead (use `Text as RNText` from react-native for fallback UI). `@expo/ui` does NOT work in Expo Go — requires `expo-dev-client` (dev build). EAS dev build for SDK 54 must pin `ios.image: "macos-sequoia-15.6-xcode-26.0"` in eas.json to compile SwiftUI. First iOS internal-distribution build requires INTERACTIVE Apple ID login to set up credentials — `--non-interactive` fails until credentials exist (run `eas build -p ios --profile development` once interactively, or `eas credentials`).
 - `isProfileComplete()` is a Zustand getter — call as function: `useAthleteStore((s) => s.isProfileComplete)()`
 
 ---
@@ -163,3 +164,21 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
   - React Native's built-in `Share.share({ message })` works for text sharing without extra dependencies
   - No need for expo-sharing for text-only shares — RN Share API is sufficient
 ---
+
+## 2026-06-26 - Liquid Glass experiment (branch experiment/liquid-glass-swiftui)
+- Goal: validate Liquid Glass via @expo/ui SwiftUI on iOS 26 using a dev build (not Expo Go)
+- Installed `@expo/ui@0.2.0-canary` + `expo-dev-client@6.0.21` via `npm install --legacy-peer-deps` (expo install fails due to react-native-web/React 19 peer conflict)
+- Registered `expo-dev-client` in app.json plugins; pinned eas.json development ios.image to `macos-sequoia-15.6-xcode-26.0`
+- Created `components/ui/GlassChip.tsx`: adaptive chip rendering SwiftUI `Host` + `HStack` + `glassEffect({variant:'regular', shape:'capsule'})` on iOS 26+ (guarded by Platform.Version and AccessibilityInfo.isReduceTransparencyEnabled), solid fallback elsewhere. RN `Text as RNText` used in fallback to avoid @expo/ui Text style incompatibility.
+- Added floating glass status chip (% of day) over ScrollView in `app/(tabs)/(hoje)/index.tsx` — content scrolls under it so glass has refraction. Tab bar and ScreenHeader untouched (avoid f19b610 regression).
+- `npx tsc --noEmit` clean; `npm test` 8/8 pass
+- Committed as `feat: experiment with Liquid Glass via @expo/ui SwiftUI` (abf46a8)
+- **BLOCKED on build**: `eas build --profile development --platform ios --non-interactive` fails — first iOS internal-distribution build requires interactive Apple ID login to create signing credentials. This needs a human to run `eas build -p ios --profile development` (or `eas credentials -p ios`) interactively with Apple ID + 2FA, then register the test iPhone UDID via `eas device:create`.
+- **Learnings for future iterations:**
+  - `@expo/ui/swift-ui` `Text` has no `style` prop — use `foregroundStyle(color)` and `font({size,weight})` modifiers; import `Text as RNText` from react-native for the fallback path
+  - `glassEffect` modifier signature: `glassEffect({ glass?: { variant: 'regular'|'clear'|'identity'; interactive?; tint? }; shape?: 'circle'|'capsule'|'rectangle'|'ellipse'|'roundedRectangle'; cornerRadius? })`
+  - Detect iOS 26 via `typeof Platform.Version === 'number' && Platform.Version >= 26`
+  - `@expo/ui` package.json exports map: `./swift-ui` and `./swift-ui/modifiers` (also `./jetpack-compose` for Android)
+  - Dev build flow differs from Expo Go: `eas build` (once) → install .ipa on device → `npx expo start --dev-client` → open "DailyTracker Dev" app (not Expo Go). JS hot-reloads; native module changes need another build.
+  - On Windows, iOS build only via EAS cloud (no `--local`); internal distribution gives an install URL (ad-hoc) without App Store review
+
