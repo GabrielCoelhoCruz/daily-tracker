@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { theme } from "@/constants/theme";
+import { theme, withAlpha } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { useAppFocusRefresh } from "@/utils/useAppFocusRefresh";
@@ -165,12 +165,19 @@ export function Calendario({ onDayPress }: CalendarioProps) {
           const future = isFutureDate(cell.dateStr);
           const isToday = cell.dateStr === todayStr;
 
-          let bgColor: string = theme.colors.neutral;
+          // Only days with actual history get an adherence color.
+          // Future days and no-data days stay as a faint surface fill so they
+          // aren't mistaken for a failed (0% adherence) day.
+          let bgColor: string;
+          let showAdherence = false;
           if (historico && !future) {
             bgColor = getAdherenceColor(
               historico.completados,
               historico.total
             );
+            showAdherence = historico.total > 0;
+          } else {
+            bgColor = withAlpha(theme.colors.onSurface.DEFAULT, 0.04);
           }
 
           return (
@@ -205,9 +212,11 @@ export function Calendario({ onDayPress }: CalendarioProps) {
                     ...theme.typography.footnote,
                     fontWeight: isToday ? "800" : "500",
                     fontVariant: ["tabular-nums"],
-                    color: future
-                      ? theme.colors.text.muted
-                      : theme.colors.text.primary,
+                    color: showAdherence
+                      ? theme.colors.background
+                      : future
+                        ? theme.colors.text.muted
+                        : theme.colors.text.primary,
                   }}
                 >
                   {cell.day}

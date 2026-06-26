@@ -2,15 +2,15 @@ import type { TextStyle } from "react-native";
 
 export const theme = {
   colors: {
-    // ── Legacy tokens (kept for backward compat) ──
+    // ── Legacy tokens (aliased to M3 hierarchy for visual consistency) ──
     bg: {
-      primary: "#0c0a09",
-      card: "#1c1917",
-      elevated: "#292524",
+      primary: "#0f0e0d", // = background
+      card: "#1d1b1a", // = surface.container
+      elevated: "#221f1e", // = surface.containerHigh
     },
     accent: {
-      DEFAULT: "#f59e0b",
-      light: "#ffb95f",
+      DEFAULT: "#f59e0b", // = primary.container
+      light: "#ffb95f", // = primary.DEFAULT
       dark: "#92400e",
     },
     semantic: {
@@ -19,12 +19,12 @@ export const theme = {
       error: "#ef4444",
     },
     text: {
-      primary: "#fafaf9",
-      secondary: "#a8a29e",
+      primary: "#e8e1df", // = onSurface.DEFAULT
+      secondary: "#a08e7a", // = onSurface.variant
       muted: "#78716c",
     },
-    neutral: "#404040",
-    border: "#292524",
+    neutral: "#534434", // = outline.DEFAULT
+    border: "#373433", // = outline.variant
 
     // ── M3-inspired surface hierarchy ──
     background: "#0f0e0d",
@@ -64,33 +64,33 @@ export const theme = {
   },
 
   typography: {
-    // ── Existing scales ──
+    // ── Existing scales (colors aligned to M3 onSurface tokens) ──
     caption: {
       fontSize: 11,
-      color: "#a8a29e",
+      color: "#a08e7a",
     } as TextStyle,
     footnote: {
       fontSize: 13,
-      color: "#a8a29e",
+      color: "#a08e7a",
     } as TextStyle,
     body: {
       fontSize: 15,
-      color: "#fafaf9",
+      color: "#e8e1df",
     } as TextStyle,
     callout: {
       fontSize: 16,
       fontWeight: "600",
-      color: "#fafaf9",
+      color: "#e8e1df",
     } as TextStyle,
     headline: {
       fontSize: 17,
       fontWeight: "700",
-      color: "#fafaf9",
+      color: "#e8e1df",
     } as TextStyle,
     title3: {
       fontSize: 20,
       fontWeight: "700",
-      color: "#fafaf9",
+      color: "#e8e1df",
     } as TextStyle,
 
     // ── New M3-inspired scales ──

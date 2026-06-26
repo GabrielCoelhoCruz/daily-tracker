@@ -1,7 +1,6 @@
 import { ScrollView, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { theme } from "@/constants/theme";
+import { theme, withAlpha } from "@/constants/theme";
 import { getTreinoDoDia } from "@/utils/diaUtils";
 import { useDayStore } from "@/stores/useDayStore";
 import { getLogicalDayOfWeek } from "@/utils/dateUtils";
@@ -9,6 +8,8 @@ import {
   FocalExercicioCard,
   ExercicioItem,
 } from "@/components/treino/ExercicioItem";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
 
 const DAY_NAMES = [
   "DOMINGO",
@@ -21,70 +22,73 @@ const DAY_NAMES = [
 ];
 
 export default function TreinoScreen() {
-  const insets = useSafeAreaInsets();
   const dayOfWeek = getLogicalDayOfWeek(new Date());
   const diaOffManual = useDayStore((s) => s.diaOffManual);
   const treino = diaOffManual ? null : getTreinoDoDia(dayOfWeek);
   const dayName = DAY_NAMES[dayOfWeek];
+  const bottomPadding = useTabContentBottomPadding();
 
   // ─── Rest Day ──────────────────────────────────────────────────────
 
   if (!treino) {
     return (
-      <ScrollView
-        style={{ flex: 1, backgroundColor: theme.colors.background }}
-        contentContainerStyle={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          paddingHorizontal: 32,
-          paddingTop: insets.top,
-        }}
-      >
-        <View
-          style={{
-            width: 80,
-            height: 80,
-            borderRadius: 20,
-            backgroundColor: theme.colors.surface.container,
+      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+        <ScreenHeader />
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{
+            flex: 1,
             alignItems: "center",
             justifyContent: "center",
-            borderWidth: 1,
-            borderColor: "rgba(255,255,255,0.05)",
-            marginBottom: 20,
+            paddingHorizontal: 32,
+            paddingVertical: 32,
           }}
         >
-          <MaterialCommunityIcons
-            name="moon-waning-crescent"
-            size={36}
-            color={theme.colors.onSurface.variant}
-          />
-        </View>
+          <View
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: 20,
+              backgroundColor: theme.colors.surface.container,
+              alignItems: "center",
+              justifyContent: "center",
+              borderWidth: 1,
+              borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.05),
+              marginBottom: 20,
+            }}
+          >
+            <MaterialCommunityIcons
+              name="moon-waning-crescent"
+              size={36}
+              color={theme.colors.onSurface.variant}
+            />
+          </View>
 
-        <Text style={theme.typography.labelSmall}>
-          {dayName}
-        </Text>
-        <Text
-          style={{
-            ...theme.typography.headlineLarge,
-            marginTop: 8,
-            textAlign: "center",
-          }}
-        >
-          DIA OFF
-        </Text>
-        <Text
-          style={{
-            ...theme.typography.footnote,
-            color: theme.colors.onSurface.variant,
-            textAlign: "center",
-            marginTop: 8,
-            lineHeight: 20,
-          }}
-        >
-          Aproveite para recuperar e voltar mais forte.
-        </Text>
-      </ScrollView>
+          <Text style={theme.typography.labelSmall}>
+            {dayName}
+          </Text>
+          <Text
+            style={{
+              ...theme.typography.headlineLarge,
+              marginTop: 8,
+              textAlign: "center",
+            }}
+          >
+            DIA OFF
+          </Text>
+          <Text
+            style={{
+              ...theme.typography.footnote,
+              color: theme.colors.onSurface.variant,
+              textAlign: "center",
+              marginTop: 8,
+              lineHeight: 20,
+            }}
+          >
+            Aproveite para recuperar e voltar mais forte.
+          </Text>
+        </ScrollView>
+      </View>
     );
   }
 
@@ -93,14 +97,16 @@ export default function TreinoScreen() {
   const [firstExercise, ...remainingExercises] = treino.exercicios;
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: theme.colors.background }}
-      contentContainerStyle={{
-        paddingHorizontal: 24,
-        paddingBottom: 120,
-        paddingTop: insets.top + 16,
-      }}
-    >
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <ScreenHeader />
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingHorizontal: 24,
+          paddingBottom: bottomPadding,
+          paddingTop: 16,
+        }}
+      >
       {/* ── Header Section ── */}
       <View style={{ marginBottom: 32 }}>
         {/* Protocol label */}
@@ -161,14 +167,14 @@ export default function TreinoScreen() {
         >
           <Text
             style={{
-              fontSize: 9,
-              fontWeight: "900",
-              color: theme.colors.onSurface.variant + "66",
-              letterSpacing: 2,
-              textTransform: "uppercase",
-            }}
-          >
-            Grupo:
+            fontSize: 9,
+            fontWeight: "900",
+            color: withAlpha(theme.colors.onSurface.variant, 0.4),
+            letterSpacing: 2,
+            textTransform: "uppercase",
+          }}
+        >
+          Grupo:
           </Text>
           <View
             style={{
@@ -177,7 +183,7 @@ export default function TreinoScreen() {
               paddingVertical: 5,
               borderRadius: 8,
               borderWidth: 1,
-              borderColor: "rgba(255,255,255,0.05)",
+              borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.05),
             }}
           >
             <Text
@@ -205,7 +211,7 @@ export default function TreinoScreen() {
               alignItems: "center",
               justifyContent: "space-between",
               borderBottomWidth: 1,
-              borderBottomColor: "rgba(255,255,255,0.05)",
+              borderBottomColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.05),
               paddingBottom: 12,
               marginBottom: 16,
               paddingHorizontal: 4,
@@ -214,7 +220,7 @@ export default function TreinoScreen() {
             <Text
               style={{
                 ...theme.typography.labelSmall,
-                color: theme.colors.onSurface.variant + "99",
+                color: withAlpha(theme.colors.onSurface.variant, 0.6),
               }}
             >
               PRÓXIMOS NO PROTOCOLO
@@ -222,7 +228,7 @@ export default function TreinoScreen() {
             <Text
               style={{
                 ...theme.typography.labelSmall,
-                color: theme.colors.onSurface.variant + "66",
+                color: withAlpha(theme.colors.onSurface.variant, 0.4),
               }}
             >
               {remainingExercises.length} restantes
@@ -241,6 +247,7 @@ export default function TreinoScreen() {
           </View>
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }

@@ -1,4 +1,5 @@
 import { Platform, View, type ViewProps } from "react-native";
+import { theme } from "@/constants/theme";
 
 type CardProps = ViewProps;
 
@@ -18,9 +19,11 @@ const cardShadow = Platform.select({
 export function Card({ className = "", style, children, ...props }: CardProps) {
   return (
     <View
-      className={`bg-bg-card p-4 ${className}`}
+      className={className}
       style={[
         {
+          backgroundColor: theme.colors.surface.container,
+          padding: 16,
           borderRadius: 16,
           borderCurve: "continuous",
         },

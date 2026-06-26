@@ -8,15 +8,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Legacy tokens
+        // Legacy tokens (aliased to M3 hierarchy for visual consistency)
         bg: {
-          primary: "#0c0a09",
-          card: "#1c1917",
-          elevated: "#292524",
+          primary: "#0f0e0d", // = background
+          card: "#1d1b1a", // = surface.container
+          elevated: "#221f1e", // = surface.containerHigh
         },
         accent: {
-          DEFAULT: "#f59e0b",
-          light: "#ffb95f",
+          DEFAULT: "#f59e0b", // = primary-m3.container
+          light: "#ffb95f", // = primary-m3.DEFAULT
           dark: "#92400e",
         },
         semantic: {
@@ -25,12 +25,12 @@ module.exports = {
           error: "#ef4444",
         },
         txt: {
-          primary: "#fafaf9",
-          secondary: "#a8a29e",
+          primary: "#e8e1df", // = on-surface.DEFAULT
+          secondary: "#a08e7a", // = on-surface.variant
           muted: "#78716c",
         },
         border: {
-          DEFAULT: "#292524",
+          DEFAULT: "#373433", // = outline.variant
         },
         // M3-inspired surface hierarchy
         background: "#0f0e0d",

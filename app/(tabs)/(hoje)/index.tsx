@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
-import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme, withAlpha } from "@/constants/theme";
 import { plano } from "@/data/plano";
 import { CircularProgress } from "@/components/ui/CircularProgress";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { PeriodoSection } from "@/components/checklist/PeriodoSection";
 import { HidratacaoCard } from "@/components/hidratacao/HidratacaoCard";
 import { CardioCard } from "@/components/cardio/CardioCard";
@@ -19,7 +18,8 @@ import {
 import { checkAndReset } from "@/utils/resetUtils";
 import { cancelHydrationNotificacoes } from "@/utils/notificationUtils";
 import { getLogicalDayOfWeek } from "@/utils/dateUtils";
-import type { Periodo, ItemDoPlano } from "@/data/plano";
+import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
+import type { Periodo } from "@/data/plano";
 
 function countCheckedNonOptional(
   periodos: Periodo[],
@@ -50,9 +50,8 @@ function countCheckedNonOptional(
 }
 
 export default function HojeScreen() {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
   const checks = useDayStore((s) => s.checks);
+  const bottomPadding = useTabContentBottomPadding();
   const diaOffManual = useDayStore((s) => s.diaOffManual);
   const setDiaOff = useDayStore((s) => s.setDiaOff);
   const refeicaoLivreUsada = useDayStore((s) => s.refeicaoLivreUsada);
@@ -114,68 +113,13 @@ export default function HojeScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      {/* ── Fixed Header ── */}
-      <View
-        style={{
-          paddingTop: insets.top + 8,
-          paddingBottom: 12,
-          paddingHorizontal: 24,
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          backgroundColor: withAlpha(theme.colors.surface.DEFAULT, 0.95),
-          borderBottomWidth: 1,
-          borderBottomColor: withAlpha(theme.colors.outline.variant, 0.3),
-        }}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-          <MaterialCommunityIcons
-            name="robot-industrial"
-            size={22}
-            color={theme.colors.primary.DEFAULT}
-          />
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: "700",
-              color: theme.colors.primary.DEFAULT,
-              letterSpacing: 3,
-              textTransform: "uppercase",
-            }}
-          >
-            DailyTracker
-          </Text>
-        </View>
-
-        <Pressable
-          onPress={() => router.push("/config")}
-          accessibilityLabel="Configurações"
-          accessibilityRole="button"
-          hitSlop={8}
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: 19,
-            backgroundColor: theme.colors.surface.containerHighest,
-            borderWidth: 1,
-            borderColor: "rgba(255,255,255,0.05)",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <MaterialCommunityIcons
-            name="cog-outline"
-            size={18}
-            color={theme.colors.onSurface.variant}
-          />
-        </Pressable>
-      </View>
+      <ScreenHeader />
 
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{
           paddingHorizontal: 20,
-          paddingBottom: 120,
+          paddingBottom: bottomPadding,
         }}
       >
         {/* ── Circular Progress ── */}

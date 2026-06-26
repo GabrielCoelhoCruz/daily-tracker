@@ -4,46 +4,51 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useHistoryStore, type HistoricoDia } from "@/stores/useHistoryStore";
+import { getLogicalDate } from "@/utils/dateUtils";
 
+function dateToStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+// Walks back from yesterday (logical day) counting consecutive fully-complete
+// days, then adds today if it is already fully complete. Uses the 4am logical
+// day boundary so late-night checks aren't off by one.
 function getWeekBounds(): { start: string; end: string } {
-  const now = new Date();
-  const day = now.getDay();
+  const logicalTodayStr = getLogicalDate(new Date());
+  const logicalToday = new Date(logicalTodayStr + "T12:00:00");
+  const day = logicalToday.getDay();
   const diffToMon = day === 0 ? -6 : 1 - day;
-  const monday = new Date(now);
-  monday.setDate(now.getDate() + diffToMon);
+  const monday = new Date(logicalToday);
+  monday.setDate(logicalToday.getDate() + diffToMon);
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
-
-  const fmt = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-
-  return { start: fmt(monday), end: fmt(sunday) };
+  return { start: dateToStr(monday), end: dateToStr(sunday) };
 }
 
 function getMonthPrefix(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const logicalTodayStr = getLogicalDate(new Date());
+  return logicalTodayStr.slice(0, 7);
 }
 
 function calcStreak(dias: Record<string, HistoricoDia>): number {
-  const today = new Date();
+  const logicalTodayStr = getLogicalDate(new Date());
+  const logicalToday = new Date(logicalTodayStr + "T12:00:00");
   let streak = 0;
-  const d = new Date(today);
+  const d = new Date(logicalToday);
 
   // Check yesterday first (today might still be in progress)
   d.setDate(d.getDate() - 1);
 
   while (true) {
-    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const dateStr = dateToStr(d);
     const entry = dias[dateStr];
     if (!entry || entry.total === 0 || entry.completados < entry.total) break;
     streak++;
     d.setDate(d.getDate() - 1);
   }
 
-  // Also check today if it has a complete entry
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-  const todayEntry = dias[todayStr];
+  // Also count today if it is already fully complete
+  const todayEntry = dias[logicalTodayStr];
   if (todayEntry && todayEntry.total > 0 && todayEntry.completados >= todayEntry.total) {
     streak++;
   }

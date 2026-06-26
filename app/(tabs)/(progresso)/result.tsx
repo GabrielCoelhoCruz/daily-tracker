@@ -17,6 +17,7 @@ import { usePhysiqueStore, PHOTO_LABELS, MODE_LABELS } from "@/stores/usePhysiqu
 import { CATEGORY_LABELS, STAGE_READINESS_LABELS, STAGE_READINESS_ORDER } from "@/services/physiqueAnalysis";
 import type { StageReadinessLevel } from "@/services/physiqueAnalysis";
 import { WeightDelta } from "@/components/physique/WeightDelta";
+import { DetailHeader } from "@/components/ui/DetailHeader";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 const markdownStyles = {
@@ -83,23 +84,47 @@ export default function ResultScreen() {
 
   if (!checkIn) {
     return (
-      <View className="flex-1 bg-primary items-center justify-center">
-        <Text style={theme.typography.body}>Check-in não encontrado</Text>
+      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+        <DetailHeader title="Análise" />
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <Text style={theme.typography.body}>Check-in não encontrado</Text>
+        </View>
       </View>
     );
   }
 
   return (
     <>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        className="flex-1 bg-primary"
-      >
-        <View className="p-4" style={{ gap: 16 }}>
-          {/* Header */}
+      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+        <DetailHeader
+          title={`Semana ${checkIn.week}`}
+          right={
+            <Pressable
+              onPress={handleShare}
+              accessibilityLabel="Compartilhar análise"
+              accessibilityRole="button"
+              hitSlop={8}
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 19,
+                backgroundColor: theme.colors.surface.containerHighest,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <MaterialCommunityIcons
+                name="share-variant"
+                size={20}
+                color={theme.colors.accent.DEFAULT}
+              />
+            </Pressable>
+          }
+        />
+        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120, gap: 16 }}>
+          {/* Meta row */}
           <View style={{ gap: 8 }}>
             <View className="flex-row items-center" style={{ gap: 8 }}>
-              <Text style={theme.typography.title3}>Semana {checkIn.week}</Text>
               <View
                 style={{
                   backgroundColor: theme.colors.bg.elevated,
@@ -127,24 +152,10 @@ export default function ResultScreen() {
                 </View>
               )}
             </View>
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center" style={{ gap: 12 }}>
-                <Text style={theme.typography.footnote}>{checkIn.date}</Text>
-                <Text style={theme.typography.body}>{checkIn.weight}kg</Text>
-                <WeightDelta weight={checkIn.weight} previousWeight={checkIn.previousWeight} />
-              </View>
-              <Pressable
-                onPress={handleShare}
-                accessibilityLabel="Compartilhar análise"
-                accessibilityRole="button"
-                style={{ minHeight: 44, minWidth: 44, alignItems: "center", justifyContent: "center" }}
-              >
-                <MaterialCommunityIcons
-                  name="share-variant"
-                  size={22}
-                  color={theme.colors.accent.DEFAULT}
-                />
-              </Pressable>
+            <View className="flex-row items-center" style={{ gap: 12 }}>
+              <Text style={theme.typography.footnote}>{checkIn.date}</Text>
+              <Text style={theme.typography.body}>{checkIn.weight}kg</Text>
+              <WeightDelta weight={checkIn.weight} previousWeight={checkIn.previousWeight} />
             </View>
           </View>
 
@@ -273,8 +284,8 @@ export default function ResultScreen() {
               </Text>
             </View>
           )}
-        </View>
       </ScrollView>
+      </View>
 
       {/* Fullscreen Gallery */}
       <Modal

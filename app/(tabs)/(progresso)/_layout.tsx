@@ -1,18 +1,10 @@
 import { Stack } from "expo-router";
-import { theme } from "@/constants/theme";
 
 export default function ProgressoLayout() {
   return (
     <Stack
       screenOptions={{
-        title: "Progresso",
-        headerLargeTitle: true,
-        headerTransparent: true,
-        headerShadowVisible: false,
-        headerLargeTitleShadowVisible: false,
-        headerLargeStyle: { backgroundColor: "transparent" },
-        headerBlurEffect: "none",
-        headerTintColor: theme.colors.text.primary,
+        headerShown: false,
       }}
     >
       <Stack.Screen name="index" />
@@ -22,9 +14,6 @@ export default function ProgressoLayout() {
           presentation: "formSheet",
           sheetGrabberVisible: true,
           sheetAllowedDetents: [0.75, 1.0],
-          title: "Novo Check-in",
-          headerLargeTitle: false,
-          contentStyle: { backgroundColor: theme.colors.bg.card },
         }}
       />
       <Stack.Screen
@@ -33,9 +22,6 @@ export default function ProgressoLayout() {
           presentation: "formSheet",
           sheetGrabberVisible: true,
           sheetAllowedDetents: [0.75, 1.0],
-          title: "Perfil",
-          headerLargeTitle: false,
-          contentStyle: { backgroundColor: theme.colors.bg.card },
         }}
       />
       <Stack.Screen
@@ -44,9 +30,6 @@ export default function ProgressoLayout() {
           presentation: "formSheet",
           sheetGrabberVisible: true,
           sheetAllowedDetents: [0.75, 1.0],
-          title: "Category Finder",
-          headerLargeTitle: false,
-          contentStyle: { backgroundColor: theme.colors.bg.card },
         }}
       />
       <Stack.Screen
@@ -55,9 +38,6 @@ export default function ProgressoLayout() {
           presentation: "formSheet",
           sheetGrabberVisible: true,
           sheetAllowedDetents: [0.75, 1.0],
-          title: "Guia de Fotos",
-          headerLargeTitle: false,
-          contentStyle: { backgroundColor: theme.colors.bg.card },
         }}
       />
       <Stack.Screen
@@ -66,16 +46,12 @@ export default function ProgressoLayout() {
           presentation: "formSheet",
           sheetGrabberVisible: true,
           sheetAllowedDetents: [0.75, 1.0],
-          title: "Comparar",
-          headerLargeTitle: false,
-          contentStyle: { backgroundColor: theme.colors.bg.card },
         }}
       />
       <Stack.Screen
         name="result"
         options={{
-          title: "Análise",
-          headerLargeTitle: false,
+          headerShown: false,
         }}
       />
     </Stack>

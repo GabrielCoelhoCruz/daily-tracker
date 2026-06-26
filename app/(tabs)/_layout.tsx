@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { Platform, View } from "react-native";
-import { theme } from "@/constants/theme";
+import { Platform } from "react-native";
+import { theme, withAlpha } from "@/constants/theme";
+import { TabIcon, TAB_INACTIVE_TINT, tabBarLabelStyle } from "@/components/ui/TabIcon";
 
 export const unstable_settings = {
   initialRouteName: "(hoje)",
@@ -13,16 +13,11 @@ export default function TabLayout() {
       initialRouteName="(hoje)"
       screenOptions={{
         tabBarActiveTintColor: theme.colors.primary.DEFAULT,
-        tabBarInactiveTintColor: theme.colors.onSurface.variant + "66",
-        tabBarLabelStyle: {
-          fontSize: 8,
-          fontWeight: "800",
-          letterSpacing: 2,
-          textTransform: "uppercase",
-        },
+        tabBarInactiveTintColor: TAB_INACTIVE_TINT,
+        tabBarLabelStyle: tabBarLabelStyle,
         tabBarStyle: {
           backgroundColor: theme.colors.background,
-          borderTopColor: "rgba(255,255,255,0.05)",
+          borderTopColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.05),
           borderTopWidth: 1,
           height: Platform.OS === "ios" ? 88 : 68,
           paddingTop: 8,
@@ -40,25 +35,7 @@ export default function TabLayout() {
           title: "Dash",
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: "center" }}>
-              {focused && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -12,
-                    width: 40,
-                    height: 3,
-                    borderRadius: 2,
-                    backgroundColor: theme.colors.primary.DEFAULT,
-                  }}
-                />
-              )}
-              <Ionicons
-                name={focused ? "grid" : "grid-outline"}
-                size={22}
-                color={color}
-              />
-            </View>
+            <TabIcon name="grid" focused={focused} color={color} />
           ),
         }}
       />
@@ -68,25 +45,7 @@ export default function TabLayout() {
           title: "Train",
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: "center" }}>
-              {focused && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -12,
-                    width: 40,
-                    height: 3,
-                    borderRadius: 2,
-                    backgroundColor: theme.colors.primary.DEFAULT,
-                  }}
-                />
-              )}
-              <Ionicons
-                name={focused ? "barbell" : "barbell-outline"}
-                size={22}
-                color={color}
-              />
-            </View>
+            <TabIcon name="barbell" focused={focused} color={color} />
           ),
         }}
       />
@@ -96,25 +55,7 @@ export default function TabLayout() {
           title: "Logs",
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: "center" }}>
-              {focused && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -12,
-                    width: 40,
-                    height: 3,
-                    borderRadius: 2,
-                    backgroundColor: theme.colors.primary.DEFAULT,
-                  }}
-                />
-              )}
-              <Ionicons
-                name={focused ? "document-text" : "document-text-outline"}
-                size={22}
-                color={color}
-              />
-            </View>
+            <TabIcon name="document-text" focused={focused} color={color} />
           ),
         }}
       />
@@ -124,25 +65,7 @@ export default function TabLayout() {
           title: "Stats",
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: "center" }}>
-              {focused && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -12,
-                    width: 40,
-                    height: 3,
-                    borderRadius: 2,
-                    backgroundColor: theme.colors.primary.DEFAULT,
-                  }}
-                />
-              )}
-              <Ionicons
-                name={focused ? "analytics" : "analytics-outline"}
-                size={22}
-                color={color}
-              />
-            </View>
+            <TabIcon name="analytics" focused={focused} color={color} />
           ),
         }}
       />

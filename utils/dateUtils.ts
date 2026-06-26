@@ -44,6 +44,21 @@ export function formatLogicalDate(date: Date): string {
 }
 
 /**
+ * Formats a YYYY-MM-DD date string as a long pt-BR date
+ * (e.g. "segunda-feira, 26 de junho de 2026"). Uses noon to avoid TZ edge
+ * cases when parsing a date-only string.
+ */
+export function formatPtBR(dateStr: string): string {
+  const d = new Date(dateStr + "T12:00:00");
+  return d.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+/**
  * Returns the ISO week ID (e.g. "2026-W09") for a given date string (YYYY-MM-DD).
  * Uses ISO 8601 week numbering (Monday-based).
  */

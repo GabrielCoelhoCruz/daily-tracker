@@ -1,5 +1,5 @@
 import { Platform, Text, View } from "react-native";
-import LinearGradient from "react-native-linear-gradient";
+import { LinearGradient } from "expo-linear-gradient";
 import { theme, withAlpha } from "@/constants/theme";
 import type { Exercicio, Serie } from "@/data/treinos";
 

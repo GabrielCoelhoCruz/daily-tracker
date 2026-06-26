@@ -3,17 +3,9 @@ import { useLocalSearchParams } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { ProgressBar } from "@/components/checklist/ProgressBar";
+import { DetailHeader } from "@/components/ui/DetailHeader";
 import { useHistoryStore } from "@/stores/useHistoryStore";
-
-function formatDisplayDate(dateStr: string): string {
-  const d = new Date(dateStr + "T12:00:00");
-  return d.toLocaleDateString("pt-BR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
+import { formatPtBR } from "@/utils/dateUtils";
 
 function getStatusText(completados: number, total: number): string {
   if (total === 0) return "Sem dados";
@@ -35,15 +27,18 @@ export default function DiaDetalheScreen() {
 
   if (!historico) {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
-        <MaterialCommunityIcons
-          name="calendar-outline"
-          size={48}
-          color={theme.colors.text.muted}
-        />
-        <Text style={{ ...theme.typography.body, color: theme.colors.text.muted, marginTop: 16 }}>
-          Nenhum dado encontrado
-        </Text>
+      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+        <DetailHeader title="Detalhes do Dia" />
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
+          <MaterialCommunityIcons
+            name="calendar-outline"
+            size={48}
+            color={theme.colors.text.muted}
+          />
+          <Text style={{ ...theme.typography.body, color: theme.colors.text.muted, marginTop: 16 }}>
+            Nenhum dado encontrado
+          </Text>
+        </View>
       </View>
     );
   }
@@ -52,13 +47,14 @@ export default function DiaDetalheScreen() {
   const statusColor = getStatusColor(historico.completados, historico.total);
 
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={{ padding: 20, gap: 16 }}
-    >
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <DetailHeader title="Detalhes do Dia" />
+      <ScrollView
+        contentContainerStyle={{ padding: 20, paddingTop: 16, gap: 16 }}
+      >
       {/* Header */}
       <Text selectable style={theme.typography.headline}>
-        {formatDisplayDate(historico.data)}
+        {formatPtBR(historico.data)}
       </Text>
 
       {/* Status */}
@@ -144,6 +140,7 @@ export default function DiaDetalheScreen() {
             </Text>
           </View>
         )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }

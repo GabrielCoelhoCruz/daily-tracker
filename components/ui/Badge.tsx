@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { theme, withAlpha } from "@/constants/theme";
 
 type BadgeProps = {
   text: string;
@@ -6,11 +7,15 @@ type BadgeProps = {
   className?: string;
 };
 
-export function Badge({ text, color = "#f59e0b", className = "" }: BadgeProps) {
+export function Badge({
+  text,
+  color = theme.colors.primary.container,
+  className = "",
+}: BadgeProps) {
   return (
     <View
       className={`rounded-full px-2 py-0.5 ${className}`}
-      style={{ backgroundColor: color + "20" }}
+      style={{ backgroundColor: withAlpha(color, 0.12) }}
     >
       <Text
         style={{ color, fontVariant: ["tabular-nums"] }}

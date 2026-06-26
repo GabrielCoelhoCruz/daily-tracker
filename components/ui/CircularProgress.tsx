@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
-import { theme } from "@/constants/theme";
+import { theme, withAlpha } from "@/constants/theme";
 
 type CircularProgressProps = {
   percentage: number;
@@ -34,7 +34,7 @@ export function CircularProgress({
           height: size + 16,
           borderRadius: (size + 16) / 2,
           borderWidth: 1,
-          borderColor: theme.colors.primary.DEFAULT + "18",
+          borderColor: withAlpha(theme.colors.primary.DEFAULT, 0.1),
         }}
       />
 

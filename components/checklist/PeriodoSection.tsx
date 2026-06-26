@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import LinearGradient from "react-native-linear-gradient";
+import { LinearGradient } from "expo-linear-gradient";
 import { theme, withAlpha } from "@/constants/theme";
 import { CheckItem } from "@/components/checklist/CheckItem";
 import { useDayStore } from "@/stores/useDayStore";

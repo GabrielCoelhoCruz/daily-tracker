@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import LinearGradient from "react-native-linear-gradient";
+import { LinearGradient } from "expo-linear-gradient";
 import { theme, withAlpha } from "@/constants/theme";
 import { useDayStore } from "@/stores/useDayStore";
 import { animateWithHaptic } from "@/utils/animationUtils";

@@ -5,6 +5,8 @@ import { theme } from "@/constants/theme";
 import { usePhysiqueStore, MODE_LABELS, type PhysiqueCheckIn } from "@/stores/usePhysiqueStore";
 import { useAthleteStore } from "@/stores/useAthleteStore";
 import { Card } from "@/components/ui/Card";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
 import { WeightDelta } from "@/components/physique/WeightDelta";
 import { EvolutionChart } from "@/components/physique/EvolutionChart";
 
@@ -74,14 +76,21 @@ export default function ProgressoScreen() {
   const sorted = [...checkIns].sort((a, b) => b.week - a.week);
   const profileComplete = useAthleteStore((s) => s.isProfileComplete)();
   const athleteName = useAthleteStore((s) => s.name);
+  const bottomPadding = useTabContentBottomPadding();
 
   if (!profileComplete) {
     return (
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        className="flex-1 bg-primary"
-      >
-        <View className="items-center py-16 px-4" style={{ gap: 12 }}>
+      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+        <ScreenHeader />
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{
+            alignItems: "center",
+            paddingHorizontal: 16,
+            paddingVertical: 64,
+            gap: 12,
+          }}
+        >
           <MaterialCommunityIcons
             name="account-outline"
             size={48}
@@ -111,17 +120,22 @@ export default function ProgressoScreen() {
               Configurar Perfil
             </Text>
           </Pressable>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
     );
   }
 
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      className="flex-1 bg-primary"
-    >
-      <View className="p-4" style={{ gap: 12 }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <ScreenHeader />
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          padding: 16,
+          paddingBottom: bottomPadding,
+          gap: 12,
+        }}
+      >
         <Pressable
           onPress={() => router.push("./profile" as any)}
           accessibilityRole="button"
@@ -255,7 +269,7 @@ export default function ProgressoScreen() {
             ))}
           </>
         )}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
