@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme, withAlpha } from "@/constants/theme";
 import { plano } from "@/data/plano";
 import { CircularProgress } from "@/components/ui/CircularProgress";
-import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { DayProgressSummary } from "@/components/ui/DayProgressSummary";
 import { GlassChip } from "@/components/ui/GlassChip";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { PeriodoSection } from "@/components/checklist/PeriodoSection";
 import { HidratacaoCard } from "@/components/hidratacao/HidratacaoCard";
 import { CardioCard } from "@/components/cardio/CardioCard";
@@ -113,20 +113,24 @@ export default function HojeScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <ScreenHeader />
-
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{
-          paddingHorizontal: 20,
-          paddingBottom: bottomPadding,
-        }}
-      >
-        {/* ── Circular Progress ── */}
-        <View style={{ alignItems: "center", paddingVertical: 24 }}>
-          <CircularProgress percentage={percentage} />
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{
+        paddingHorizontal: 20,
+        paddingBottom: bottomPadding,
+      }}
+    >
+      {/* ── Daily progress ── */}
+      <View style={{ alignItems: "center", paddingTop: 8, paddingBottom: 24 }}>
+        <CircularProgress percentage={percentage} />
+        <View style={{ marginTop: 20, width: "100%" }}>
+          <DayProgressSummary
+            completed={completados}
+            total={total}
+            percentage={percentage}
+          />
         </View>
+      </View>
 
         {/* ── Day Off Toggle ── */}
         <Pressable
@@ -155,8 +159,9 @@ export default function HojeScreen() {
           <View
             style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
           >
-            <MaterialCommunityIcons
-              name="moon-waning-crescent"
+            <AppIcon
+              sf="moon.fill"
+              mci="moon-waning-crescent"
               size={20}
               color={
                 diaOffManual
@@ -254,39 +259,14 @@ export default function HojeScreen() {
 
             {/* Free meal status */}
             {treino && refeicaoLivreUsada && (
-              <Pressable
+              <GlassChip
+                label="Desfazer livre"
+                tone="error"
+                uppercase
                 onPress={handleDesfazerRefeicaoLivre}
                 accessibilityLabel="Desfazer refeição livre"
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 4,
-                  backgroundColor: withAlpha(
-                    theme.colors.semantic.error,
-                    0.1
-                  ),
-                  paddingHorizontal: 10,
-                  paddingVertical: 4,
-                  borderRadius: 8,
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="undo"
-                  size={12}
-                  color={theme.colors.semantic.error}
-                />
-                <Text
-                  style={{
-                    fontSize: 9,
-                    fontWeight: "800",
-                    color: theme.colors.semantic.error,
-                    letterSpacing: 1,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  DESFAZER LIVRE
-                </Text>
-              </Pressable>
+                icon={{ sf: "arrow.uturn.backward", mci: "undo" }}
+              />
             )}
           </View>
 
@@ -298,64 +278,20 @@ export default function HojeScreen() {
               {treino &&
                 !refeicaoLivreUsada &&
                 periodo.itens.some((i) => i.categoria === "refeicao") && (
-                  <Pressable
+                  <GlassChip
+                    label="Usar refeição livre"
+                    tone="primary"
+                    uppercase
+                    centered
                     onPress={() => handleRefeicaoLivre(periodo.id)}
                     accessibilityLabel={`Usar refeição livre em ${periodo.nome}`}
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 8,
-                      paddingVertical: 10,
-                      backgroundColor: withAlpha(
-                        theme.colors.primary.DEFAULT,
-                        0.06
-                      ),
-                      borderRadius: 12,
-                      borderWidth: 1,
-                      borderColor: withAlpha(
-                        theme.colors.primary.DEFAULT,
-                        0.15
-                      ),
-                    }}
-                  >
-                    <MaterialCommunityIcons
-                      name="food-apple-outline"
-                      size={14}
-                      color={theme.colors.primary.DEFAULT}
-                    />
-                    <Text
-                      style={{
-                        fontSize: 10,
-                        fontWeight: "700",
-                        color: theme.colors.primary.DEFAULT,
-                        letterSpacing: 1,
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      USAR REFEIÇÃO LIVRE
-                    </Text>
-                  </Pressable>
+                    icon={{ sf: "fork.knife", mci: "food-apple-outline" }}
+                    style={{ paddingVertical: 10 }}
+                  />
                 )}
             </View>
           ))}
         </View>
       </ScrollView>
-
-      {/* ── Floating Liquid Glass chip (experiment) ── */}
-      <View
-        pointerEvents="box-none"
-        style={{
-          position: "absolute",
-          right: 16,
-          bottom: bottomPadding + 8,
-        }}
-      >
-        <GlassChip
-          label={`${percentage}%`}
-          style={{}}
-        />
-      </View>
-    </View>
   );
 }

@@ -1,87 +1,92 @@
-import { useEffect, useState } from "react";
 import {
-  AccessibilityInfo,
-  Platform,
   Pressable,
   Text as RNText,
   View,
   ViewStyle,
+  StyleSheet,
 } from "react-native";
+import { BlurView } from "expo-blur";
+import { GlassView } from "expo-glass-effect";
+import { SymbolViewProps } from "expo-symbols";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { theme, withAlpha } from "@/constants/theme";
+import { AppIcon } from "@/components/ui/AppIcon";
 import {
-  GlassView,
-  isGlassEffectAPIAvailable,
-  isLiquidGlassAvailable,
-} from "expo-glass-effect";
-import { theme } from "@/constants/theme";
+  useShouldRenderBlurFallback,
+  useShouldRenderGlass,
+} from "@/hooks/useShouldRenderGlass";
+
+type GlassChipIcon = {
+  sf: SymbolViewProps["name"];
+  mci: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
+};
+
+type GlassChipTone = "default" | "primary" | "error";
 
 type GlassChipProps = {
   label: string;
   onPress?: () => void;
   style?: ViewStyle;
+  icon?: GlassChipIcon;
+  tone?: GlassChipTone;
+  uppercase?: boolean;
+  centered?: boolean;
+  accessibilityLabel?: string;
 };
 
-// expo-glass-effect is included in Expo Go and falls back to a plain View on
-// iOS < 26 / Android / web, so this is safe to render anywhere. We additionally
-// gate on the runtime API availability (some iOS 26 betas crash without it)
-// and on Reduce Transparency for legibility.
-function useShouldRenderGlass() {
-  const [reduceTransparency, setReduceTransparency] = useState(false);
+function getToneColors(tone: GlassChipTone) {
+  if (tone === "primary") {
+    return {
+      text: theme.colors.primary.DEFAULT,
+      border: withAlpha(theme.colors.primary.DEFAULT, 0.15),
+      fallbackBg: withAlpha(theme.colors.primary.DEFAULT, 0.06),
+    };
+  }
 
-  useEffect(() => {
-    if (Platform.OS !== "ios") return;
-    const sub = AccessibilityInfo.addEventListener(
-      "reduceTransparencyChanged",
-      setReduceTransparency
-    );
-    AccessibilityInfo.isReduceTransparencyEnabled().then(setReduceTransparency);
-    return () => sub.remove();
-  }, []);
+  if (tone === "error") {
+    return {
+      text: theme.colors.semantic.error,
+      border: withAlpha(theme.colors.semantic.error, 0.2),
+      fallbackBg: withAlpha(theme.colors.semantic.error, 0.1),
+    };
+  }
 
-  if (Platform.OS !== "ios") return false;
-  if (reduceTransparency) return false;
-  return isLiquidGlassAvailable() && isGlassEffectAPIAvailable();
+  return {
+    text: theme.colors.onSurface.DEFAULT,
+    border: theme.colors.outline.variant,
+    fallbackBg: theme.colors.surface.containerHigh,
+  };
 }
 
-function GlassSurfaceChip({ label, style }: Omit<GlassChipProps, "onPress">) {
-  return (
-    <GlassView
-      glassEffectStyle="regular"
-      style={[
-        {
-          borderRadius: theme.radius.lg,
-          paddingHorizontal: 14,
-          paddingVertical: 8,
-          justifyContent: "center",
-        },
-        style,
-      ]}
-    >
-      <RNText
-        style={{ color: theme.colors.onSurface.DEFAULT, fontSize: 13, fontWeight: "600" }}
-      >
-        {label}
-      </RNText>
-    </GlassView>
-  );
-}
+function ChipContent({
+  label,
+  icon,
+  tone,
+  uppercase,
+  centered,
+}: Pick<GlassChipProps, "label" | "icon" | "tone" | "uppercase" | "centered">) {
+  const colors = getToneColors(tone ?? "default");
 
-function FallbackChip({ label, style }: Omit<GlassChipProps, "onPress">) {
   return (
     <View
-      style={[
-        {
-          borderRadius: theme.radius.lg,
-          borderWidth: 1,
-          borderColor: theme.colors.outline.variant,
-          backgroundColor: theme.colors.surface.containerHigh,
-          paddingHorizontal: 14,
-          paddingVertical: 8,
-        },
-        style,
-      ]}
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: centered ? "center" : "flex-start",
+        gap: icon ? 6 : 0,
+      }}
     >
+      {icon ? (
+        <AppIcon sf={icon.sf} mci={icon.mci} size={uppercase ? 12 : 14} color={colors.text} />
+      ) : null}
       <RNText
-        style={{ color: theme.colors.onSurface.DEFAULT, fontSize: 13, fontWeight: "600" }}
+        style={{
+          color: colors.text,
+          fontSize: uppercase ? 9 : 13,
+          fontWeight: uppercase ? "800" : "600",
+          letterSpacing: uppercase ? 1 : 0,
+          textTransform: uppercase ? "uppercase" : "none",
+        }}
       >
         {label}
       </RNText>
@@ -89,18 +94,135 @@ function FallbackChip({ label, style }: Omit<GlassChipProps, "onPress">) {
   );
 }
 
+function GlassSurfaceChip({
+  label,
+  icon,
+  tone,
+  uppercase,
+  centered,
+  style,
+}: Omit<GlassChipProps, "onPress" | "accessibilityLabel">) {
+  return (
+    <GlassView
+      glassEffectStyle="regular"
+      style={[
+        {
+          borderRadius: uppercase ? theme.radius.sm : theme.radius.lg,
+          paddingHorizontal: uppercase ? 10 : 14,
+          paddingVertical: uppercase ? 4 : 8,
+          justifyContent: "center",
+        },
+        style,
+      ]}
+    >
+      <ChipContent
+        label={label}
+        icon={icon}
+        tone={tone}
+        uppercase={uppercase}
+        centered={centered}
+      />
+    </GlassView>
+  );
+}
+
+function BlurSurfaceChip({
+  label,
+  icon,
+  tone,
+  uppercase,
+  centered,
+  style,
+}: Omit<GlassChipProps, "onPress" | "accessibilityLabel">) {
+  const colors = getToneColors(tone ?? "default");
+
+  return (
+    <BlurView
+      tint="systemUltraThinMaterialDark"
+      intensity={70}
+      style={[
+        {
+          borderRadius: uppercase ? theme.radius.sm : theme.radius.lg,
+          overflow: "hidden",
+          paddingHorizontal: uppercase ? 10 : 14,
+          paddingVertical: uppercase ? 4 : 8,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: colors.border,
+        },
+        style,
+      ]}
+    >
+      <ChipContent
+        label={label}
+        icon={icon}
+        tone={tone}
+        uppercase={uppercase}
+        centered={centered}
+      />
+    </BlurView>
+  );
+}
+
+function FallbackChip({
+  label,
+  icon,
+  tone,
+  uppercase,
+  centered,
+  style,
+}: Omit<GlassChipProps, "onPress" | "accessibilityLabel">) {
+  const colors = getToneColors(tone ?? "default");
+
+  return (
+    <View
+      style={[
+        {
+          borderRadius: uppercase ? theme.radius.sm : theme.radius.lg,
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.fallbackBg,
+          paddingHorizontal: uppercase ? 10 : 14,
+          paddingVertical: uppercase ? 4 : 8,
+        },
+        style,
+      ]}
+    >
+      <ChipContent
+        label={label}
+        icon={icon}
+        tone={tone}
+        uppercase={uppercase}
+        centered={centered}
+      />
+    </View>
+  );
+}
+
 /**
- * Adaptive glass chip: renders a native iOS Liquid Glass surface on iOS 26+
- * (via expo-glass-effect, included in Expo Go) and a solid translucent
- * fallback elsewhere. Use only for floating controls/navigation chrome —
- * never for primary content.
+ * Adaptive glass chip for floating status indicators.
+ * Liquid Glass on iOS 26+, blur on older iOS, solid elsewhere.
  */
-export function GlassChip({ label, onPress, style }: GlassChipProps) {
+export function GlassChip({
+  label,
+  onPress,
+  style,
+  icon,
+  tone = "default",
+  uppercase = false,
+  centered = false,
+  accessibilityLabel,
+}: GlassChipProps) {
   const shouldRenderGlass = useShouldRenderGlass();
+  const shouldRenderBlur = useShouldRenderBlurFallback();
+
+  const chipProps = { label, icon, tone, uppercase, centered, style };
+
   const chip = shouldRenderGlass ? (
-    <GlassSurfaceChip label={label} style={style} />
+    <GlassSurfaceChip {...chipProps} />
+  ) : shouldRenderBlur ? (
+    <BlurSurfaceChip {...chipProps} />
   ) : (
-    <FallbackChip label={label} style={style} />
+    <FallbackChip {...chipProps} />
   );
 
   if (onPress) {
@@ -109,7 +231,7 @@ export function GlassChip({ label, onPress, style }: GlassChipProps) {
         onPress={onPress}
         hitSlop={8}
         accessibilityRole="button"
-        accessibilityLabel={label}
+        accessibilityLabel={accessibilityLabel ?? label}
       >
         {({ pressed }) => (
           <View style={{ opacity: pressed ? 0.7 : 1 }}>{chip}</View>

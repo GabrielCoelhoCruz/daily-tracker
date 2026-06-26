@@ -1,57 +1,71 @@
 import { Stack } from "expo-router";
+import {
+  detailStackScreenOptions,
+  glassSheetScreenOptions,
+  tabStackScreenOptions,
+} from "@/constants/stackScreenOptions";
+import { SettingsHeaderButton } from "@/components/ui/SettingsHeaderButton";
 
 export default function ProgressoLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: false,
+        ...tabStackScreenOptions,
+        headerRight: () => <SettingsHeaderButton />,
       }}
     >
-      <Stack.Screen name="index" />
+      <Stack.Screen
+        name="index"
+        options={{
+          title: "Stats",
+        }}
+      />
       <Stack.Screen
         name="new-checkin"
         options={{
-          presentation: "formSheet",
-          sheetGrabberVisible: true,
+          ...glassSheetScreenOptions,
           sheetAllowedDetents: [0.75, 1.0],
+          title: "Novo Check-in",
         }}
       />
       <Stack.Screen
         name="profile"
         options={{
-          presentation: "formSheet",
-          sheetGrabberVisible: true,
+          ...glassSheetScreenOptions,
           sheetAllowedDetents: [0.75, 1.0],
+          title: "Perfil",
         }}
       />
       <Stack.Screen
         name="categories"
         options={{
-          presentation: "formSheet",
-          sheetGrabberVisible: true,
+          ...glassSheetScreenOptions,
           sheetAllowedDetents: [0.75, 1.0],
+          title: "Categorias",
         }}
       />
       <Stack.Screen
         name="photo-guide"
         options={{
-          presentation: "formSheet",
-          sheetGrabberVisible: true,
+          ...glassSheetScreenOptions,
           sheetAllowedDetents: [0.75, 1.0],
+          title: "Guia de Fotos",
         }}
       />
       <Stack.Screen
         name="compare"
         options={{
-          presentation: "formSheet",
-          sheetGrabberVisible: true,
+          ...glassSheetScreenOptions,
           sheetAllowedDetents: [0.75, 1.0],
+          title: "Comparar",
         }}
       />
       <Stack.Screen
         name="result"
         options={{
-          headerShown: false,
+          ...detailStackScreenOptions,
+          headerShown: true,
+          title: "Análise",
         }}
       />
     </Stack>

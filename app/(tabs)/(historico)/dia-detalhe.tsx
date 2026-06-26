@@ -1,9 +1,8 @@
 import { ScrollView, Text, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { ProgressBar } from "@/components/checklist/ProgressBar";
-import { DetailHeader } from "@/components/ui/DetailHeader";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { formatPtBR } from "@/utils/dateUtils";
 
@@ -27,18 +26,16 @@ export default function DiaDetalheScreen() {
 
   if (!historico) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <DetailHeader title="Detalhes do Dia" />
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
-          <MaterialCommunityIcons
-            name="calendar-outline"
-            size={48}
-            color={theme.colors.text.muted}
-          />
-          <Text style={{ ...theme.typography.body, color: theme.colors.text.muted, marginTop: 16 }}>
-            Nenhum dado encontrado
-          </Text>
-        </View>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
+        <AppIcon
+          sf="calendar"
+          mci="calendar-outline"
+          size={48}
+          color={theme.colors.text.muted}
+        />
+        <Text style={{ ...theme.typography.body, color: theme.colors.text.muted, marginTop: 16 }}>
+          Nenhum dado encontrado
+        </Text>
       </View>
     );
   }
@@ -47,24 +44,18 @@ export default function DiaDetalheScreen() {
   const statusColor = getStatusColor(historico.completados, historico.total);
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <DetailHeader title="Detalhes do Dia" />
-      <ScrollView
-        contentContainerStyle={{ padding: 20, paddingTop: 16, gap: 16 }}
-      >
-      {/* Header */}
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{ padding: 20, gap: 16 }}
+    >
       <Text selectable style={theme.typography.headline}>
         {formatPtBR(historico.data)}
       </Text>
 
-      {/* Status */}
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-        <MaterialCommunityIcons
-          name={
-            historico.completados >= historico.total
-              ? "check-circle"
-              : "alert-circle"
-          }
+        <AppIcon
+          sf={historico.completados >= historico.total ? "checkmark.circle.fill" : "exclamationmark.circle.fill"}
+          mci={historico.completados >= historico.total ? "check-circle" : "alert-circle"}
           size={20}
           color={statusColor}
         />
@@ -73,18 +64,17 @@ export default function DiaDetalheScreen() {
         </Text>
       </View>
 
-      {/* Progress bar */}
       <ProgressBar
         completados={historico.completados}
         total={historico.total}
       />
 
-      {/* Missed items */}
       {historico.itensPerdidos.length > 0 && (
         <View style={{ gap: 8 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <MaterialCommunityIcons
-              name="close-circle-outline"
+            <AppIcon
+              sf="xmark.circle"
+              mci="close-circle-outline"
               size={16}
               color={theme.colors.semantic.error}
             />
@@ -111,7 +101,6 @@ export default function DiaDetalheScreen() {
         </View>
       )}
 
-      {/* All complete message */}
       {historico.itensPerdidos.length === 0 &&
         historico.completados >= historico.total && (
           <View
@@ -124,8 +113,9 @@ export default function DiaDetalheScreen() {
               paddingVertical: 16,
             }}
           >
-            <MaterialCommunityIcons
-              name="trophy-outline"
+            <AppIcon
+              sf="trophy.fill"
+              mci="trophy-outline"
               size={28}
               color={theme.colors.semantic.success}
             />
@@ -140,7 +130,6 @@ export default function DiaDetalheScreen() {
             </Text>
           </View>
         )}
-      </ScrollView>
-    </View>
+    </ScrollView>
   );
 }

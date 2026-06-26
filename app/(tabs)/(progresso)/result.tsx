@@ -10,15 +10,15 @@ import {
   Share,
   useWindowDimensions,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import Markdown from "@ronradtke/react-native-markdown-display";
 import { theme } from "@/constants/theme";
 import { usePhysiqueStore, PHOTO_LABELS, MODE_LABELS } from "@/stores/usePhysiqueStore";
 import { CATEGORY_LABELS, STAGE_READINESS_LABELS, STAGE_READINESS_ORDER } from "@/services/physiqueAnalysis";
 import type { StageReadinessLevel } from "@/services/physiqueAnalysis";
 import { WeightDelta } from "@/components/physique/WeightDelta";
-import { DetailHeader } from "@/components/ui/DetailHeader";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { GlassButton } from "@/components/ui/GlassButton";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 const markdownStyles = {
   body: { color: theme.colors.text.primary, fontSize: 15 },
@@ -84,44 +84,36 @@ export default function ResultScreen() {
 
   if (!checkIn) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <DetailHeader title="Análise" />
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-          <Text style={theme.typography.body}>Check-in não encontrado</Text>
-        </View>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <Text style={theme.typography.body}>Check-in não encontrado</Text>
       </View>
     );
   }
 
   return (
     <>
-      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <DetailHeader
-          title={`Semana ${checkIn.week}`}
-          right={
-            <Pressable
+      <Stack.Screen
+        options={{
+          title: `Semana ${checkIn.week}`,
+          headerRight: () => (
+            <GlassButton
               onPress={handleShare}
               accessibilityLabel="Compartilhar análise"
-              accessibilityRole="button"
-              hitSlop={8}
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: 19,
-                backgroundColor: theme.colors.surface.containerHighest,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
             >
-              <MaterialCommunityIcons
-                name="share-variant"
-                size={20}
+              <AppIcon
+                sf="square.and.arrow.up"
+                mci="share-variant"
+                size={18}
                 color={theme.colors.accent.DEFAULT}
               />
-            </Pressable>
-          }
-        />
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120, gap: 16 }}>
+            </GlassButton>
+          ),
+        }}
+      />
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={{ padding: 16, paddingBottom: 120, gap: 16 }}
+      >
           {/* Meta row */}
           <View style={{ gap: 8 }}>
             <View className="flex-row items-center" style={{ gap: 8 }}>
@@ -274,8 +266,9 @@ export default function ResultScreen() {
             <Markdown style={markdownStyles}>{checkIn.analysis}</Markdown>
           ) : (
             <View className="items-center py-8" style={{ gap: 8 }}>
-              <MaterialCommunityIcons
-                name="text-box-outline"
+              <AppIcon
+                sf="doc.text"
+                mci="text-box-outline"
                 size={48}
                 color={theme.colors.text.muted}
               />
@@ -285,7 +278,6 @@ export default function ResultScreen() {
             </View>
           )}
       </ScrollView>
-      </View>
 
       {/* Fullscreen Gallery */}
       <Modal
@@ -312,7 +304,7 @@ export default function ResultScreen() {
             accessibilityLabel="Fechar galeria"
             accessibilityRole="button"
           >
-            <MaterialCommunityIcons name="close" size={22} color="#fff" />
+            <AppIcon sf="xmark" mci="close" size={22} color="#fff" />
           </Pressable>
 
           <FlatList

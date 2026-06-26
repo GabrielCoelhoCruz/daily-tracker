@@ -12,7 +12,12 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
 - `npx tsc --noEmit` for typecheck
 - Zustand stores in `stores/` with persist middleware + AsyncStorage — see `useConfigStore.ts` for pattern
 - NativeWind `className` for static layout styles, inline `style` for dynamic colors and typography
-- Tab bar in `app/(tabs)/_layout.tsx` uses regular `Tabs` from expo-router with `Ionicons` for tab icons
+- Tab bar in `app/(tabs)/_layout.tsx` uses `NativeTabs` from `expo-router/unstable-native-tabs` with SF Symbols (iOS) + `VectorIcon` fallbacks (Android). Requires `react-native-screens ~4.16.0` on SDK 54.
+- Liquid Glass in Expo Go (no dev build): use `expo-glass-effect` (`GlassView`) + `expo-blur` fallback via `hooks/useShouldRenderGlass.ts`; NEVER static-import `@expo/ui/swift-ui/modifiers` (crashes Expo Go at module load).
+- Native stack headers: `constants/stackScreenOptions.ts` exports `tabStackScreenOptions` (transparent + large title), `glassSheetScreenOptions`, `detailStackScreenOptions`. Tab layouts set `headerRight: () => <SettingsHeaderButton />`.
+- In-app icons: `components/ui/AppIcon.tsx` — SF Symbol via `expo-symbols` on iOS, MaterialCommunityIcons on Android.
+- Glass UI primitives: `GlassChip` (status/actions), `GlassButton` (circular header actions). Sheets use `contentStyle: { backgroundColor: "transparent" }` for iOS 26 glass backgrounds.
+- Tab badge: `hooks/usePendingDashCount.ts` feeds `<Badge>` on Dash tab in NativeTabs.
 - All other components use `MaterialCommunityIcons` from `@expo/vector-icons/MaterialCommunityIcons` (default import, NOT named import)
 - Route structure: `app/(tabs)/(hoje)/index.tsx`, `(treino)/index.tsx`, `(historico)/index.tsx`, `(progresso)/index.tsx`
 - Sub-routes use formSheet presentation: `presentation: 'formSheet'`, `sheetGrabberVisible: true`, `sheetAllowedDetents: [0.5, 1.0]`
@@ -192,3 +197,17 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
   - Android dev build (`eas build --profile development --platform android` → `.apk`) is fully free and installable on a physical device, but Liquid Glass is iOS-only so it doesn't validate the glass — only the dev-build mechanics.
   - `requireNativeModule('ExpoUI')` runs at module load, so a `Platform` check inside a component is NOT enough to guard `@expo/ui` in Expo Go — must guard the `require()` itself via `NativeModules.ExpoUI` existence check.
 
+## 2026-06-26 - Liquid Glass UI overhaul (Expo Go path)
+- Pivoted from `@expo/ui` SwiftUI to `expo-glass-effect` + `expo-blur` so Liquid Glass works in Expo Go on iOS 26 without a dev build
+- Restored `NativeTabs` with SF Symbols, Android VectorIcon fallbacks, and `<Badge>` for pending Dash items (`usePendingDashCount`)
+- Replaced custom `ScreenHeader`/`DetailHeader` with native transparent Stack headers (`tabStackScreenOptions`, `glassSheetScreenOptions`, `detailStackScreenOptions`)
+- Added `AppIcon`, `GlassButton`, `SettingsHeaderButton`, `useShouldRenderGlass` hook
+- All tab screens: ScrollView first child + `contentInsetAdjustmentBehavior="automatic"`; config sheet uses transparent `contentStyle`
+- `GlassChip` extended with icon/tone/uppercase variants for refeição livre actions on Hoje
+- Removed dead components: `ScreenHeader.tsx`, `DetailHeader.tsx`, `TabIcon.tsx`
+- `npx tsc --noEmit` clean; `npm test` 8/8 pass
+- **Learnings for future iterations:**
+  - `expo-glass-effect@~0.1.10` is the SDK 54 pin (NOT v56)
+  - NativeTabs + transparent headers + ScrollView as first child = correct Liquid Glass layout per Apple HIG
+  - `GlassChip`/`GlassButton` cascade: GlassView → BlurView → solid fallback based on `useShouldRenderGlass`
+---

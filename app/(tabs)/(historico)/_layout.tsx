@@ -1,19 +1,32 @@
 import { Stack } from "expo-router";
+import {
+  detailStackScreenOptions,
+  glassSheetScreenOptions,
+  tabStackScreenOptions,
+} from "@/constants/stackScreenOptions";
+import { SettingsHeaderButton } from "@/components/ui/SettingsHeaderButton";
 
 export default function HistoricoLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: false,
+        ...tabStackScreenOptions,
+        headerRight: () => <SettingsHeaderButton />,
       }}
     >
-      <Stack.Screen name="index" />
+      <Stack.Screen
+        name="index"
+        options={{
+          title: "Logs",
+        }}
+      />
       <Stack.Screen
         name="dia-detalhe"
         options={{
-          presentation: "formSheet",
-          sheetGrabberVisible: true,
+          ...glassSheetScreenOptions,
+          ...detailStackScreenOptions,
           sheetAllowedDetents: [0.5, 1.0],
+          title: "Detalhes do Dia",
         }}
       />
     </Stack>
