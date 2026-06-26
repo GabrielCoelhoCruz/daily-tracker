@@ -182,3 +182,13 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
   - Dev build flow differs from Expo Go: `eas build` (once) → install .ipa on device → `npx expo start --dev-client` → open "DailyTracker Dev" app (not Expo Go). JS hot-reloads; native module changes need another build.
   - On Windows, iOS build only via EAS cloud (no `--local`); internal distribution gives an install URL (ad-hoc) without App Store review
 
+## 2026-06-26 - Liquid Glass experiment PAUSED (no Apple Developer account)
+- **Decision**: validating Liquid Glass on a physical iPhone requires a paid Apple Developer Program membership (US$ 99/yr) to sign the ad-hoc `.ipa`. EAS Build free tier covers build infra but cannot bypass Apple's signing requirement. Without the paid account, the iOS dev build cannot be installed on the device, so the glass effect cannot be visually validated.
+- **Fix to keep branch bootable in Expo Go**: `@expo/ui/swift-ui/modifiers` calls `requireNativeModule('ExpoUI')` at module top level → throws in Expo Go (no native module) → crashed the Hoje route on boot (`Cannot find native module 'ExpoUI'` + `Route ... missing default export`). Added runtime guard in `components/ui/GlassChip.tsx`: only `require("@expo/ui/...")` when `NativeModules.ExpoUI` is present (dev/prod build). In Expo Go the chip renders the solid fallback. Commit `eab34f0`.
+- **Current state**: branch `experiment/liquid-glass-swiftui` is stable in Expo Go (solid fallback chip on Hoje). `npx tsc --noEmit` clean.
+- **To resume later**: get an Apple Developer Program membership, then run `eas device:create` (register iPhone UDID) and `eas build --profile development --platform ios` interactively (Apple ID + 2FA), install the `.ipa` on iOS 26, `npx expo start --dev-client`. The SwiftUI glass path is already wired and will activate automatically once `NativeModules.ExpoUI` is present and iOS >= 26.
+- **Learnings for future iterations:**
+  - EAS Build free tier is enough for build infrastructure, but iOS **physical device** install always needs a **paid** Apple Developer account (ad-hoc provisioning). Free Apple account only allows simulator builds (needs Mac/Xcode) or 7-day Xcode-signed dev builds — neither works on Windows + iPhone.
+  - Android dev build (`eas build --profile development --platform android` → `.apk`) is fully free and installable on a physical device, but Liquid Glass is iOS-only so it doesn't validate the glass — only the dev-build mechanics.
+  - `requireNativeModule('ExpoUI')` runs at module load, so a `Platform` check inside a component is NOT enough to guard `@expo/ui` in Expo Go — must guard the `require()` itself via `NativeModules.ExpoUI` existence check.
+
