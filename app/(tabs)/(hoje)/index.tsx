@@ -5,6 +5,7 @@ import { theme, withAlpha } from "@/constants/theme";
 import { plano } from "@/data/plano";
 import { CircularProgress } from "@/components/ui/CircularProgress";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { GlassChip } from "@/components/ui/GlassChip";
 import { PeriodoSection } from "@/components/checklist/PeriodoSection";
 import { HidratacaoCard } from "@/components/hidratacao/HidratacaoCard";
 import { CardioCard } from "@/components/cardio/CardioCard";
@@ -340,6 +341,22 @@ export default function HojeScreen() {
           ))}
         </View>
       </ScrollView>
+
+      {/* ── Floating Liquid Glass chip (experiment) ── */}
+      <View
+        pointerEvents="box-none"
+        style={{
+          position: "absolute",
+          right: 16,
+          bottom: bottomPadding + 8,
+        }}
+      >
+        <GlassChip
+          label={`${percentage}%`}
+          sfSymbol="checkmark.circle.fill"
+          style={{}}
+        />
+      </View>
     </View>
   );
 }
