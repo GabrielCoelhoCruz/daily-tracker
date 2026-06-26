@@ -82,4 +82,19 @@ describe('GymLogSlice', () => {
     expect(s.getGymSessionById(id)!.logs).toHaveLength(1)
     expect(s.getGymSessionById(id)!.logs[0].exercicioId).toBe('e2')
   })
+
+  it('getActiveSessionForTreinoAndDate — retorna sessão existente', () => {
+    const s = fresh()
+    const id = s.startGymSession('treino-a', 'Treino A', '2026-06-26', mockExs)
+    const active = s.getActiveSessionForTreinoAndDate('treino-a', '2026-06-26')
+    expect(active?.id).toBe(id)
+    expect(active?.treinoId).toBe('treino-a')
+  })
+
+  it('getActiveSessionForTreinoAndDate — undefined se treino ou data diferente', () => {
+    const s = fresh()
+    s.startGymSession('treino-a', 'Treino A', '2026-06-26', mockExs)
+    expect(s.getActiveSessionForTreinoAndDate('treino-b', '2026-06-26')).toBeUndefined()
+    expect(s.getActiveSessionForTreinoAndDate('treino-a', '2026-06-25')).toBeUndefined()
+  })
 })

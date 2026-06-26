@@ -42,6 +42,10 @@ export type GymLogActions = {
   ) => void
   deleteGymSession: (sessionId: string) => void
   getGymSessionsByDate: (date: string) => GymSession[]
+  getActiveSessionForTreinoAndDate: (
+    treinoId: string,
+    date: string,
+  ) => GymSession | undefined
   removeExerciseLog: (sessionId: string, exercicioId: string) => void
 }
 
@@ -105,6 +109,11 @@ export const createGymLogSlice: StateCreator<
 
   getGymSessionsByDate: (date) =>
     Object.values(get().gymSessions).filter((s) => s.date === date),
+
+  getActiveSessionForTreinoAndDate: (treinoId, date) =>
+    Object.values(get().gymSessions).find(
+      (s) => s.treinoId === treinoId && s.date === date,
+    ),
 
   removeExerciseLog: (sessionId, exercicioId) => {
     set((state) => {
