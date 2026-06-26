@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme, withAlpha } from "@/constants/theme";
+import { DAY_NAMES_FULL } from "@/constants/days";
 import { getTreinoDoDia } from "@/utils/diaUtils";
 import { useDayStore } from "@/stores/useDayStore";
 import { getLogicalDayOfWeek } from "@/utils/dateUtils";
@@ -8,40 +9,51 @@ import {
   FocalExercicioCard,
   ExercicioItem,
 } from "@/components/treino/ExercicioItem";
-import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { AppIcon } from "@/components/ui/AppIcon";
+import { DayOfWeekPicker, getInitialWorkoutDay } from "@/components/workout/DayOfWeekPicker";
 import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
 
-const DAY_NAMES = [
-  "DOMINGO",
-  "SEGUNDA",
-  "TERÇA",
-  "QUARTA",
-  "QUINTA",
-  "SEXTA",
-  "SÁBADO",
-];
-
 export default function TreinoScreen() {
-  const dayOfWeek = getLogicalDayOfWeek(new Date());
+  const todayDay = getLogicalDayOfWeek(new Date());
+  const [selectedDay, setSelectedDay] = useState(() => getInitialWorkoutDay(todayDay));
   const diaOffManual = useDayStore((s) => s.diaOffManual);
-  const treino = diaOffManual ? null : getTreinoDoDia(dayOfWeek);
-  const dayName = DAY_NAMES[dayOfWeek];
   const bottomPadding = useTabContentBottomPadding();
+
+  const isViewingToday = selectedDay === todayDay;
+  const isTodayOff = isViewingToday && diaOffManual;
+  const treino = isTodayOff ? null : getTreinoDoDia(selectedDay);
+  const dayName = DAY_NAMES_FULL[selectedDay];
 
   // ─── Rest Day ──────────────────────────────────────────────────────
 
   if (!treino) {
+    const isWeekend = selectedDay === 0 || selectedDay === 6;
+
     return (
-      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <ScreenHeader />
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingHorizontal: 24,
+          paddingBottom: bottomPadding,
+          paddingTop: 8,
+        }}
+      >
+        <DayOfWeekPicker
+          selectedDay={selectedDay}
+          todayDay={todayDay}
+          diaOffManual={diaOffManual}
+          onSelectDay={setSelectedDay}
+        />
+
+        <View
+          style={{
             flex: 1,
             alignItems: "center",
             justifyContent: "center",
-            paddingHorizontal: 32,
-            paddingVertical: 32,
+            paddingHorizontal: 8,
+            paddingTop: 48,
+            paddingBottom: 32,
           }}
         >
           <View
@@ -57,16 +69,15 @@ export default function TreinoScreen() {
               marginBottom: 20,
             }}
           >
-            <MaterialCommunityIcons
-              name="moon-waning-crescent"
+            <AppIcon
+              sf="moon.fill"
+              mci="moon-waning-crescent"
               size={36}
               color={theme.colors.onSurface.variant}
             />
           </View>
 
-          <Text style={theme.typography.labelSmall}>
-            {dayName}
-          </Text>
+          <Text style={theme.typography.labelSmall}>{dayName}</Text>
           <Text
             style={{
               ...theme.typography.headlineLarge,
@@ -74,7 +85,7 @@ export default function TreinoScreen() {
               textAlign: "center",
             }}
           >
-            DIA OFF
+            {isTodayOff ? "DIA OFF" : isWeekend ? "DESCANSO" : "SEM TREINO"}
           </Text>
           <Text
             style={{
@@ -85,10 +96,14 @@ export default function TreinoScreen() {
               lineHeight: 20,
             }}
           >
-            Aproveite para recuperar e voltar mais forte.
+            {isTodayOff
+              ? "Treino pausado hoje. Escolha outro dia para ver o protocolo."
+              : isWeekend
+                ? "Fim de semana — aproveite para recuperar."
+                : "Nenhum treino programado para este dia."}
           </Text>
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
     );
   }
 
@@ -97,19 +112,23 @@ export default function TreinoScreen() {
   const [firstExercise, ...remainingExercises] = treino.exercicios;
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <ScreenHeader />
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{
-          paddingHorizontal: 24,
-          paddingBottom: bottomPadding,
-          paddingTop: 16,
-        }}
-      >
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{
+        paddingHorizontal: 24,
+        paddingBottom: bottomPadding,
+        paddingTop: 8,
+      }}
+    >
+      <DayOfWeekPicker
+        selectedDay={selectedDay}
+        todayDay={todayDay}
+        diaOffManual={diaOffManual}
+        onSelectDay={setSelectedDay}
+      />
+
       {/* ── Header Section ── */}
-      <View style={{ marginBottom: 32 }}>
-        {/* Protocol label */}
+      <View style={{ marginBottom: 32, marginTop: 20 }}>
         <Text
           style={{
             ...theme.typography.labelSmall,
@@ -117,45 +136,16 @@ export default function TreinoScreen() {
             marginBottom: 4,
           }}
         >
-          PROTOCOLO • HOJE
+          {isViewingToday ? "PROTOCOLO • HOJE" : `PROTOCOLO • ${dayName}`}
         </Text>
 
-        {/* Day name (large) */}
-        <Text style={theme.typography.titleLarge}>{dayName}</Text>
-
-        {/* Split info */}
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 8,
-            marginTop: 12,
-          }}
-        >
-          <MaterialCommunityIcons
-            name="dumbbell"
-            size={16}
-            color={theme.colors.onSurface.variant}
-          />
-          <Text
-            style={{
-              fontSize: 14,
-              fontWeight: "700",
-              color: theme.colors.onSurface.variant,
-              letterSpacing: 2,
-              textTransform: "uppercase",
-            }}
-          >
-            Split {treino.letra}: {treino.grupoMuscular}
-          </Text>
-        </View>
+        <Text style={theme.typography.titleLarge}>{treino.grupoMuscular}</Text>
       </View>
 
       {/* ── Focal Exercise (first) ── */}
       <View style={{ marginBottom: 8 }}>
         <FocalExercicioCard exercicio={firstExercise} index={0} />
 
-        {/* Muscle group tags */}
         <View
           style={{
             flexDirection: "row",
@@ -167,14 +157,14 @@ export default function TreinoScreen() {
         >
           <Text
             style={{
-            fontSize: 9,
-            fontWeight: "900",
-            color: withAlpha(theme.colors.onSurface.variant, 0.4),
-            letterSpacing: 2,
-            textTransform: "uppercase",
-          }}
-        >
-          Grupo:
+              fontSize: 9,
+              fontWeight: "900",
+              color: withAlpha(theme.colors.onSurface.variant, 0.4),
+              letterSpacing: 2,
+              textTransform: "uppercase",
+            }}
+          >
+            Grupo:
           </Text>
           <View
             style={{
@@ -201,10 +191,8 @@ export default function TreinoScreen() {
         </View>
       </View>
 
-      {/* ── Remaining Exercises ── */}
       {remainingExercises.length > 0 && (
         <View style={{ marginTop: 32 }}>
-          {/* Section header */}
           <View
             style={{
               flexDirection: "row",
@@ -235,7 +223,6 @@ export default function TreinoScreen() {
             </Text>
           </View>
 
-          {/* Exercise list */}
           <View style={{ gap: 10 }}>
             {remainingExercises.map((exercicio, index) => (
               <ExercicioItem
@@ -247,7 +234,6 @@ export default function TreinoScreen() {
           </View>
         </View>
       )}
-      </ScrollView>
-    </View>
+    </ScrollView>
   );
 }

@@ -233,7 +233,7 @@ export const treinos: Treino[] = [
       },
       {
         id: "d2",
-        nome: "Elevação frontal halteres banco 45°",
+        nome: "Elevação frontal com halteres simultâneo (banco 45° com peito apoiado)",
         series: [
           { tipo: "WS", series: 2 },
           { tipo: "TS", series: 1 },
@@ -288,7 +288,7 @@ export const treinos: Treino[] = [
     exercicios: [
       {
         id: "e1",
-        nome: "Rosca martelo halteres",
+        nome: "Rosca martelo com halteres simultâneo",
         series: [
           { tipo: "WS", series: 2 },
           { tipo: "TS", series: 1 },
@@ -336,7 +336,7 @@ export const treinos: Treino[] = [
       },
       {
         id: "e7",
-        nome: "Rosca banco 45° halteres",
+        nome: "Rosca simultânea no banco 45° com halteres",
         series: [
           { tipo: "WS", series: 2 },
           { tipo: "TS", series: 1 },

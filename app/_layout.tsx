@@ -107,11 +107,17 @@ export default function RootLayout() {
           <Stack.Screen
             name="config"
             options={{
-              presentation: "modal",
+              presentation: "formSheet",
+              sheetGrabberVisible: true,
+              sheetAllowedDetents: [0.75, 1.0],
               headerShown: true,
               headerTitle: "Configurações",
-              headerStyle: { backgroundColor: theme.colors.bg.card },
+              headerTransparent: true,
+              headerShadowVisible: false,
+              headerBlurEffect: "none",
+              headerStyle: { backgroundColor: "transparent" },
               headerTintColor: theme.colors.text.primary,
+              contentStyle: { backgroundColor: "transparent" },
             }}
           />
         </Stack>

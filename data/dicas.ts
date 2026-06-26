@@ -36,7 +36,7 @@ export const dicas: Dica[] = [
     id: "nut-06",
     categoria: "nutricao",
     texto:
-      "Controle o sódio: evite excesso de sal e alimentos ultraprocessados. Use sal com moderação nas preparações.",
+      "Sal/sódio sem restrição: use o suficiente para salgar a comida, sem exageros. Evite temperos prontos e industrializados com alta concentração de sódio.",
   },
   {
     id: "nut-07",
@@ -152,6 +152,6 @@ export const dicas: Dica[] = [
     id: "tre-13",
     categoria: "treino",
     texto:
-      "Cardio: 80min por dia divididos em 2 sessões (ex: 40min manhã + 40min tarde/noite). Caminhar em esteira ou ao ar livre, intensidade leve a moderada.",
+      "Cardio: 90min por dia divididos em 2 sessões (ex: 45min manhã + 45min tarde/noite). Caminhar em esteira ou ao ar livre, intensidade leve a moderada.",
   },
 ];

@@ -12,7 +12,12 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
 - `npx tsc --noEmit` for typecheck
 - Zustand stores in `stores/` with persist middleware + AsyncStorage — see `useConfigStore.ts` for pattern
 - NativeWind `className` for static layout styles, inline `style` for dynamic colors and typography
-- Tab bar in `app/(tabs)/_layout.tsx` uses regular `Tabs` from expo-router with `Ionicons` for tab icons
+- Tab bar in `app/(tabs)/_layout.tsx` uses `NativeTabs` from `expo-router/unstable-native-tabs` with SF Symbols (iOS) + `VectorIcon` fallbacks (Android). Requires `react-native-screens ~4.16.0` on SDK 54.
+- Liquid Glass in Expo Go (no dev build): use `expo-glass-effect` (`GlassView`) + `expo-blur` fallback via `hooks/useShouldRenderGlass.ts`; NEVER static-import `@expo/ui/swift-ui/modifiers` (crashes Expo Go at module load).
+- Native stack headers: `constants/stackScreenOptions.ts` exports `tabStackScreenOptions` (transparent + large title), `glassSheetScreenOptions`, `detailStackScreenOptions`. Tab layouts set `headerRight: () => <SettingsHeaderButton />`.
+- In-app icons: `components/ui/AppIcon.tsx` — SF Symbol via `expo-symbols` on iOS, MaterialCommunityIcons on Android.
+- Glass UI primitives: `GlassChip` (status/actions), `GlassButton` (circular header actions). Sheets use `contentStyle: { backgroundColor: "transparent" }` for iOS 26 glass backgrounds.
+- Tab badge: `hooks/usePendingDashCount.ts` feeds `<Badge>` on Dash tab in NativeTabs.
 - All other components use `MaterialCommunityIcons` from `@expo/vector-icons/MaterialCommunityIcons` (default import, NOT named import)
 - Route structure: `app/(tabs)/(hoje)/index.tsx`, `(treino)/index.tsx`, `(historico)/index.tsx`, `(progresso)/index.tsx`
 - Sub-routes use formSheet presentation: `presentation: 'formSheet'`, `sheetGrabberVisible: true`, `sheetAllowedDetents: [0.5, 1.0]`
@@ -33,6 +38,7 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
 - Expo API Routes: use standard `Request`/`Response` (not ExpoRequest/ExpoResponse), file suffix `+api.ts` in `app/` dir
 - CATEGORY_LABELS exists in BOTH `usePhysiqueStore.ts` AND `physiqueAnalysis.ts` — update both when adding categories
 - `useAthleteStore.getState()` for reading athlete data outside React components (e.g., in service files)
+- Liquid Glass experiment (branch experiment/liquid-glass-swiftui): `@expo/ui` SwiftUI works on SDK 54, beta package `@expo/ui@0.2.0-canary`. Imports: `@expo/ui/swift-ui` (Host, HStack, Text, etc.) and `@expo/ui/swift-ui/modifiers` (glassEffect, padding, foregroundStyle, font, cornerRadius). `glassEffect({ glass: { variant: 'regular' }, shape: 'capsule' })` requires iOS 26+; no-op on earlier iOS. `Text` from `@expo/ui/swift-ui` does NOT accept `style` — use `foregroundStyle`/`font` modifiers instead (use `Text as RNText` from react-native for fallback UI). `@expo/ui` does NOT work in Expo Go — requires `expo-dev-client` (dev build). EAS dev build for SDK 54 must pin `ios.image: "macos-sequoia-15.6-xcode-26.0"` in eas.json to compile SwiftUI. First iOS internal-distribution build requires INTERACTIVE Apple ID login to set up credentials — `--non-interactive` fails until credentials exist (run `eas build -p ios --profile development` once interactively, or `eas credentials`).
 - `isProfileComplete()` is a Zustand getter — call as function: `useAthleteStore((s) => s.isProfileComplete)()`
 
 ---
@@ -162,4 +168,46 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
 - **Learnings for future iterations:**
   - React Native's built-in `Share.share({ message })` works for text sharing without extra dependencies
   - No need for expo-sharing for text-only shares — RN Share API is sufficient
+---
+
+## 2026-06-26 - Liquid Glass experiment (branch experiment/liquid-glass-swiftui)
+- Goal: validate Liquid Glass via @expo/ui SwiftUI on iOS 26 using a dev build (not Expo Go)
+- Installed `@expo/ui@0.2.0-canary` + `expo-dev-client@6.0.21` via `npm install --legacy-peer-deps` (expo install fails due to react-native-web/React 19 peer conflict)
+- Registered `expo-dev-client` in app.json plugins; pinned eas.json development ios.image to `macos-sequoia-15.6-xcode-26.0`
+- Created `components/ui/GlassChip.tsx`: adaptive chip rendering SwiftUI `Host` + `HStack` + `glassEffect({variant:'regular', shape:'capsule'})` on iOS 26+ (guarded by Platform.Version and AccessibilityInfo.isReduceTransparencyEnabled), solid fallback elsewhere. RN `Text as RNText` used in fallback to avoid @expo/ui Text style incompatibility.
+- Added floating glass status chip (% of day) over ScrollView in `app/(tabs)/(hoje)/index.tsx` — content scrolls under it so glass has refraction. Tab bar and ScreenHeader untouched (avoid f19b610 regression).
+- `npx tsc --noEmit` clean; `npm test` 8/8 pass
+- Committed as `feat: experiment with Liquid Glass via @expo/ui SwiftUI` (abf46a8)
+- **BLOCKED on build**: `eas build --profile development --platform ios --non-interactive` fails — first iOS internal-distribution build requires interactive Apple ID login to create signing credentials. This needs a human to run `eas build -p ios --profile development` (or `eas credentials -p ios`) interactively with Apple ID + 2FA, then register the test iPhone UDID via `eas device:create`.
+- **Learnings for future iterations:**
+  - `@expo/ui/swift-ui` `Text` has no `style` prop — use `foregroundStyle(color)` and `font({size,weight})` modifiers; import `Text as RNText` from react-native for the fallback path
+  - `glassEffect` modifier signature: `glassEffect({ glass?: { variant: 'regular'|'clear'|'identity'; interactive?; tint? }; shape?: 'circle'|'capsule'|'rectangle'|'ellipse'|'roundedRectangle'; cornerRadius? })`
+  - Detect iOS 26 via `typeof Platform.Version === 'number' && Platform.Version >= 26`
+  - `@expo/ui` package.json exports map: `./swift-ui` and `./swift-ui/modifiers` (also `./jetpack-compose` for Android)
+  - Dev build flow differs from Expo Go: `eas build` (once) → install .ipa on device → `npx expo start --dev-client` → open "DailyTracker Dev" app (not Expo Go). JS hot-reloads; native module changes need another build.
+  - On Windows, iOS build only via EAS cloud (no `--local`); internal distribution gives an install URL (ad-hoc) without App Store review
+
+## 2026-06-26 - Liquid Glass experiment PAUSED (no Apple Developer account)
+- **Decision**: validating Liquid Glass on a physical iPhone requires a paid Apple Developer Program membership (US$ 99/yr) to sign the ad-hoc `.ipa`. EAS Build free tier covers build infra but cannot bypass Apple's signing requirement. Without the paid account, the iOS dev build cannot be installed on the device, so the glass effect cannot be visually validated.
+- **Fix to keep branch bootable in Expo Go**: `@expo/ui/swift-ui/modifiers` calls `requireNativeModule('ExpoUI')` at module top level → throws in Expo Go (no native module) → crashed the Hoje route on boot (`Cannot find native module 'ExpoUI'` + `Route ... missing default export`). Added runtime guard in `components/ui/GlassChip.tsx`: only `require("@expo/ui/...")` when `NativeModules.ExpoUI` is present (dev/prod build). In Expo Go the chip renders the solid fallback. Commit `eab34f0`.
+- **Current state**: branch `experiment/liquid-glass-swiftui` is stable in Expo Go (solid fallback chip on Hoje). `npx tsc --noEmit` clean.
+- **To resume later**: get an Apple Developer Program membership, then run `eas device:create` (register iPhone UDID) and `eas build --profile development --platform ios` interactively (Apple ID + 2FA), install the `.ipa` on iOS 26, `npx expo start --dev-client`. The SwiftUI glass path is already wired and will activate automatically once `NativeModules.ExpoUI` is present and iOS >= 26.
+- **Learnings for future iterations:**
+  - EAS Build free tier is enough for build infrastructure, but iOS **physical device** install always needs a **paid** Apple Developer account (ad-hoc provisioning). Free Apple account only allows simulator builds (needs Mac/Xcode) or 7-day Xcode-signed dev builds — neither works on Windows + iPhone.
+  - Android dev build (`eas build --profile development --platform android` → `.apk`) is fully free and installable on a physical device, but Liquid Glass is iOS-only so it doesn't validate the glass — only the dev-build mechanics.
+  - `requireNativeModule('ExpoUI')` runs at module load, so a `Platform` check inside a component is NOT enough to guard `@expo/ui` in Expo Go — must guard the `require()` itself via `NativeModules.ExpoUI` existence check.
+
+## 2026-06-26 - Liquid Glass UI overhaul (Expo Go path)
+- Pivoted from `@expo/ui` SwiftUI to `expo-glass-effect` + `expo-blur` so Liquid Glass works in Expo Go on iOS 26 without a dev build
+- Restored `NativeTabs` with SF Symbols, Android VectorIcon fallbacks, and `<Badge>` for pending Dash items (`usePendingDashCount`)
+- Replaced custom `ScreenHeader`/`DetailHeader` with native transparent Stack headers (`tabStackScreenOptions`, `glassSheetScreenOptions`, `detailStackScreenOptions`)
+- Added `AppIcon`, `GlassButton`, `SettingsHeaderButton`, `useShouldRenderGlass` hook
+- All tab screens: ScrollView first child + `contentInsetAdjustmentBehavior="automatic"`; config sheet uses transparent `contentStyle`
+- `GlassChip` extended with icon/tone/uppercase variants for refeição livre actions on Hoje
+- Removed dead components: `ScreenHeader.tsx`, `DetailHeader.tsx`, `TabIcon.tsx`
+- `npx tsc --noEmit` clean; `npm test` 8/8 pass
+- **Learnings for future iterations:**
+  - `expo-glass-effect@~0.1.10` is the SDK 54 pin (NOT v56)
+  - NativeTabs + transparent headers + ScrollView as first child = correct Liquid Glass layout per Apple HIG
+  - `GlassChip`/`GlassButton` cascade: GlassView → BlurView → solid fallback based on `useShouldRenderGlass`
 ---

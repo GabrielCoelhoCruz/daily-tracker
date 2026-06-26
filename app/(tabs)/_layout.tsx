@@ -1,80 +1,205 @@
-import { Tabs } from "expo-router";
-import { Platform } from "react-native";
-import { theme, withAlpha } from "@/constants/theme";
-import { TabIcon, TAB_INACTIVE_TINT, tabBarLabelStyle } from "@/components/ui/TabIcon";
+import { NativeTabs, Icon, Label, VectorIcon, Badge } from "expo-router/unstable-native-tabs";
+
+import { DynamicColorIOS, Platform } from "react-native";
+
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+
+import { theme } from "@/constants/theme";
+
+import { usePendingDashCount } from "@/hooks/usePendingDashCount";
+
+
 
 export const unstable_settings = {
+
   initialRouteName: "(hoje)",
+
 };
 
+
+
+const tabTint =
+
+  Platform.OS === "ios"
+
+    ? DynamicColorIOS({
+
+        dark: theme.colors.primary.DEFAULT,
+
+        light: theme.colors.primary.container,
+
+      })
+
+    : theme.colors.primary.DEFAULT;
+
+
+
 export default function TabLayout() {
+
+  const pendingDash = usePendingDashCount();
+
+  const badgeLabel =
+
+    pendingDash > 0 ? (pendingDash > 99 ? "99+" : String(pendingDash)) : undefined;
+
+
+
   return (
-    <Tabs
-      initialRouteName="(hoje)"
-      screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary.DEFAULT,
-        tabBarInactiveTintColor: TAB_INACTIVE_TINT,
-        tabBarLabelStyle: tabBarLabelStyle,
-        tabBarStyle: {
-          backgroundColor: theme.colors.background,
-          borderTopColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.05),
-          borderTopWidth: 1,
-          height: Platform.OS === "ios" ? 88 : 68,
-          paddingTop: 8,
-          paddingBottom: Platform.OS === "ios" ? 28 : 8,
-        },
-        headerStyle: {
-          backgroundColor: theme.colors.background,
-        },
-        headerTintColor: theme.colors.onSurface.DEFAULT,
-      }}
-    >
-      <Tabs.Screen
-        name="(hoje)"
-        options={{
-          title: "Dash",
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="grid" focused={focused} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="(treino)"
-        options={{
-          title: "Train",
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="barbell" focused={focused} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="(historico)"
-        options={{
-          title: "Logs",
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="document-text" focused={focused} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="(progresso)"
-        options={{
-          title: "Stats",
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="analytics" focused={focused} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="index"
-        options={{
-          href: null,
-        }}
-      />
-    </Tabs>
+
+    <NativeTabs tintColor={tabTint}>
+
+      <NativeTabs.Trigger name="(hoje)">
+
+        <Icon
+
+          sf={{ default: "checkmark.circle", selected: "checkmark.circle.fill" }}
+
+          androidSrc={
+
+            Platform.OS === "android"
+
+              ? {
+
+                  default: (
+
+                    <VectorIcon
+
+                      family={MaterialCommunityIcons}
+
+                      name="check-circle-outline"
+
+                    />
+
+                  ),
+
+                  selected: (
+
+                    <VectorIcon family={MaterialCommunityIcons} name="check-circle" />
+
+                  ),
+
+                }
+
+              : undefined
+
+          }
+
+        />
+
+        <Label>Today</Label>
+
+        {badgeLabel ? <Badge>{badgeLabel}</Badge> : null}
+
+      </NativeTabs.Trigger>
+
+
+
+      <NativeTabs.Trigger name="(treino)">
+
+        <Icon
+
+          sf={{ default: "dumbbell", selected: "dumbbell.fill" }}
+
+          androidSrc={
+
+            Platform.OS === "android"
+
+              ? {
+
+                  default: <VectorIcon family={MaterialCommunityIcons} name="dumbbell" />,
+
+                  selected: <VectorIcon family={MaterialCommunityIcons} name="dumbbell" />,
+
+                }
+
+              : undefined
+
+          }
+
+        />
+
+        <Label>Workout</Label>
+
+      </NativeTabs.Trigger>
+
+
+
+      <NativeTabs.Trigger name="(historico)">
+
+        <Icon
+
+          sf={{ default: "calendar", selected: "calendar" }}
+
+          androidSrc={
+
+            Platform.OS === "android"
+
+              ? {
+
+                  default: (
+
+                    <VectorIcon
+
+                      family={MaterialCommunityIcons}
+
+                      name="calendar-month-outline"
+
+                    />
+
+                  ),
+
+                  selected: (
+
+                    <VectorIcon family={MaterialCommunityIcons} name="calendar-month" />
+
+                  ),
+
+                }
+
+              : undefined
+
+          }
+
+        />
+
+        <Label>Logs</Label>
+
+      </NativeTabs.Trigger>
+
+
+
+      <NativeTabs.Trigger name="(progresso)">
+
+        <Icon
+
+          sf={{ default: "chart.bar", selected: "chart.bar.fill" }}
+
+          androidSrc={
+
+            Platform.OS === "android"
+
+              ? {
+
+                  default: <VectorIcon family={MaterialCommunityIcons} name="chart-bar" />,
+
+                  selected: <VectorIcon family={MaterialCommunityIcons} name="chart-bar" />,
+
+                }
+
+              : undefined
+
+          }
+
+        />
+
+        <Label>Stats</Label>
+
+      </NativeTabs.Trigger>
+
+    </NativeTabs>
+
   );
+
 }
+
+

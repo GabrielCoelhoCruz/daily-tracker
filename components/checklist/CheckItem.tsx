@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from "react-native";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme, withAlpha } from "@/constants/theme";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { useDayStore } from "@/stores/useDayStore";
 import { animateWithHaptic } from "@/utils/animationUtils";
 import type { ItemDoPlano } from "@/data/plano";
@@ -82,10 +82,12 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
         }}
       >
         {isChecked && (
-          <MaterialCommunityIcons
-            name="check"
+          <AppIcon
+            sf="checkmark"
+            mci="check"
             size={12}
             color={theme.colors.background}
+            weight="bold"
           />
         )}
       </View>

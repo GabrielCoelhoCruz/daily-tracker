@@ -1,11 +1,10 @@
 import { ScrollView, View, Text, Pressable, Image } from "react-native";
 import { router } from "expo-router";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme } from "@/constants/theme";
 import { usePhysiqueStore, MODE_LABELS, type PhysiqueCheckIn } from "@/stores/usePhysiqueStore";
 import { useAthleteStore } from "@/stores/useAthleteStore";
 import { Card } from "@/components/ui/Card";
-import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
 import { WeightDelta } from "@/components/physique/WeightDelta";
 import { EvolutionChart } from "@/components/physique/EvolutionChart";
@@ -80,19 +79,19 @@ export default function ProgressoScreen() {
 
   if (!profileComplete) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <ScreenHeader />
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{
-            alignItems: "center",
-            paddingHorizontal: 16,
-            paddingVertical: 64,
-            gap: 12,
-          }}
-        >
-          <MaterialCommunityIcons
-            name="account-outline"
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={{
+          alignItems: "center",
+          paddingHorizontal: 16,
+          paddingVertical: 64,
+          paddingBottom: bottomPadding,
+          gap: 12,
+        }}
+      >
+          <AppIcon
+            sf="person.crop.circle"
+            mci="account-outline"
             size={48}
             color={theme.colors.text.muted}
           />
@@ -120,22 +119,19 @@ export default function ProgressoScreen() {
               Configurar Perfil
             </Text>
           </Pressable>
-        </ScrollView>
-      </View>
+      </ScrollView>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <ScreenHeader />
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{
-          padding: 16,
-          paddingBottom: bottomPadding,
-          gap: 12,
-        }}
-      >
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{
+        padding: 16,
+        paddingBottom: bottomPadding,
+        gap: 12,
+      }}
+    >
         <Pressable
           onPress={() => router.push("./profile" as any)}
           accessibilityRole="button"
@@ -147,16 +143,18 @@ export default function ProgressoScreen() {
               style={{ padding: 12 }}
             >
               <View className="flex-row items-center" style={{ gap: 8 }}>
-                <MaterialCommunityIcons
-                  name="account-circle-outline"
+                <AppIcon
+                  sf="person.crop.circle"
+                  mci="account-circle-outline"
                   size={20}
                   color={theme.colors.accent.DEFAULT}
                 />
                 <Text style={theme.typography.body}>{athleteName}</Text>
               </View>
-              <MaterialCommunityIcons
-                name="chevron-right"
-                size={20}
+              <AppIcon
+                sf="chevron.right"
+                mci="chevron-right"
+                size={16}
                 color={theme.colors.text.muted}
               />
             </View>
@@ -174,16 +172,18 @@ export default function ProgressoScreen() {
               style={{ padding: 12 }}
             >
               <View className="flex-row items-center" style={{ gap: 8 }}>
-                <MaterialCommunityIcons
-                  name="magnify"
+                <AppIcon
+                  sf="magnifyingglass"
+                  mci="magnify"
                   size={20}
                   color={theme.colors.accent.DEFAULT}
                 />
                 <Text style={theme.typography.body}>Category Finder</Text>
               </View>
-              <MaterialCommunityIcons
-                name="chevron-right"
-                size={20}
+              <AppIcon
+                sf="chevron.right"
+                mci="chevron-right"
+                size={16}
                 color={theme.colors.text.muted}
               />
             </View>
@@ -192,8 +192,9 @@ export default function ProgressoScreen() {
 
         {sorted.length === 0 ? (
           <View className="items-center py-16" style={{ gap: 12 }}>
-            <MaterialCommunityIcons
-              name="chart-timeline-variant-shimmer"
+            <AppIcon
+              sf="chart.line.uptrend.xyaxis"
+              mci="chart-timeline-variant-shimmer"
               size={48}
               color={theme.colors.text.muted}
             />
@@ -256,8 +257,9 @@ export default function ProgressoScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Comparar check-ins"
               >
-                <MaterialCommunityIcons
-                  name="compare"
+                <AppIcon
+                  sf="square.on.square"
+                  mci="compare"
                   size={20}
                   color={theme.colors.text.primary}
                 />
@@ -269,7 +271,6 @@ export default function ProgressoScreen() {
             ))}
           </>
         )}
-      </ScrollView>
-    </View>
+    </ScrollView>
   );
 }

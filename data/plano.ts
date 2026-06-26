@@ -43,10 +43,10 @@ export type Plano = {
 };
 
 export const plano: Plano = {
-  nome: "Plano Fev/2026 - Team GB",
-  descricao: "Gabriel Cruz - Fevereiro 2026",
-  metaHidratacao: { aguaMl: 4000, chaMl: 500 },
-  metaCardioMin: 80,
+  nome: "Plano Maio/2026 - Team GB",
+  descricao: "Gabriel Cruz - Maio 2026",
+  metaHidratacao: { aguaMl: 4000, chaMl: 1000 },
+  metaCardioMin: 90,
   periodos: [
     {
       id: "jejum",
@@ -71,6 +71,12 @@ export const plano: Plano = {
           categoria: "suplemento",
         },
         {
+          id: "jejum-clembuterol",
+          nome: "Clembuterol",
+          dosagem: "2ml (50mcg)",
+          categoria: "suplemento",
+        },
+        {
           id: "jejum-anastrozol",
           nome: "Anastrozol",
           dosagem: "0.5mg",
@@ -82,36 +88,36 @@ export const plano: Plano = {
     {
       id: "ref1",
       nome: "Refeição 1",
-      descricao: "Desjejum / Pré treino",
+      descricao: "Desjejum",
       itens: [
-        {
-          id: "ref1-claras",
-          nome: "Claras de ovo",
-          dosagem: "6 unidades",
-          categoria: "refeicao",
-        },
         {
           id: "ref1-ovos",
           nome: "Ovos inteiros",
-          dosagem: "2 unidades",
+          dosagem: "3 unidades",
+          categoria: "refeicao",
+        },
+        {
+          id: "ref1-whey",
+          nome: "Killer Whey",
+          dosagem: "30g",
           categoria: "refeicao",
         },
         {
           id: "ref1-aveia",
           nome: "Aveia",
-          dosagem: "30g",
+          dosagem: "25g",
           categoria: "refeicao",
         },
         {
-          id: "ref1-mamao",
-          nome: "Mamão",
+          id: "ref1-morango",
+          nome: "Morango",
           dosagem: "100g",
           categoria: "refeicao",
         },
         {
           id: "ref1-chia",
-          nome: "Chia",
-          dosagem: "10g",
+          nome: "Semente de chia",
+          dosagem: "5g",
           categoria: "refeicao",
         },
         {
@@ -139,6 +145,7 @@ export const plano: Plano = {
             {
               id: "ref1-poli",
               nome: "Polivitamínico TEAM GB",
+              dosagem: "1 dose",
               categoria: "suplemento",
             },
             {
@@ -166,15 +173,27 @@ export const plano: Plano = {
               categoria: "suplemento",
             },
             {
-              id: "ref1-nattokinase",
-              nome: "Nattokinase",
-              dosagem: "150mg",
-              categoria: "suplemento",
-            },
-            {
               id: "ref1-dobesilato",
               nome: "Dobesilato de Cálcio",
               dosagem: "500mg",
+              categoria: "suplemento",
+            },
+            {
+              id: "ref1-pioglitazona",
+              nome: "Pioglitazona",
+              dosagem: "15mg",
+              categoria: "suplemento",
+            },
+            {
+              id: "ref1-acido-lipoico",
+              nome: "Ácido alfa lipóico",
+              dosagem: "600mg",
+              categoria: "suplemento",
+            },
+            {
+              id: "ref1-cromo",
+              nome: "Picolinato de Cromo",
+              dosagem: "400mcg",
               categoria: "suplemento",
             },
           ],
@@ -188,20 +207,20 @@ export const plano: Plano = {
       itens: [
         {
           id: "ref2-proteina",
-          nome: "Frango ou tilápia",
-          dosagem: "180g",
+          nome: "Peito de frango ou filé de tilápia",
+          dosagem: "225g",
           categoria: "refeicao",
         },
         {
-          id: "ref2-carbo",
-          nome: "Arroz ou macarrão",
-          dosagem: "90g",
+          id: "ref2-batata",
+          nome: "Batata inglesa",
+          dosagem: "100g",
           categoria: "refeicao",
         },
         {
           id: "ref2-azeite",
-          nome: "Azeite",
-          dosagem: "8g",
+          nome: "Azeite de oliva extra virgem",
+          dosagem: "15g",
           categoria: "refeicao",
         },
         {
@@ -221,6 +240,12 @@ export const plano: Plano = {
           categoria: "suplemento",
           subItens: [
             {
+              id: "ref2-cromo",
+              nome: "Picolinato de Cromo",
+              dosagem: "400mcg",
+              categoria: "suplemento",
+            },
+            {
               id: "ref2-cafeina",
               nome: "Cafeína",
               dosagem: "220mg",
@@ -239,17 +264,22 @@ export const plano: Plano = {
               categoria: "suplemento",
             },
             {
+              id: "ref2-clembuterol",
+              nome: "Clembuterol",
+              dosagem: "2ml (50mcg)",
+              categoria: "suplemento",
+            },
+            {
               id: "ref2-vitc",
               nome: "Vitamina C",
               dosagem: "1g",
               categoria: "suplemento",
             },
             {
-              id: "ref2-oxandrolona",
-              nome: "Oxandrolona",
-              dosagem: "40mg",
+              id: "ref2-acido-lipoico",
+              nome: "Ácido alfa lipóico",
+              dosagem: "600mg",
               categoria: "suplemento",
-              regra: { apenasEmDiaDeTreino: true },
             },
           ],
         },
@@ -294,45 +324,14 @@ export const plano: Plano = {
         {
           id: "ref3-whey",
           nome: "Killer Whey",
-          dosagem: "40g",
+          dosagem: "60g",
           categoria: "refeicao",
         },
         {
-          id: "ref3-morango",
-          nome: "Morango",
-          dosagem: "100g",
-          categoria: "refeicao",
-        },
-        {
-          id: "ref3-suplementos",
-          nome: "Suplementos",
+          id: "ref3-nac",
+          nome: "NAC",
+          dosagem: "600mg",
           categoria: "suplemento",
-          subItens: [
-            {
-              id: "ref3-glifage",
-              nome: "Glifage XR",
-              dosagem: "500mg",
-              categoria: "suplemento",
-            },
-            {
-              id: "ref3-nac",
-              nome: "NAC",
-              dosagem: "600mg",
-              categoria: "suplemento",
-            },
-            {
-              id: "ref3-cromo",
-              nome: "Picolinato de Cromo",
-              dosagem: "350mcg",
-              categoria: "suplemento",
-            },
-            {
-              id: "ref3-cafeina",
-              nome: "Cafeína",
-              dosagem: "210mg",
-              categoria: "suplemento",
-            },
-          ],
         },
       ],
     },
@@ -342,26 +341,14 @@ export const plano: Plano = {
       itens: [
         {
           id: "ref4-proteina",
-          nome: "Frango ou tilápia",
-          dosagem: "180g",
-          categoria: "refeicao",
-        },
-        {
-          id: "ref4-batata",
-          nome: "Batata",
-          dosagem: "90g",
-          categoria: "refeicao",
-        },
-        {
-          id: "ref4-fruta",
-          nome: "Abacaxi ou kiwi",
-          dosagem: "100g",
+          nome: "Peito de frango ou filé de tilápia",
+          dosagem: "225g",
           categoria: "refeicao",
         },
         {
           id: "ref4-azeite",
-          nome: "Azeite",
-          dosagem: "8g",
+          nome: "Azeite de oliva extra virgem",
+          dosagem: "15g",
           categoria: "refeicao",
         },
         {
@@ -383,27 +370,27 @@ export const plano: Plano = {
       descricao: "Ceia",
       itens: [
         {
-          id: "ref5-carne",
-          nome: "Carne vermelha magra",
-          dosagem: "180g",
+          id: "ref5-proteina",
+          nome: "Peito de frango ou filé de tilápia",
+          dosagem: "200g",
           categoria: "refeicao",
         },
         {
-          id: "ref5-ovos",
-          nome: "Ovos",
-          dosagem: "2 unidades",
+          id: "ref5-ovo",
+          nome: "Ovo inteiro",
+          dosagem: "1 unidade",
           categoria: "refeicao",
         },
         {
-          id: "ref5-batata",
-          nome: "Batata",
-          dosagem: "90g",
-          categoria: "refeicao",
-        },
-        {
-          id: "ref5-mamao",
-          nome: "Mamão",
+          id: "ref5-fruta",
+          nome: "Mamão ou abacaxi",
           dosagem: "100g",
+          categoria: "refeicao",
+        },
+        {
+          id: "ref5-oleaginosas",
+          nome: "Amêndoas ou castanhas do pará",
+          dosagem: "15g",
           categoria: "refeicao",
         },
         {
@@ -431,7 +418,7 @@ export const plano: Plano = {
             {
               id: "ref5-glifage",
               nome: "Glifage XR",
-              dosagem: "500mg",
+              dosagem: "750mg",
               categoria: "suplemento",
             },
             {
@@ -453,9 +440,21 @@ export const plano: Plano = {
               categoria: "suplemento",
             },
             {
-              id: "ref5-nattokinase",
-              nome: "Nattokinase",
-              dosagem: "150mg",
+              id: "ref5-acido-lipoico",
+              nome: "Ácido alfa lipóico",
+              dosagem: "600mg",
+              categoria: "suplemento",
+            },
+            {
+              id: "ref5-cromo",
+              nome: "Picolinato de Cromo",
+              dosagem: "400mcg",
+              categoria: "suplemento",
+            },
+            {
+              id: "ref5-cetotifeno",
+              nome: "Fumarato de cetotifeno",
+              dosagem: "2mg (xarope)",
               categoria: "suplemento",
             },
           ],
@@ -469,23 +468,23 @@ export const plano: Plano = {
         {
           id: "hormonal-enantest",
           nome: "Enantest",
-          dosagem: "150mg",
+          dosagem: "175mg",
           categoria: "hormonal",
           regra: { diasDaSemana: [1, 3, 5] },
         },
         {
           id: "hormonal-masteron",
           nome: "Masteron",
-          dosagem: "100mg",
+          dosagem: "125mg",
           categoria: "hormonal",
           regra: { diasDaSemana: [1, 3, 5] },
         },
         {
-          id: "hormonal-trembolona",
-          nome: "Trembolona",
-          dosagem: "75mg",
+          id: "hormonal-retatrutida",
+          nome: "Retatrutida",
+          dosagem: "2.5mg",
           categoria: "hormonal",
-          regra: { diasDaSemana: [1, 3, 5] },
+          regra: { diasDaSemana: [1] },
         },
       ],
     },
