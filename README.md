@@ -19,7 +19,7 @@
 
 <br/><br/>
 
-<img src="https://img.shields.io/badge/EXPO_SDK-55-4630EB?style=flat-square&logo=expo&logoColor=white&labelColor=151312" />
+<img src="https://img.shields.io/badge/EXPO_SDK-54-4630EB?style=flat-square&logo=expo&logoColor=white&labelColor=151312" />
 &nbsp;
 <img src="https://img.shields.io/badge/REACT_NATIVE-0.81-61DAFB?style=flat-square&logo=react&logoColor=61DAFB&labelColor=151312" />
 &nbsp;
@@ -76,7 +76,9 @@
 
 ## <samp>OVERVIEW</samp>
 
-DailyTracker is an **offline-first** React Native app for competitive bodybuilding athletes. It covers the full daily protocol — meal timing, supplement tracking, hydration targets, cardio sessions — and goes further with **AI-powered physique analysis** that evaluates progress photos against IFBB/NPC competition standards.
+DailyTracker is an **offline-first** React Native app built for competitive bodybuilding athletes. It covers the full daily protocol — meal timing, supplement tracking, hydration targets, cardio sessions — and goes further with **AI-powered physique analysis** that evaluates progress photos against IFBB/NPC competition standards.
+
+> **Why this exists** — I'm a full-stack developer (React, TypeScript, Python, AWS) who also competes in bodybuilding. I wanted an app that could track my cutting prep with the rigor it deserves: conditional meal plans, hydration goals, training periodization, and — most importantly — AI-powered feedback on my progress photos using real IFBB judging criteria. Existing fitness apps don't understand competitive bodybuilding, so I built one.
 
 <br/>
 
@@ -124,7 +126,7 @@ DailyTracker is an **offline-first** React Native app for competitive bodybuildi
 
 | | Layer | Technology | Version |
 |:---:|:---|:---|:---:|
-| ⚡ | **Framework** | Expo + Expo Router | SDK 55 / v6 |
+| ⚡ | **Framework** | Expo + Expo Router | SDK 54 / v6 |
 | 🔷 | **Language** | TypeScript (strict) | 5.8 |
 | 📱 | **UI** | React Native + NativeWind | 0.81 / v4 |
 | 🗃️ | **State** | Zustand + AsyncStorage | 5.0 |
@@ -638,7 +640,7 @@ Profile complete?
 ### <samp>INSTALL</samp>
 
 ```bash
-git clone https://github.com/GabrielCoelhoCruz/planTracker.git
+git clone https://github.com/GabrielCoelhoCruz/daily-tracker.git
 cd planTracker
 npm install
 ```
@@ -670,6 +672,33 @@ eas build --profile production --platform all      # Production
 
 <br/>
 
+## <samp>PROJECT STATUS</samp>
+
+<div align="center">
+<br/>
+<img src="https://img.shields.io/badge/STATUS-ACTIVE-f59e0b?style=flat-square&labelColor=151312" />
+&ensp;
+<img src="https://img.shields.io/badge/TESTS-PASSING_CATEGORYFINDER-22c55e?style=flat-square&labelColor=151312" />
+&ensp;
+<img src="https://img.shields.io/badge/DEPLOY-EAS_BUILD_READY-4630EB?style=flat-square&logo=expo&labelColor=151312" />
+<br/><br/>
+</div>
+
+| Phase | Status | Description |
+|:---:|:---:|:---|
+| ✅ **Daily Protocol** | Complete | Checklist, hydration, cardio, free meal, notifications |
+| ✅ **Training Split** | Complete | 5-day A–E workout reference with periodization |
+| ✅ **History & Logs** | Complete | Calendar view, day detail, adherence stats, streaks |
+| ✅ **Category Finder** | Complete | 13 IFBB/NPC categories with eligibility calculator + tests |
+| ✅ **API Proxy** | Complete | Server-side prompt with rate limiting, input validation |
+| ✅ **Dynamic Profile** | Complete | Editable athlete profile with gender, height, weight |
+| 🟡 **AI Physique Analysis** | Beta | Claude Vision v3 prompt with 13 categories, female support |
+| ⬜ **GymLog (Workout Logging)** | Planned | Natural language training logging with AI parsing |
+| ⬜ **iOS Widget** | Planned | Home screen quick-glance of pending items |
+| ⬜ **Web Version** | Planned | Deploy to Vercel for portfolio demo |
+
+<br/>
+
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 
 ## <samp>SCRIPTS</samp>
@@ -697,7 +726,18 @@ eas build --profile production --platform all      # Production
 
 <samp><strong>BUILT WITH EXPO + CLAUDE API</strong></samp>
 
-<sup>Private project — all rights reserved.</sup>
+<br/>
+
+| | |
+|:---|:---|
+| **Author** | [Gabriel Cruz](https://github.com/GabrielCoelhoCruz) — Full-Stack Developer |
+| **Stack** | React, TypeScript, Python, AWS, React Native |
+| **License** | Private — all rights reserved |
+| **Status** | Active development |
+
+<br/>
+
+</samp>
 
 <br/><br/>
 
