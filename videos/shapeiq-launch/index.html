@@ -1,58 +1,446 @@
 <!doctype html>
-<html lang="en" data-resolution="portrait">
+<html lang="pt-BR" data-resolution="portrait">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1080, height=1920" />
+    <title>ShapeIQ Launch — 60s</title>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+      :root {
+        --bg: #0f0e0d;
+        --surface: #1d1b1a;
+        --surface-high: #221f1e;
+        --ink: #e8e1df;
+        --muted: #78716c;
+        --accent: #f59e0b;
+        --accent-dim: rgba(245, 158, 11, 0.12);
+        --gym-warm: rgba(180, 90, 30, 0.25);
+        --code-green: #51e77b;
       }
-      html,
-      body {
-        margin: 0;
-        width: 1080px;
-        height: 1920px;
-        overflow: hidden;
-        background: #000;
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px; height: 1920px; overflow: hidden;
+        background: var(--bg); font-family: Inter, system-ui, sans-serif; color: var(--ink);
       }
-      body {
-        font-family: "Inter", sans-serif;
+      .clip {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 80px 56px;
       }
-      code,
-      pre,
-      .monospace {
-        font-family: "JetBrains Mono", monospace;
+      .bg-gym {
+        position: absolute; inset: 0;
+        background:
+          radial-gradient(ellipse 90% 60% at 50% 100%, var(--gym-warm), transparent 65%),
+          radial-gradient(ellipse 70% 40% at 20% 20%, rgba(245,158,11,0.08), transparent),
+          var(--bg);
+      }
+      .bg-code {
+        position: absolute; inset: 0;
+        background:
+          radial-gradient(ellipse 80% 50% at 80% 20%, rgba(81,231,123,0.06), transparent),
+          linear-gradient(180deg, #0a0908 0%, #0f0e0d 100%);
+      }
+      .vignette {
+        position: absolute; inset: 0;
+        background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%);
+        pointer-events: none;
+      }
+      .kinetic-xl {
+        font-size: 88px; font-weight: 900; line-height: 1.05;
+        text-align: center; letter-spacing: -0.02em;
+      }
+      .kinetic-lg {
+        font-size: 64px; font-weight: 800; line-height: 1.1; text-align: center;
+      }
+      .kinetic-md {
+        font-size: 48px; font-weight: 700; line-height: 1.15; text-align: center;
+      }
+      .accent { color: var(--accent); }
+      .muted { color: var(--muted); }
+      .feature-tag {
+        position: absolute; top: 120px; left: 0; right: 0; text-align: center;
+        font-size: 28px; font-weight: 700; letter-spacing: 0.2em;
+        text-transform: uppercase; color: var(--accent);
+      }
+      .phone {
+        width: 420px; height: 860px; border-radius: 52px;
+        background: #000; border: 3px solid #373433;
+        box-shadow: 0 40px 120px rgba(0,0,0,0.7), inset 0 0 0 2px rgba(255,255,255,0.04);
+        overflow: hidden; position: relative; flex-shrink: 0;
+      }
+      .phone-notch {
+        position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+        width: 120px; height: 32px; background: #000; border-radius: 20px; z-index: 10;
+      }
+      .phone-screen {
+        position: absolute; inset: 8px; border-radius: 44px;
+        background: var(--bg); overflow: hidden; padding: 56px 20px 24px;
+        display: flex; flex-direction: column; gap: 14px;
+      }
+      .ui-header { font-size: 22px; font-weight: 700; color: var(--ink); }
+      .ui-sub { font-size: 14px; color: var(--muted); margin-top: 2px; }
+      .ui-card {
+        background: var(--surface); border-radius: 16px; padding: 16px;
+        border: 1px solid #373433;
+      }
+      .ui-card-accent {
+        background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05));
+        border: 1px solid rgba(245,158,11,0.3);
+      }
+      .ui-row { display: flex; justify-content: space-between; align-items: center; }
+      .ui-label { font-size: 13px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+      .ui-value { font-size: 28px; font-weight: 800; color: var(--accent); }
+      .ui-progress {
+        height: 6px; border-radius: 3px; background: #373433; margin-top: 10px; overflow: hidden;
+      }
+      .ui-progress-fill {
+        display: block; height: 100%; width: 72%; border-radius: 3px;
+        background: linear-gradient(90deg, var(--accent), #ffb95f);
+      }
+      .ui-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .ui-mini { padding: 12px; font-size: 12px; }
+      .ui-mini strong { display: block; font-size: 20px; color: var(--ink); margin-top: 4px; }
+      .ui-exercise {
+        display: flex; align-items: center; gap: 12px; padding: 12px 0;
+        border-bottom: 1px solid #373433;
+      }
+      .ui-exercise:last-child { border: none; }
+      .ui-dot {
+        width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0;
+      }
+      .ui-dot.done { background: #22c55e; }
+      .ui-cal {
+        display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px;
+      }
+      .ui-cal-day {
+        aspect-ratio: 1; border-radius: 6px; background: var(--surface-high);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; color: var(--muted);
+      }
+      .ui-cal-day.on { background: rgba(245,158,11,0.25); color: var(--accent); font-weight: 700; }
+      .ui-score-ring {
+        width: 140px; height: 140px; border-radius: 50%;
+        border: 6px solid var(--accent); display: flex; flex-direction: column;
+        align-items: center; justify-content: center; margin: 0 auto;
+        background: var(--accent-dim);
+      }
+      .ui-score-num { font-size: 42px; font-weight: 900; color: var(--accent); line-height: 1; }
+      .ui-score-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+      .ui-ai-badge {
+        display: inline-block; padding: 6px 12px; border-radius: 999px;
+        background: rgba(81,231,123,0.12); border: 1px solid rgba(81,231,123,0.35);
+        font-size: 11px; font-weight: 700; color: var(--code-green);
+        text-transform: uppercase; letter-spacing: 0.08em;
+      }
+      .code-panel {
+        width: 920px; border-radius: 16px; overflow: hidden;
+        border: 1px solid #373433; background: #151312;
+        box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      }
+      .code-bar {
+        display: flex; align-items: center; gap: 8px; padding: 14px 18px;
+        background: #1d1b1a; border-bottom: 1px solid #373433;
+      }
+      .code-dot { width: 12px; height: 12px; border-radius: 50%; }
+      .code-dot.r { background: #ef4444; }
+      .code-dot.y { background: #f59e0b; }
+      .code-dot.g { background: #22c55e; }
+      .code-title { margin-left: 12px; font-size: 13px; color: var(--muted); font-family: "JetBrains Mono", monospace; }
+      .code-body {
+        padding: 24px; font-family: "JetBrains Mono", monospace; font-size: 15px;
+        line-height: 1.6; color: #a08e7a;
+      }
+      .code-body .kw { color: #ffb95f; }
+      .code-body .fn { color: #51e77b; }
+      .code-body .str { color: #fbbf24; }
+      .code-body .cm { color: #534434; }
+      .stack-row {
+        display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 32px;
+      }
+      .stack-pill {
+        padding: 10px 20px; border-radius: 999px;
+        background: var(--surface); border: 1px solid #373433;
+        font-size: 16px; font-weight: 600; color: var(--ink);
+      }
+      .brand-block { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+      .brand-icon {
+        width: 120px; height: 120px; border-radius: 28px;
+        box-shadow: 0 16px 48px rgba(245,158,11,0.2);
+      }
+      .brand-name { font-size: 96px; font-weight: 900; letter-spacing: -0.03em; }
+      .brand-tag { font-size: 26px; font-weight: 600; color: var(--muted); text-align: center; max-width: 700px; line-height: 1.4; }
+      .split-scene {
+        display: grid; grid-template-columns: 1fr 1fr; width: 100%; height: 100%;
+        position: absolute; inset: 0;
+      }
+      .split-gym, .split-code {
+        display: flex; align-items: center; justify-content: center; overflow: hidden;
+      }
+      .split-gym { background: radial-gradient(circle at 50% 80%, var(--gym-warm), var(--bg)); }
+      .split-code { background: #0a0908; }
+      .split-icon { font-size: 80px; opacity: 0.3; }
+      .tabs-row {
+        display: flex; gap: 8px; justify-content: center; margin-top: 24px;
+      }
+      .tab-pill {
+        padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 600;
+        background: var(--surface); color: var(--muted); border: 1px solid #373433;
+      }
+      .tab-pill.active { background: var(--accent-dim); color: var(--accent); border-color: rgba(245,158,11,0.4); }
+      .cta-github { font-size: 22px; color: var(--muted); font-weight: 600; margin-top: 16px; font-family: "JetBrains Mono", monospace; }
+      .word-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 20px 32px; max-width: 800px;
+      }
+      .word-cell {
+        font-size: 40px; font-weight: 800; text-align: center;
+        padding: 24px; border-radius: 16px; background: rgba(250,250,249,0.03);
+        border: 1px solid rgba(250,250,249,0.06);
       }
     </style>
   </head>
   <body>
-    <div
-      id="root"
-      data-composition-id="main"
-      data-start="0"
-      data-duration="10"
-      data-width="1080"
-      data-height="1920"
-    >
-      
-      
+    <div id="root" data-composition-id="main" data-duration="60" data-width="1080" data-height="1920">
 
-      <!--
-        Add your clips here. Example:
-        <div id="title" class="clip" data-start="0" data-duration="5" data-track-index="1"
-             style="font-size: 64px; color: #fff; padding: 40px">
-          Hello World
+      <!-- 1 Hook 0–4s -->
+      <section id="s1" class="clip" data-start="0" data-duration="4" data-track-index="1">
+        <div class="bg-gym"></div>
+        <div class="vignette"></div>
+        <div class="kinetic-xl" id="s1-l1">Apps fitness</div>
+        <div class="kinetic-xl accent" id="s1-l2" style="margin-top:12px">não entendem prep.</div>
+      </section>
+
+      <!-- 2 Pain 4–9s -->
+      <section id="s2" class="clip" data-start="4" data-duration="5" data-track-index="1">
+        <div class="bg-gym"></div>
+        <div class="vignette"></div>
+        <div class="word-grid">
+          <div class="word-cell" id="s2-w1">Dieta.</div>
+          <div class="word-cell" id="s2-w2">Cardio.</div>
+          <div class="word-cell" id="s2-w3">Treino.</div>
+          <div class="word-cell accent" id="s2-w4">Check-in.</div>
         </div>
-      -->
+      </section>
+
+      <!-- 3 Turn 9–13s -->
+      <section id="s3" class="clip" data-start="9" data-duration="4" data-track-index="1">
+        <div class="split-scene">
+          <div class="split-gym" id="s3-gym"><span class="split-icon">🏋</span></div>
+          <div class="split-code" id="s3-code"><span class="split-icon" style="color:#51e77b;font-family:monospace">&lt;/&gt;</span></div>
+        </div>
+        <div class="vignette"></div>
+        <div class="kinetic-lg" id="s3-t1" style="position:relative;z-index:2">Então eu</div>
+        <div class="kinetic-lg accent" id="s3-t2" style="position:relative;z-index:2;margin-top:8px">construí o meu.</div>
+      </section>
+
+      <!-- 4 Brand 13–17s -->
+      <section id="s4" class="clip" data-start="13" data-duration="4" data-track-index="1">
+        <div class="bg-gym"></div>
+        <div class="brand-block">
+          <img class="brand-icon" id="s4-icon" src="assets/icon.png" alt="" />
+          <div class="brand-name" id="s4-name">Shape<span class="accent">IQ</span></div>
+          <div class="brand-tag" id="s4-tag">Seu prep. Seu shape. Com IA.</div>
+        </div>
+      </section>
+
+      <!-- 5 Briefing 17–23s -->
+      <section id="s5" class="clip" data-start="17" data-duration="6" data-track-index="1">
+        <div class="bg-gym"></div>
+        <div class="feature-tag" id="s5-tag">Today Briefing</div>
+        <div class="phone" id="s5-phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div><div class="ui-header">Hoje</div><div class="ui-sub">Sexta · Protocolo A</div></div>
+            <div class="ui-card ui-card-accent">
+              <div class="ui-label">Próxima ação</div>
+              <div style="font-size:18px;font-weight:700;margin-top:6px">Refeição 3 — 200g frango</div>
+            </div>
+            <div class="ui-card">
+              <div class="ui-row"><span class="ui-label">Protocolo</span><span class="ui-value">68%</span></div>
+              <div class="ui-progress"><span class="ui-progress-fill"></span></div>
+            </div>
+            <div class="ui-grid-2">
+              <div class="ui-card ui-mini"><span class="ui-label">Água</span><strong>2.4L</strong></div>
+              <div class="ui-card ui-mini"><span class="ui-label">Cardio</span><strong>35 min</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 Training 23–29s -->
+      <section id="s6" class="clip" data-start="23" data-duration="6" data-track-index="1">
+        <div class="bg-gym"></div>
+        <div class="feature-tag" id="s6-tag">Training Session</div>
+        <div class="phone" id="s6-phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div><div class="ui-header">Treino A</div><div class="ui-sub">Peito · Ombros · Tríceps</div></div>
+            <div class="ui-card ui-card-accent">
+              <div class="ui-label">Current lift</div>
+              <div style="font-size:22px;font-weight:800;margin-top:6px">Supino reto</div>
+              <div style="font-size:15px;color:var(--muted);margin-top:4px">Série 3 · 8 reps · 80kg</div>
+            </div>
+            <div class="ui-card">
+              <div class="ui-row"><span class="ui-label">Sessão</span><span class="ui-value">4/7</span></div>
+              <div class="ui-progress"><span class="ui-progress-fill" style="width:57%"></span></div>
+            </div>
+            <div class="ui-card" style="padding:8px 16px">
+              <div class="ui-exercise"><span class="ui-dot done"></span><span>Supino inclinado</span></div>
+              <div class="ui-exercise"><span class="ui-dot"></span><span>Crucifixo</span></div>
+              <div class="ui-exercise"><span class="ui-dot"></span><span>Desenvolvimento</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 Logs 29–35s -->
+      <section id="s7" class="clip" data-start="29" data-duration="6" data-track-index="1">
+        <div class="bg-gym"></div>
+        <div class="feature-tag" id="s7-tag">Prep Review</div>
+        <div class="phone" id="s7-phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div><div class="ui-header">Logs</div><div class="ui-sub">Aderência semanal</div></div>
+            <div class="ui-card">
+              <div class="ui-row"><span class="ui-label">Esta semana</span><span class="ui-value">86%</span></div>
+              <div class="ui-cal">
+                <div class="ui-cal-day on">S</div><div class="ui-cal-day on">T</div><div class="ui-cal-day on">Q</div>
+                <div class="ui-cal-day on">Q</div><div class="ui-cal-day on">S</div><div class="ui-cal-day">S</div><div class="ui-cal-day">D</div>
+              </div>
+            </div>
+            <div class="ui-card ui-card-accent">
+              <div class="ui-label">Padrão detectado</div>
+              <div style="font-size:15px;margin-top:6px;line-height:1.4">Cardio cai sexta e sábado. Hidratação consistente.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 Physique 35–44s -->
+      <section id="s8" class="clip" data-start="35" data-duration="9" data-track-index="1">
+        <div class="bg-gym"></div>
+        <div class="feature-tag" id="s8-tag">Physique Intelligence</div>
+        <div class="phone" id="s8-phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="ui-row"><div class="ui-header">Stats</div><span class="ui-ai-badge">Claude Vision</span></div>
+            <div class="ui-score-ring">
+              <div class="ui-score-num">78</div>
+              <div class="ui-score-label">Stage Ready</div>
+            </div>
+            <div class="ui-grid-2">
+              <div class="ui-card ui-mini"><span class="ui-label">Condicionamento</span><strong>82</strong></div>
+              <div class="ui-card ui-mini"><span class="ui-label">Simetria</span><strong>74</strong></div>
+              <div class="ui-card ui-mini"><span class="ui-label">V-Taper</span><strong>79</strong></div>
+              <div class="ui-card ui-mini"><span class="ui-label">Fullness</span><strong>71</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9 Tech 44–51s -->
+      <section id="s9" class="clip" data-start="44" data-duration="7" data-track-index="1">
+        <div class="bg-code"></div>
+        <div class="code-panel" id="s9-code">
+          <div class="code-bar">
+            <span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span>
+            <span class="code-title">analyzePhysique.ts</span>
+          </div>
+          <div class="code-body">
+            <span class="kw">const</span> analysis = <span class="kw">await</span> <span class="fn">claudeVision</span>({<br />
+            &nbsp;&nbsp;images: checkIn.photos,<br />
+            &nbsp;&nbsp;criteria: <span class="str">"IFBB/NPC"</span>,<br />
+            &nbsp;&nbsp;focus: [<span class="str">"conditioning"</span>, <span class="str">"symmetry"</span>],<br />
+            });<br />
+            <span class="cm">// stage readiness → structured scores</span>
+          </div>
+        </div>
+        <div class="stack-row" id="s9-stack">
+          <span class="stack-pill">Expo</span>
+          <span class="stack-pill">React Native</span>
+          <span class="stack-pill">TypeScript</span>
+          <span class="stack-pill accent" style="border-color:rgba(245,158,11,0.4)">Claude Vision</span>
+        </div>
+      </section>
+
+      <!-- 10 Close 51–58s -->
+      <section id="s10" class="clip" data-start="51" data-duration="7" data-track-index="1">
+        <div class="bg-gym"></div>
+        <div class="brand-block">
+          <img class="brand-icon" id="s10-icon" src="assets/icon.png" alt="" />
+          <div class="brand-name" id="s10-name">Shape<span class="accent">IQ</span></div>
+          <div class="brand-tag" id="s10-tag">Seu prep. Seu shape. Com IA.</div>
+          <div class="tabs-row" id="s10-tabs">
+            <span class="tab-pill active">Dash</span>
+            <span class="tab-pill active">Train</span>
+            <span class="tab-pill active">Logs</span>
+            <span class="tab-pill active">Stats</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11 CTA 58–60s -->
+      <section id="s11" class="clip" data-start="58" data-duration="2" data-track-index="1">
+        <div class="bg-code"></div>
+        <div class="brand-block">
+          <div class="brand-name" id="s11-name" style="font-size:72px">Shape<span class="accent">IQ</span></div>
+          <div class="brand-tag" id="s11-sub" style="font-size:20px">AI bodybuilding prep companion</div>
+          <div class="cta-github" id="s11-gh">GitHub: GabrielCoelhoCruz</div>
+        </div>
+      </section>
     </div>
 
     <script>
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
-      // Example: tl.from("#title", { opacity: 0, y: -50, duration: 1 }, 0);
+
+      // S1 Hook
+      tl.from("#s1-l1", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" }, 0.15);
+      tl.from("#s1-l2", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" }, 0.45);
+
+      // S2 Pain
+      tl.from(["#s2-w1","#s2-w2","#s2-w3","#s2-w4"], { scale: 0.85, opacity: 0, duration: 0.35, stagger: 0.1, ease: "back.out(1.5)" }, 4.2);
+
+      // S3 Turn
+      tl.from("#s3-gym", { x: "-100%", duration: 0.4, ease: "power2.inOut" }, 9.1);
+      tl.from("#s3-code", { x: "100%", duration: 0.4, ease: "power2.inOut" }, 9.1);
+      tl.from("#s3-t1", { opacity: 0, scale: 0.9, duration: 0.4, ease: "power3.out" }, 9.6);
+      tl.from("#s3-t2", { opacity: 0, scale: 0.9, duration: 0.4, ease: "power3.out" }, 9.85);
+
+      // S4 Brand
+      tl.from("#s4-icon", { scale: 0.6, opacity: 0, duration: 0.5, ease: "back.out(1.7)" }, 13.2);
+      tl.from("#s4-name", { y: 30, opacity: 0, duration: 0.45, ease: "power3.out" }, 13.5);
+      tl.from("#s4-tag", { y: 20, opacity: 0, duration: 0.4, ease: "power2.out" }, 13.75);
+
+      // S5 Briefing
+      tl.from("#s5-tag", { y: -20, opacity: 0, duration: 0.35, ease: "power2.out" }, 17.2);
+      tl.from("#s5-phone", { y: 80, opacity: 0, duration: 0.55, ease: "power3.out" }, 17.4);
+
+      // S6 Training
+      tl.from("#s6-tag", { y: -20, opacity: 0, duration: 0.35, ease: "power2.out" }, 23.2);
+      tl.from("#s6-phone", { y: 80, opacity: 0, duration: 0.55, ease: "power3.out" }, 23.4);
+
+      // S7 Logs
+      tl.from("#s7-tag", { y: -20, opacity: 0, duration: 0.35, ease: "power2.out" }, 29.2);
+      tl.from("#s7-phone", { y: 80, opacity: 0, duration: 0.55, ease: "power3.out" }, 29.4);
+
+      // S8 Physique
+      tl.from("#s8-tag", { y: -20, opacity: 0, duration: 0.35, ease: "power2.out" }, 35.2);
+      tl.from("#s8-phone", { y: 80, opacity: 0, duration: 0.55, ease: "power3.out" }, 35.4);
+
+      // S9 Tech
+      tl.from("#s9-code", { y: 40, opacity: 0, duration: 0.5, ease: "power3.out" }, 44.2);
+      tl.from("#s9-stack .stack-pill", { y: 20, opacity: 0, duration: 0.35, stagger: 0.08, ease: "power2.out" }, 44.7);
+
+      // S10 Close
+      tl.from("#s10-icon", { scale: 0.8, opacity: 0, duration: 0.45, ease: "back.out(1.5)" }, 51.2);
+      tl.from("#s10-name", { y: 24, opacity: 0, duration: 0.4, ease: "power3.out" }, 51.45);
+      tl.from("#s10-tag", { y: 16, opacity: 0, duration: 0.35, ease: "power2.out" }, 51.65);
+      tl.from("#s10-tabs .tab-pill", { y: 12, opacity: 0, duration: 0.3, stagger: 0.06, ease: "power2.out" }, 51.85);
+
+      // S11 CTA
+      tl.from("#s11-name", { scale: 0.92, opacity: 0, duration: 0.35, ease: "power3.out" }, 58.1);
+      tl.from(["#s11-sub","#s11-gh"], { y: 12, opacity: 0, duration: 0.3, stagger: 0.08, ease: "power2.out" }, 58.35);
+
       window.__timelines["main"] = tl;
     </script>
   </body>
