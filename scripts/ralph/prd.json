@@ -1,5 +1,5 @@
 {
-  "project": "DailyTracker",
+  "project": "ShapeIQ",
   "branchName": "ralph/physique-check-v3",
   "description": "PhysiqueCheck v3 — Category Finder (local calculation for 13 IFBB/NPC categories), dynamic athlete profile with female support, system prompt v3, Expo API Route proxy, photo guide, side-by-side compare, share report",
   "userStories": [

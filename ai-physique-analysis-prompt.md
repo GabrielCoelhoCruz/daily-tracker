@@ -1,6 +1,6 @@
 # AI Physique Analysis — Prompt Engineering
 
-Prompt system para análise de progresso físico via Claude Vision API, integrado ao Daily Tracker app.
+Prompt system para análise de progresso físico via Claude Vision API, integrado ao ShapeIQ app.
 
 ---
 

@@ -1,4 +1,4 @@
-# Daily Tracker — Dieta & Suplementação
+# ShapeIQ — Dieta & Suplementação
 
 App pessoal para acompanhamento diário de dieta, suplementos, medicamentos manipulados e treino, baseado no plano mensal da Team GB.
 

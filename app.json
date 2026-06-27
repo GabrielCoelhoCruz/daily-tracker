@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "DailyTracker",
-    "slug": "plantracker",
+    "name": "ShapeIQ",
+    "slug": "shapeiq",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "dailytracker",
+    "scheme": "shapeiq",
     "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/images/splash-icon.png",

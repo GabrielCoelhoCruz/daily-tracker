@@ -184,7 +184,7 @@ Feature: PhysiqueCheck v3 — Category Finder, Female Support & API Proxy
   - `glassEffect` modifier signature: `glassEffect({ glass?: { variant: 'regular'|'clear'|'identity'; interactive?; tint? }; shape?: 'circle'|'capsule'|'rectangle'|'ellipse'|'roundedRectangle'; cornerRadius? })`
   - Detect iOS 26 via `typeof Platform.Version === 'number' && Platform.Version >= 26`
   - `@expo/ui` package.json exports map: `./swift-ui` and `./swift-ui/modifiers` (also `./jetpack-compose` for Android)
-  - Dev build flow differs from Expo Go: `eas build` (once) → install .ipa on device → `npx expo start --dev-client` → open "DailyTracker Dev" app (not Expo Go). JS hot-reloads; native module changes need another build.
+  - Dev build flow differs from Expo Go: `eas build` (once) → install .ipa on device → `npx expo start --dev-client` → open "ShapeIQ Dev" app (not Expo Go). JS hot-reloads; native module changes need another build.
   - On Windows, iOS build only via EAS cloud (no `--local`); internal distribution gives an install URL (ad-hoc) without App Store review
 
 ## 2026-06-26 - Liquid Glass experiment PAUSED (no Apple Developer account)

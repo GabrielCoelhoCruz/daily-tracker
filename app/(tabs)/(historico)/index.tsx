@@ -1,18 +1,38 @@
-import { useCallback } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { useCallback, useMemo } from "react";
+import { ScrollView } from "react-native";
 import { useRouter } from "expo-router";
-import { theme } from "@/constants/theme";
 import { Calendario } from "@/components/historico/Calendario";
-import { StatsCard } from "@/components/historico/StatsCard";
-import { AppIcon } from "@/components/ui/AppIcon";
+import { PrepReviewHeader } from "@/components/history/PrepReviewHeader";
+import { WeeklyReviewCard } from "@/components/history/WeeklyReviewCard";
+import { PatternInsightCard } from "@/components/history/PatternInsightCard";
+import { HistoryMetricsGrid } from "@/components/history/HistoryMetricsGrid";
+import { RecentDaysList } from "@/components/history/RecentDaysList";
+import { HistoryEmptyState } from "@/components/history/HistoryEmptyState";
 import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
 import { useHistoryStore } from "@/stores/useHistoryStore";
+import { getLogicalDate } from "@/utils/dateUtils";
+import {
+  getPrepReviewSummary,
+  getPrimaryPrepInsight,
+  getRecentDaySummaries,
+} from "@/utils/prepReviewUtils";
 
 export default function HistoricoScreen() {
   const router = useRouter();
   const dias = useHistoryStore((s) => s.dias);
   const hasHistory = Object.keys(dias).length > 0;
   const bottomPadding = useTabContentBottomPadding();
+  const todayDate = getLogicalDate(new Date());
+
+  const summary = useMemo(
+    () => getPrepReviewSummary(dias, todayDate),
+    [dias, todayDate]
+  );
+  const insight = useMemo(() => getPrimaryPrepInsight(dias), [dias]);
+  const recentDays = useMemo(
+    () => getRecentDaySummaries(dias, todayDate, 7),
+    [dias, todayDate]
+  );
 
   const handleDayPress = useCallback(
     (dateStr: string) => {
@@ -31,29 +51,21 @@ export default function HistoricoScreen() {
         paddingHorizontal: 16,
         paddingTop: 8,
         paddingBottom: bottomPadding,
-        gap: 12,
+        gap: 16,
       }}
     >
+      <PrepReviewHeader />
+
       {hasHistory ? (
         <>
+          <WeeklyReviewCard summary={summary} />
+          <PatternInsightCard insight={insight} />
+          <HistoryMetricsGrid summary={summary} />
           <Calendario onDayPress={handleDayPress} />
-          <StatsCard />
+          <RecentDaysList days={recentDays} onDayPress={handleDayPress} />
         </>
       ) : (
-        <View style={{ alignItems: "center", gap: 12, paddingVertical: 64 }}>
-          <AppIcon
-            sf="calendar"
-            mci="calendar-month-outline"
-            size={48}
-            color={theme.colors.text.muted}
-          />
-          <Text style={{ ...theme.typography.body, color: theme.colors.text.muted }}>
-            Nenhum dado ainda
-          </Text>
-          <Text style={{ ...theme.typography.footnote, textAlign: "center" }}>
-            Complete seu primeiro dia para ver{"\n"}o hist{"\u00f3"}rico aqui
-          </Text>
-        </View>
+        <HistoryEmptyState />
       )}
     </ScrollView>
   );

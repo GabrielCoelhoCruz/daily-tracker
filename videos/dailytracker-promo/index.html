@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>ShapeIQ Promo</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0c0a09;
+        --ink: #fafaf9;
+        --muted: #78716c;
+        --accent: #f59e0b;
+        --accent-dim: rgba(245, 158, 11, 0.15);
+        --accent-glow: rgba(245, 158, 11, 0.45);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--bg);
+        font-family: "Inter", system-ui, sans-serif;
+        color: var(--ink);
+      }
+
+      .bg-layer {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245, 158, 11, 0.12), transparent 70%),
+          radial-gradient(ellipse 60% 40% at 80% 90%, rgba(245, 158, 11, 0.08), transparent 60%),
+          var(--bg);
+      }
+
+      .grid-overlay {
+        position: absolute;
+        inset: 0;
+        opacity: 0.04;
+        background-image:
+          linear-gradient(rgba(250, 250, 249, 0.5) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(250, 250, 249, 0.5) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+
+      .clip {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 64px;
+      }
+
+      /* ── Scene 1: Logo sting ── */
+      .intro-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 48px;
+      }
+
+      .icon-wrap {
+        position: relative;
+        width: 220px;
+        height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .icon-glow {
+        position: absolute;
+        inset: -40px;
+        border-radius: 50%;
+        background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      }
+
+      .app-icon {
+        width: 180px;
+        height: 180px;
+        border-radius: 40px;
+        display: block;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+      }
+
+      .brand-line {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .brand-daily {
+        font-size: 72px;
+        font-weight: 800;
+        letter-spacing: 0.35em;
+        text-indent: 0.35em;
+        color: var(--ink);
+        line-height: 1;
+      }
+
+      .brand-tracker {
+        font-size: 72px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-indent: 0.12em;
+        color: var(--accent);
+        line-height: 1;
+      }
+
+      .tagline-small {
+        margin-top: 24px;
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-indent: 0.2em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      /* ── Scene 2: Features ── */
+      .features-inner {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 56px;
+      }
+
+      .features-headline {
+        font-size: 48px;
+        font-weight: 800;
+        text-align: center;
+        line-height: 1.15;
+        max-width: 800px;
+      }
+
+      .features-headline em {
+        font-style: normal;
+        color: var(--accent);
+      }
+
+      .feature-list {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .feature-pill {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding: 28px 36px;
+        border-radius: 20px;
+        background: rgba(250, 250, 249, 0.04);
+        border: 1px solid rgba(250, 250, 249, 0.08);
+        width: 100%;
+        max-width: 880px;
+      }
+
+      .feature-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: var(--accent-dim);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .feature-icon svg {
+        width: 28px;
+        height: 28px;
+        display: block;
+      }
+
+      .feature-text {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .feature-label {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--ink);
+      }
+
+      .feature-desc {
+        font-size: 20px;
+        font-weight: 400;
+        color: var(--muted);
+      }
+
+      /* ── Scene 3: AI punch ── */
+      .ai-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+        text-align: center;
+      }
+
+      .ai-badge {
+        padding: 12px 28px;
+        border-radius: 999px;
+        background: var(--accent-dim);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .ai-headline {
+        font-size: 88px;
+        font-weight: 900;
+        line-height: 1.05;
+        max-width: 900px;
+      }
+
+      .ai-sub {
+        font-size: 28px;
+        font-weight: 500;
+        color: var(--muted);
+        max-width: 720px;
+        line-height: 1.4;
+      }
+
+      /* ── Scene 4: CTA ── */
+      .cta-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 48px;
+        text-align: center;
+      }
+
+      .cta-headline {
+        font-size: 64px;
+        font-weight: 900;
+        line-height: 1.1;
+        max-width: 880px;
+      }
+
+      .cta-headline span {
+        color: var(--accent);
+      }
+
+      .cta-bar {
+        width: 120px;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--accent);
+        display: block;
+      }
+
+      .cta-brand {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.25em;
+        text-indent: 0.25em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="12"
+      data-width="1080"
+      data-height="1920"
+    >
+      <div class="bg-layer"></div>
+      <div class="grid-overlay"></div>
+
+      <!-- Scene 1: Logo sting (0–3s) -->
+      <section id="scene-intro" class="clip" data-start="0" data-duration="3" data-track-index="1">
+        <div class="intro-inner">
+          <div class="icon-wrap">
+            <div class="icon-glow" id="icon-glow"></div>
+            <img class="app-icon" id="app-icon" src="assets/icon.png" alt="" />
+          </div>
+          <div class="brand-line">
+            <div class="brand-daily" id="brand-daily">DAILY</div>
+            <div class="brand-tracker" id="brand-tracker">TRACKER</div>
+          </div>
+          <div class="tagline-small" id="tagline-small">Physique Companion</div>
+        </div>
+      </section>
+
+      <!-- Scene 2: Features (3–7.5s) -->
+      <section id="scene-features" class="clip" data-start="3" data-duration="4.5" data-track-index="1">
+        <div class="features-inner">
+          <h2 class="features-headline" id="features-headline">
+            Everything your <em>prep</em> demands
+          </h2>
+          <div class="feature-list">
+            <div class="feature-pill" id="pill-meals">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                  <path d="M12 2v20M8 6h8M8 10h8M8 14h5" />
+                </svg>
+              </div>
+              <div class="feature-text">
+                <span class="feature-label">Meals & Supplements</span>
+                <span class="feature-desc">Timed protocol, every macro logged</span>
+              </div>
+            </div>
+            <div class="feature-pill" id="pill-hydration">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                </svg>
+              </div>
+              <div class="feature-text">
+                <span class="feature-label">Hydration & Cardio</span>
+                <span class="feature-desc">Daily targets, session tracking</span>
+              </div>
+            </div>
+            <div class="feature-pill" id="pill-train">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                  <path d="M6.5 6.5h11v11h-11zM3 12h3.5M17.5 12H21M12 3v3.5M12 17.5V21" />
+                </svg>
+              </div>
+              <div class="feature-text">
+                <span class="feature-label">5-Day Training Split</span>
+                <span class="feature-desc">A–E protocols, built for stage</span>
+              </div>
+            </div>
+            <div class="feature-pill" id="pill-ai">
+              <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                </svg>
+              </div>
+              <div class="feature-text">
+                <span class="feature-label">AI Physique Analysis</span>
+                <span class="feature-desc">IFBB/NPC standards, photo compare</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene 3: AI punch (7.5–9.75s) -->
+      <section id="scene-ai" class="clip" data-start="7.5" data-duration="2.25" data-track-index="1">
+        <div class="ai-inner">
+          <div class="ai-badge" id="ai-badge">Claude Vision</div>
+          <h2 class="ai-headline" id="ai-headline">Stage-ready insights</h2>
+          <p class="ai-sub" id="ai-sub">
+            Progress photos analyzed against competition standards — categories, compare, dominate.
+          </p>
+        </div>
+      </section>
+
+      <!-- Scene 4: CTA (9.75–12s) -->
+      <section id="scene-cta" class="clip" data-start="9.75" data-duration="2.25" data-track-index="1">
+        <div class="cta-inner">
+          <h2 class="cta-headline" id="cta-headline">
+            Track every rep.<br />
+            <span>Own the stage.</span>
+          </h2>
+          <div class="cta-bar" id="cta-bar"></div>
+          <div class="cta-brand" id="cta-brand">ShapeIQ</div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Scene 1 — Logo sting
+      tl.from("#icon-glow", { scale: 0, opacity: 0, duration: 0.8, ease: "power3.out" }, 0.1);
+      tl.from("#app-icon", { scale: 0.5, opacity: 0, duration: 0.7, ease: "back.out(1.7)" }, 0.2);
+      tl.from("#brand-daily", { y: 40, opacity: 0, duration: 0.55, ease: "power3.out" }, 0.55);
+      tl.from("#brand-tracker", { y: 40, opacity: 0, duration: 0.55, ease: "power3.out" }, 0.75);
+      tl.from("#tagline-small", { opacity: 0, y: 16, duration: 0.45, ease: "power2.out" }, 1.1);
+
+      // Scene 2 — Features
+      tl.from("#features-headline", { y: 48, opacity: 0, duration: 0.6, ease: "power3.out" }, 3.1);
+      tl.from(
+        ["#pill-meals", "#pill-hydration", "#pill-train", "#pill-ai"],
+        { x: -60, opacity: 0, duration: 0.5, stagger: 0.12, ease: "power3.out" },
+        3.5
+      );
+
+      // Scene 3 — AI punch
+      tl.from("#ai-badge", { scale: 0.8, opacity: 0, duration: 0.4, ease: "back.out(2)" }, 7.7);
+      tl.from("#ai-headline", { y: 56, opacity: 0, duration: 0.55, ease: "power3.out" }, 7.9);
+      tl.from("#ai-sub", { y: 24, opacity: 0, duration: 0.45, ease: "power2.out" }, 8.25);
+      tl.to(["#ai-badge", "#ai-headline", "#ai-sub"], { opacity: 0, y: -20, duration: 0.35, ease: "power2.in" }, 9.35);
+
+      // Scene 4 — CTA
+      tl.from("#cta-headline", { scale: 0.92, opacity: 0, duration: 0.55, ease: "power3.out" }, 9.85);
+      tl.from("#cta-bar", { scaleX: 0, opacity: 0, duration: 0.4, ease: "power2.out", transformOrigin: "center" }, 10.2);
+      tl.from("#cta-brand", { opacity: 0, y: 12, duration: 0.35, ease: "power2.out" }, 10.35);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

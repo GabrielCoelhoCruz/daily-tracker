@@ -64,19 +64,17 @@ function buildPosingPrompt(ctx: AnalysisContext): string {
   return `## Avaliação de Posing\n\nCategoria alvo: ${CATEGORY_LABELS[ctx.targetCategory]}${poseList}\n\nAvalie cada pose: execução, o que favorece, o que expõe, como melhorar. Sugira a melhor favorite classic pose baseado no meu físico.`;
 }
 
-export type StageReadinessLevel = "longe" | "progredindo" | "se_aproximando" | "quase_pronto" | "stage_ready";
+import {
+  STAGE_READINESS_LABELS,
+  STAGE_READINESS_ORDER,
+  type StageReadinessLevel,
+} from "@/constants/stageReadiness";
 
-export const STAGE_READINESS_LABELS: Record<StageReadinessLevel, string> = {
-  longe: "Longe",
-  progredindo: "Progredindo",
-  se_aproximando: "Se aproximando",
-  quase_pronto: "Quase pronto",
-  stage_ready: "Stage Ready",
+export {
+  STAGE_READINESS_LABELS,
+  STAGE_READINESS_ORDER,
+  type StageReadinessLevel,
 };
-
-export const STAGE_READINESS_ORDER: StageReadinessLevel[] = [
-  "longe", "progredindo", "se_aproximando", "quase_pronto", "stage_ready",
-];
 
 export type PhysiqueScores = {
   overallConditioning?: number;

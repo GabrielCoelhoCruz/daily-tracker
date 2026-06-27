@@ -3,8 +3,14 @@ import { Pressable, Text, View } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme, withAlpha } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { useAppFocusRefresh } from "@/utils/useAppFocusRefresh";
+import { getLogicalDate } from "@/utils/dateUtils";
+import {
+  getCalendarDayTone,
+  type CalendarDayTone,
+} from "@/utils/prepReviewUtils";
 
 type CalendarioProps = {
   onDayPress?: (dateStr: string) => void;
@@ -27,23 +33,28 @@ const MONTH_NAMES = [
   "Dezembro",
 ];
 
-function getAdherenceColor(completados: number, total: number): string {
-  if (total === 0) return theme.colors.neutral;
-  const pct = completados / total;
-  if (pct >= 1) return theme.colors.semantic.success;
-  if (pct >= 0.5) return theme.colors.accent.DEFAULT;
-  return theme.colors.semantic.error;
+function getTodayStr(): string {
+  return getLogicalDate(new Date());
+}
+
+function getToneBackgroundColor(tone: CalendarDayTone): string {
+  switch (tone) {
+    case "perfect":
+    case "strong":
+      return theme.colors.semantic.success;
+    case "partial":
+      return theme.colors.accent.DEFAULT;
+    case "weak":
+      return theme.colors.semantic.error;
+    default:
+      return withAlpha(theme.colors.onSurface.DEFAULT, 0.04);
+  }
 }
 
 function formatDateStr(year: number, month: number, day: number): string {
   const m = String(month + 1).padStart(2, "0");
   const d = String(day).padStart(2, "0");
   return `${year}-${m}-${d}`;
-}
-
-function getTodayStr(): string {
-  const now = new Date();
-  return formatDateStr(now.getFullYear(), now.getMonth(), now.getDate());
 }
 
 type DayCell = {
@@ -87,10 +98,6 @@ export function Calendario({ onDayPress }: CalendarioProps) {
     [viewYear, viewMonth]
   );
 
-  const isFutureDate = (dateStr: string): boolean => {
-    return dateStr > todayStr;
-  };
-
   const goToPrevMonth = () => {
     if (viewMonth === 0) {
       setViewYear((y) => y - 1);
@@ -119,9 +126,20 @@ export function Calendario({ onDayPress }: CalendarioProps) {
 
   return (
     <Card>
+      <View className="mb-4 flex-row items-center gap-2">
+        <AppIcon
+          sf="calendar"
+          mci="calendar-month-outline"
+          size={18}
+          color={theme.colors.onSurface.variant}
+        />
+        <Text style={theme.typography.callout}>Calendário</Text>
+      </View>
+
       <View className="mb-4 flex-row items-center justify-between">
         <Pressable
           onPress={goToPrevMonth}
+          accessibilityRole="button"
           accessibilityLabel="Mês anterior"
           className="p-2"
         >
@@ -136,6 +154,7 @@ export function Calendario({ onDayPress }: CalendarioProps) {
         </Text>
         <Pressable
           onPress={goToNextMonth}
+          accessibilityRole="button"
           accessibilityLabel="Próximo mês"
           className="p-2"
         >
@@ -162,28 +181,23 @@ export function Calendario({ onDayPress }: CalendarioProps) {
           }
 
           const historico = dias[cell.dateStr];
-          const future = isFutureDate(cell.dateStr);
-          const isToday = cell.dateStr === todayStr;
-
-          // Only days with actual history get an adherence color.
-          // Future days and no-data days stay as a faint surface fill so they
-          // aren't mistaken for a failed (0% adherence) day.
-          let bgColor: string;
-          let showAdherence = false;
-          if (historico && !future) {
-            bgColor = getAdherenceColor(
-              historico.completados,
-              historico.total
-            );
-            showAdherence = historico.total > 0;
-          } else {
-            bgColor = withAlpha(theme.colors.onSurface.DEFAULT, 0.04);
-          }
+          const tone = getCalendarDayTone(cell.dateStr, todayStr, historico);
+          const isToday = tone === "today" || cell.dateStr === todayStr;
+          const future = tone === "future";
+          const showAdherence =
+            tone === "perfect" ||
+            tone === "strong" ||
+            tone === "partial" ||
+            tone === "weak";
+          const bgColor = getToneBackgroundColor(tone);
+          const hasHistory = Boolean(historico);
 
           return (
             <Pressable
               key={cell.dateStr}
               onPress={() => handleDayPress(cell)}
+              disabled={!hasHistory}
+              accessibilityRole={hasHistory ? "button" : undefined}
               accessibilityLabel={`${cell.day} de ${MONTH_NAMES[viewMonth]}${isToday ? ", hoje" : ""}`}
               style={{
                 width: "14.28%",
@@ -203,7 +217,7 @@ export function Calendario({ onDayPress }: CalendarioProps) {
                   },
                   isToday && {
                     borderWidth: 2.5,
-                    borderColor: theme.colors.accent.DEFAULT,
+                    borderColor: theme.colors.primary.DEFAULT,
                   },
                 ]}
               >

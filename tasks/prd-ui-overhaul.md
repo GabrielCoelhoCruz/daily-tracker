@@ -1,8 +1,8 @@
-# PRD: UI/UX Overhaul — DailyTracker
+# PRD: UI/UX Overhaul — ShapeIQ
 
 ## Introduction
 
-Full visual and UX overhaul of the DailyTracker app. The app currently works well functionally (all 22 user stories complete) but the UI uses basic styling with inconsistent spacing, mixed icon libraries (Ionicons + FontAwesome), a custom JS tab bar with `expo-glass-effect`, and no layout animations. This PRD targets a polished, native-feeling dark-theme experience using NativeTabs, SF Symbols, better typography hierarchy, and smooth state transitions — all within Expo Go on SDK 54.
+Full visual and UX overhaul of the ShapeIQ app. The app currently works well functionally (all 22 user stories complete) but the UI uses basic styling with inconsistent spacing, mixed icon libraries (Ionicons + FontAwesome), a custom JS tab bar with `expo-glass-effect`, and no layout animations. This PRD targets a polished, native-feeling dark-theme experience using NativeTabs, SF Symbols, better typography hierarchy, and smooth state transitions — all within Expo Go on SDK 54.
 
 ## Goals
 

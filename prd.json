@@ -1,7 +1,7 @@
 {
-  "project": "DailyTracker",
+  "project": "ShapeIQ",
   "branchName": "ralph/daily-tracker-v1",
-  "description": "Daily Tracker - App pessoal para acompanhamento diário de dieta, suplementos, medicamentos manipulados, hidratação, cardio e treino. Dark mode, amber accent, React Native + Expo. Plano real: Gabriel Cruz, Fev/2026, Team GB.",
+  "description": "ShapeIQ - App pessoal para acompanhamento diário de dieta, suplementos, medicamentos manipulados, hidratação, cardio e treino. Dark mode, amber accent, React Native + Expo. Plano real: Gabriel Cruz, Fev/2026, Team GB.",
   "userStories": [
     {
       "id": "US-001",

@@ -1,21 +1,24 @@
 <!-- ═══════════════════════════════════════════════════════════════════ -->
-<!--                         DAILYTRACKER                              -->
+<!--                           ShapeIQ                                 -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 
 <div align="center">
 
 <br/>
 
-<img src="https://img.shields.io/badge/%E2%9A%A1-DAILY-0f0e0d?style=for-the-badge&labelColor=0f0e0d" height="40"/><!--
---><img src="https://img.shields.io/badge/TRACKER-f59e0b?style=for-the-badge&labelColor=f59e0b&color=f59e0b" height="40"/>
+<img src="https://img.shields.io/badge/ShapeIQ-f59e0b?style=for-the-badge&labelColor=0f0e0d&color=f59e0b" height="40"/>
 
 <br/><br/>
 
-<samp><strong>AI-POWERED PHYSIQUE COMPANION FOR COMPETITIVE ATHLETES</strong></samp>
+<samp><strong>AI BODYBUILDING PREP COMPANION FOR COMPETITIVE ATHLETES</strong></samp>
 
 <br/>
 
-<sup>Track meals · hydration · training splits · and get Claude-powered physique analysis against IFBB/NPC standards</sup>
+<samp><em>Seu prep. Seu shape. Com IA.</em></samp>
+
+<br/>
+
+<sup>Track meals · hydration · training splits · prep adherence · and get Claude-powered physique analysis against IFBB/NPC standards</sup>
 
 <br/><br/>
 
@@ -39,29 +42,29 @@
 <tr>
 <td align="center" width="160">
 <br/>
-<samp><strong>DASH</strong></samp><br/>
-<sup>Daily checklist</sup><br/>
+<samp><strong>TODAY</strong></samp><br/>
+<sup>Today Briefing</sup><br/>
 <sup>Hydration · Cardio</sup><br/>
 <br/>
 </td>
 <td align="center" width="160">
 <br/>
-<samp><strong>TRAIN</strong></samp><br/>
-<sup>5-day workout split</sup><br/>
+<samp><strong>WORKOUT</strong></samp><br/>
+<sup>Training Session</sup><br/>
 <sup>A–E protocols</sup><br/>
 <br/>
 </td>
 <td align="center" width="160">
 <br/>
 <samp><strong>LOGS</strong></samp><br/>
-<sup>Calendar history</sup><br/>
+<sup>Prep Review</sup><br/>
 <sup>Day detail · Stats</sup><br/>
 <br/>
 </td>
 <td align="center" width="160">
 <br/>
 <samp><strong>STATS</strong></samp><br/>
-<sup>AI physique analysis</sup><br/>
+<sup>Physique Intelligence</sup><br/>
 <sup>Categories · Compare</sup><br/>
 <br/>
 </td>
@@ -74,9 +77,32 @@
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 
+## <samp>BRAND</samp>
+
+**ShapeIQ**  
+*Seu prep. Seu shape. Com IA.*
+
+Built for competitive bodybuilding prep, ShapeIQ turns daily execution into structured data and AI-powered physique intelligence.
+
+<br/>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+
 ## <samp>OVERVIEW</samp>
 
-DailyTracker is an **offline-first** React Native app built for competitive bodybuilding athletes. It covers the full daily protocol — meal timing, supplement tracking, hydration targets, cardio sessions — and goes further with **AI-powered physique analysis** that evaluates progress photos against IFBB/NPC competition standards.
+ShapeIQ is an **iOS-first AI bodybuilding prep companion** built for competitive athletes. It combines daily protocol tracking, training execution, prep adherence history, physique check-ins, and Claude Vision analysis into one focused mobile experience.
+
+Unlike generic fitness apps, ShapeIQ is built around bodybuilding prep:
+
+- daily meals and supplements
+- hydration and cardio targets
+- training split execution
+- historical adherence review
+- weekly physique check-ins
+- AI-powered stage-readiness feedback
+- IFBB/NPC-inspired physique analysis
+
+ShapeIQ is an **offline-first** React Native app. It covers the full daily protocol — meal timing, supplement tracking, hydration targets, cardio sessions — and goes further with **AI-powered physique analysis** that evaluates progress photos against IFBB/NPC competition standards.
 
 > **Why this exists** — I'm a full-stack developer (React, TypeScript, Python, AWS) who also competes in bodybuilding. I wanted an app that could track my cutting prep with the rigor it deserves: conditional meal plans, hydration goals, training periodization, and — most importantly — AI-powered feedback on my progress photos using real IFBB judging criteria. Existing fitness apps don't understand competitive bodybuilding, so I built one.
 
@@ -647,7 +673,7 @@ Profile complete?
 ### <samp>INSTALL</samp>
 
 ```bash
-git clone https://github.com/GabrielCoelhoCruz/daily-tracker.git
+git clone https://github.com/GabrielCoelhoCruz/shape-iq.git
 cd planTracker
 npm install
 ```
@@ -731,7 +757,7 @@ eas build --profile production --platform all      # Production
 
 <br/><br/>
 
-<samp><strong>BUILT WITH EXPO + CLAUDE API</strong></samp>
+<samp><strong>BUILT WITH EXPO + CLAUDE API · ShapeIQ</strong></samp>
 
 <br/>
 

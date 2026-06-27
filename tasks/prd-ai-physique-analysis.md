@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Adicionar uma tab "Progresso" ao Daily Tracker que permite o atleta fazer check-ins semanais de physique com fotos, peso e observações. As fotos são enviadas para a Claude Vision API junto com um system prompt de bodybuilding coach, que retorna uma análise técnica detalhada do condicionamento. Suporta 3 modos: análise completa, comparativa (semana atual vs anterior) e quick check.
+Adicionar uma tab "Progresso" ao ShapeIQ que permite o atleta fazer check-ins semanais de physique com fotos, peso e observações. As fotos são enviadas para a Claude Vision API junto com um system prompt de bodybuilding coach, que retorna uma análise técnica detalhada do condicionamento. Suporta 3 modos: análise completa, comparativa (semana atual vs anterior) e quick check.
 
 ## Goals
 
