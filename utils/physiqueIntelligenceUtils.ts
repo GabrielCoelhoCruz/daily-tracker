@@ -1,5 +1,7 @@
 import type { PhysiqueCheckIn, TargetCategory } from "@/stores/usePhysiqueStore";
-import { CATEGORY_LABELS, MODE_LABELS } from "@/stores/usePhysiqueStore";
+import { CATEGORY_LABELS, MODE_LABELS, PHOTO_LABELS } from "@/stores/usePhysiqueStore";
+import type { HistoricoDia } from "@/stores/useHistoryStore";
+import { getWeeklyExecutionReview } from "@/utils/prepReviewUtils";
 import {
   STAGE_READINESS_LABELS,
   STAGE_READINESS_ORDER,
@@ -37,6 +39,38 @@ export type AISignal = {
   title: string;
   message: string;
   hasAnalysis: boolean;
+};
+
+export type EvidenceSnapshot = {
+  hasEvidence: boolean;
+  checkInId: string | null;
+  week: number | null;
+  date: string | null;
+  daysSinceCheckIn: number | null;
+  weightKg: number | null;
+  photoCount: number;
+  hasAnalysis: boolean;
+  hasScores: boolean;
+  evidenceLabel: string;
+  freshnessStatus: "fresh" | "due-soon" | "overdue" | "empty";
+  freshnessLabel: string;
+  nextActionLabel: string;
+};
+
+export type EvidenceAISignal = {
+  title: string;
+  message: string;
+  evidence: string;
+  limitation: string | null;
+  hasAnalysis: boolean;
+};
+
+export type PhysiquePrepContext = {
+  hasCloseouts: boolean;
+  averageExecutionScore: number | null;
+  closedDays: number;
+  mainLeakTitle: string | null;
+  evidence: string;
 };
 
 export type PhysiqueAction =
@@ -290,19 +324,177 @@ function extractAnalysisPreview(analysis: string): string {
   return flat.length > 180 ? `${flat.slice(0, 180).trim()}…` : flat;
 }
 
-export function getLatestAISignal(checkIn: PhysiqueCheckIn | null): AISignal {
+export function getLatestAISignal(
+  checkIn: PhysiqueCheckIn | null,
+  checkInCount = 0,
+): AISignal {
+  const evidence = getEvidenceAISignal(checkIn, checkInCount);
+  return {
+    title: evidence.title,
+    message: evidence.message,
+    hasAnalysis: evidence.hasAnalysis,
+  };
+}
+
+function countValidPhotos(checkIn: PhysiqueCheckIn): number {
+  return checkIn.photoPaths.filter((path) => Boolean(path?.trim())).length;
+}
+
+function buildPhotoEvidenceLabel(photoCount: number): string {
+  if (photoCount === 0) return "Sem fotos";
+  if (photoCount >= 3) return "Front · Side · Back";
+  const labels = PHOTO_LABELS.slice(0, photoCount).join(" · ");
+  return labels || `${photoCount} foto${photoCount === 1 ? "" : "s"}`;
+}
+
+function daysBetween(dateStr: string, referenceDate: string): number {
+  const from = new Date(dateStr + "T12:00:00");
+  const to = new Date(referenceDate + "T12:00:00");
+  const diffMs = to.getTime() - from.getTime();
+  return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+}
+
+function resolveFreshnessStatus(
+  daysSinceCheckIn: number | null,
+): EvidenceSnapshot["freshnessStatus"] {
+  if (daysSinceCheckIn == null) return "empty";
+  if (daysSinceCheckIn <= 6) return "fresh";
+  if (daysSinceCheckIn <= 10) return "due-soon";
+  return "overdue";
+}
+
+function getFreshnessLabel(
+  status: EvidenceSnapshot["freshnessStatus"],
+  daysSinceCheckIn: number | null,
+): string {
+  switch (status) {
+    case "fresh":
+      return daysSinceCheckIn === 0
+        ? "Check-in de hoje"
+        : `Check-in atualizado · há ${daysSinceCheckIn} ${daysSinceCheckIn === 1 ? "dia" : "dias"}`;
+    case "due-soon":
+      return "Novo check-in recomendado";
+    case "overdue":
+      return "Check-in atrasado";
+    default:
+      return "Primeiro check-in pendente";
+  }
+}
+
+function resolveNextActionLabel(
+  snapshot: Pick<
+    EvidenceSnapshot,
+    "freshnessStatus" | "hasAnalysis" | "hasEvidence"
+  >,
+): string {
+  if (!snapshot.hasEvidence) return "Criar primeiro check-in";
+  if (snapshot.freshnessStatus === "overdue" || snapshot.freshnessStatus === "due-soon") {
+    return "Criar novo check-in";
+  }
+  if (snapshot.hasAnalysis) return "Abrir análise completa";
+  return "Gerar análise do check-in";
+}
+
+export function getEvidenceSnapshot(
+  checkIns: PhysiqueCheckIn[],
+  referenceDate: string,
+): EvidenceSnapshot {
+  const latest = getLatestCheckIn(checkIns);
+
+  if (!latest) {
+    return {
+      hasEvidence: false,
+      checkInId: null,
+      week: null,
+      date: null,
+      daysSinceCheckIn: null,
+      weightKg: null,
+      photoCount: 0,
+      hasAnalysis: false,
+      hasScores: false,
+      evidenceLabel: "Sem check-in registrado",
+      freshnessStatus: "empty",
+      freshnessLabel: "Primeiro check-in pendente",
+      nextActionLabel: "Criar primeiro check-in",
+    };
+  }
+
+  const photoCount = countValidPhotos(latest);
+  const daysSinceCheckIn = daysBetween(latest.date, referenceDate);
+  const freshnessStatus = resolveFreshnessStatus(daysSinceCheckIn);
+  const hasAnalysis = Boolean(latest.analysis?.trim());
+  const hasScores = Boolean(
+    latest.scores?.stageReadiness ||
+      latest.scores?.overallConditioning != null ||
+      latest.scores?.vTaper != null,
+  );
+
+  const photoLabel = buildPhotoEvidenceLabel(photoCount);
+  const notesLabel = latest.notes?.trim() ? " · notes" : "";
+  const analysisLabel = hasAnalysis ? " · análise disponível" : " · análise pendente";
+  const evidenceLabel = `Week ${latest.week} · ${latest.weight}kg · ${photoLabel}${notesLabel}${analysisLabel}`;
+
+  const base = {
+    hasEvidence: true,
+    checkInId: latest.id,
+    week: latest.week,
+    date: latest.date,
+    daysSinceCheckIn,
+    weightKg: latest.weight,
+    photoCount,
+    hasAnalysis,
+    hasScores,
+    evidenceLabel,
+    freshnessStatus,
+  };
+
+  return {
+    ...base,
+    freshnessLabel: getFreshnessLabel(freshnessStatus, daysSinceCheckIn),
+    nextActionLabel: resolveNextActionLabel({
+      hasEvidence: true,
+      freshnessStatus,
+      hasAnalysis,
+    }),
+  };
+}
+
+export function getEvidenceAISignal(
+  checkIn: PhysiqueCheckIn | null,
+  checkInCount: number,
+): EvidenceAISignal {
   if (!checkIn) {
     return {
       title: "Latest AI Signal",
-      message: "Create your first check-in to unlock AI physique insights.",
+      message: "Crie o primeiro check-in para desbloquear sinais de shape.",
+      evidence: "Sem check-in registrado",
+      limitation: null,
       hasAnalysis: false,
     };
   }
 
+  const photoCount = countValidPhotos(checkIn);
+  const limitations: string[] = [];
+
+  if (checkInCount < 2) {
+    limitations.push("Comparação semanal exige pelo menos 2 check-ins.");
+  }
+  if (photoCount > 0 && photoCount < 3) {
+    limitations.push("Evidência limitada: menos de 3 fotos no check-in.");
+  }
+
+  const photoLabel = buildPhotoEvidenceLabel(photoCount);
+  const analysisState = checkIn.analysis?.trim()
+    ? "análise disponível"
+    : "análise pendente";
+  const evidence = `Week ${checkIn.week} · ${checkIn.weight}kg · ${photoLabel} · ${analysisState}`;
+
   if (!checkIn.analysis?.trim()) {
     return {
       title: "Latest AI Signal",
-      message: "Open the latest check-in to generate or view analysis.",
+      message: "Análise pendente. Abra o último check-in para gerar análise.",
+      evidence,
+      limitation: limitations[0] ?? null,
       hasAnalysis: false,
     };
   }
@@ -310,8 +502,41 @@ export function getLatestAISignal(checkIn: PhysiqueCheckIn | null): AISignal {
   const preview = extractAnalysisPreview(checkIn.analysis);
   return {
     title: "Latest AI Signal",
-    message: preview || "Analysis available — open the latest check-in for details.",
+    message: preview || "Análise disponível — abra o check-in para detalhes.",
+    evidence,
+    limitation: limitations.length > 0 ? limitations.join(" ") : null,
     hasAnalysis: true,
+  };
+}
+
+export function getPhysiquePrepContext(
+  dias: Record<string, HistoricoDia>,
+  referenceDate: string,
+): PhysiquePrepContext {
+  const review = getWeeklyExecutionReview(dias, referenceDate);
+
+  if (review.closedDays === 0) {
+    return {
+      hasCloseouts: false,
+      averageExecutionScore: null,
+      closedDays: 0,
+      mainLeakTitle: null,
+      evidence:
+        "Feche dias na aba Hoje para registrar contexto de execução ao avaliar o shape.",
+    };
+  }
+
+  const scorePart =
+    review.averageScore != null
+      ? `${review.averageScore}% execução média`
+      : "execução sem score";
+
+  return {
+    hasCloseouts: true,
+    averageExecutionScore: review.averageScore,
+    closedDays: review.closedDays,
+    mainLeakTitle: review.mainLeak?.title ?? null,
+    evidence: `Últimos 7 dias · ${scorePart} · ${review.closedDays} fechamento${review.closedDays === 1 ? "" : "s"}. Use esse contexto ao avaliar o shape.`,
   };
 }
 

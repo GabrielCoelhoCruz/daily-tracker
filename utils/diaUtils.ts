@@ -1,26 +1,77 @@
 import { Periodo } from "@/data/plano";
 import { treinos, Treino } from "@/data/treinos";
+import {
+  DEFAULT_SPLIT_WEEK_PLAN,
+  getTreinoFromWeekPlan,
+  getWeekDaySlot,
+  type SplitWeekPlan,
+} from "@/utils/splitWeekUtils";
 
 /**
- * Training days are Monday(1) through Friday(5).
- * diaOffManual overrides to force a rest day.
+ * Training day when the week plan assigns a treino slot and diaOffManual is false.
  */
 export function isDiaDeTreino(
   dayOfWeek: number,
-  diaOffManual: boolean
+  diaOffManual: boolean,
+  plan: SplitWeekPlan = DEFAULT_SPLIT_WEEK_PLAN,
 ): boolean {
   if (diaOffManual) return false;
-  return dayOfWeek >= 1 && dayOfWeek <= 5;
+  return getWeekDaySlot(dayOfWeek, plan).kind === "treino";
 }
 
 /**
- * Returns the workout for the given day of week.
- * Monday=1 → A, Tuesday=2 → B, ..., Friday=5 → E.
- * Returns null for weekends (0=Sunday, 6=Saturday).
+ * Legacy helper — scheduled treino from classic Mon→A mapping.
+ * Prefer getTreinoFromWeekPlan with the user's splitWeekPlan.
  */
 export function getTreinoDoDia(dayOfWeek: number): Treino | null {
   if (dayOfWeek < 1 || dayOfWeek > 5) return null;
   return treinos[dayOfWeek - 1] ?? null;
+}
+
+export function getTreinoById(treinoId: string): Treino | null {
+  return treinos.find((treino) => treino.id === treinoId) ?? null;
+}
+
+type ResolveTreinoOptions = {
+  todayDay?: number;
+  treinoHojeId?: string | null;
+  splitWeekPlan?: SplitWeekPlan;
+};
+
+/**
+ * Resolves which workout applies for a calendar day from the editable week plan.
+ * When viewing today, `treinoHojeId` can override (one-off swap).
+ */
+export function resolveTreinoForDay(
+  dayOfWeek: number,
+  options?: ResolveTreinoOptions,
+): Treino | null {
+  const plan = options?.splitWeekPlan ?? DEFAULT_SPLIT_WEEK_PLAN;
+  const scheduled = getTreinoFromWeekPlan(dayOfWeek, plan);
+  const { todayDay, treinoHojeId } = options ?? {};
+
+  if (todayDay === dayOfWeek && treinoHojeId) {
+    return getTreinoById(treinoHojeId) ?? scheduled;
+  }
+
+  return scheduled;
+}
+
+export function isTreinoSwappedToday(
+  todayDay: number,
+  treinoHojeId: string | null | undefined,
+  plan: SplitWeekPlan = DEFAULT_SPLIT_WEEK_PLAN,
+): boolean {
+  if (!treinoHojeId) return false;
+  const scheduled = getTreinoFromWeekPlan(todayDay, plan);
+  return scheduled != null && scheduled.id !== treinoHojeId;
+}
+
+export function getScheduledTreinoForDay(
+  dayOfWeek: number,
+  plan: SplitWeekPlan = DEFAULT_SPLIT_WEEK_PLAN,
+): Treino | null {
+  return getTreinoFromWeekPlan(dayOfWeek, plan);
 }
 
 function itemMatchesDay(

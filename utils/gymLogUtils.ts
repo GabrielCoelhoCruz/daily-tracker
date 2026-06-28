@@ -1,5 +1,12 @@
 import type { Exercicio, Treino } from '@/data/treinos'
-import type { GymExercise, GymSession } from '@/stores/slices/gymLogSlice'
+import type { GymSession } from '@/stores/slices/gymLogSlice'
+import {
+  getExerciseBestSet,
+  getExerciseCompletedSetCount,
+  isExerciseFullyLogged,
+  migrateLegacyExerciseLog,
+  normalizeGymSession,
+} from '@/utils/trainingPerformanceUtils'
 
 function getTotalSets(exercicio: Exercicio): number {
   return exercicio.series.reduce((acc, s) => acc + s.series, 0)
@@ -14,7 +21,8 @@ function getFirstNumericReps(exercicio: Exercicio): number {
   return 0
 }
 
-export function treinoToGymExercises(treino: Treino): GymExercise[] {
+/** @deprecated kept for compatibility with older tests */
+export function treinoToGymExercises(treino: Treino) {
   return treino.exercicios.map((ex) => ({
     id: ex.id,
     nome: ex.nome,
@@ -36,7 +44,7 @@ export type GymSessionController = {
     treinoId: string,
     treinoNome: string,
     date: string,
-    exercises: GymExercise[],
+    exercicios: Exercicio[],
   ) => string
   getGymSessionById: (id: string) => GymSession | undefined
   updateExerciseLog: (
@@ -52,16 +60,20 @@ export function resolveGymSessionForTreino(
   store: GymSessionController,
 ): GymSession {
   const existing = store.getActiveSessionForTreinoAndDate(treino.id, date)
-  if (existing) return existing
+  if (existing) {
+    return normalizeGymSession(existing, treino.exercicios)
+  }
 
-  const exercises = treinoToGymExercises(treino)
   const sessionId = store.startGymSession(
     treino.id,
     buildTreinoSessionNome(treino),
     date,
-    exercises,
+    treino.exercicios,
   )
-  return store.getGymSessionById(sessionId)!
+  return normalizeGymSession(
+    store.getGymSessionById(sessionId)!,
+    treino.exercicios,
+  )
 }
 
 export function updateGymSessionCarga(
@@ -74,13 +86,24 @@ export function updateGymSessionCarga(
   store.updateExerciseLog(session.id, exercicioId, { cargaKg })
 }
 
+function formatExerciseHistoryLine(log: ReturnType<typeof migrateLegacyExerciseLog>): string {
+  const best = getExerciseBestSet(log)
+  if (best) {
+    return `${log.nome}: ${best.loadKg} kg x ${best.repsCompleted}`
+  }
+  if (log.cargaKg != null) {
+    return `${log.nome}: ${log.cargaKg} kg`
+  }
+  return `${log.nome}: —`
+}
+
 export function formatGymSessionsForHistory(
   sessions: GymSession[],
 ): { title: string; lines: string[] }[] {
   return sessions.map((session) => ({
     title: session.treinoNome,
     lines: session.logs.map((log) =>
-      log.cargaKg != null ? `${log.nome}: ${log.cargaKg} kg` : `${log.nome}: —`,
+      formatExerciseHistoryLine(migrateLegacyExerciseLog(log)),
     ),
   }))
 }

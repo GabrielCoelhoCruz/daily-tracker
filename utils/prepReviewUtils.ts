@@ -1,5 +1,41 @@
 import type { HistoricoDia } from "@/stores/useHistoryStore";
 
+export type ExecutionTone =
+  | "complete"
+  | "strong"
+  | "warning"
+  | "leak"
+  | "empty";
+
+export type WeeklyExecutionReview = {
+  averageScore: number | null;
+  closedDays: number;
+  totalDays: number;
+  daysWithLeaks: number;
+  bestDay: { date: string; score: number } | null;
+  mainLeak: {
+    type: string;
+    title: string;
+    count: number;
+    evidence: string;
+  } | null;
+};
+
+export type DayLeakSummary = {
+  executionScore: number | null;
+  primaryLeak: string | null;
+  evidenceShort: string | null;
+  hasCloseout: boolean;
+  tone: ExecutionTone;
+};
+
+export type CalendarDayExecutionState = {
+  tone: ExecutionTone;
+  executionScore: number | null;
+  hasCloseout: boolean;
+  hasLeaks: boolean;
+};
+
 export type PrepReviewSummary = {
   weeklyAdherence: number | null;
   monthlyAdherence: number | null;
@@ -28,8 +64,12 @@ export type RecentDaySummary = {
   completed: number;
   total: number;
   percentage: number | null;
-  tone: "perfect" | "strong" | "partial" | "weak" | "empty";
+  tone: ExecutionTone | "perfect" | "strong" | "partial" | "weak";
   inProgress: boolean;
+  executionScore: number | null;
+  primaryLeak: string | null;
+  evidenceShort: string | null;
+  hasCloseout: boolean;
 };
 
 export type CalendarDayTone =
@@ -49,6 +89,190 @@ export type BestWeakestResult = {
 
 function dateToStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+const LEAK_TYPE_LABELS: Record<string, string> = {
+  meal: "Refeição incompleta",
+  cardio: "Cardio incompleto",
+  hydration: "Hidratação abaixo do alvo",
+  training: "Treino parcial",
+};
+
+function classifyLeakTitle(title: string): string {
+  const lower = title.toLowerCase();
+  if (lower.includes("refei")) return "meal";
+  if (lower.includes("cardio")) return "cardio";
+  if (lower.includes("hidrata") || lower.includes("água")) return "hydration";
+  if (lower.includes("treino") || lower.includes("sets")) return "training";
+  return "other";
+}
+
+export function getExecutionScoreTone(
+  score: number | null | undefined,
+): ExecutionTone {
+  if (score == null) return "empty";
+  if (score >= 90) return "complete";
+  if (score >= 75) return "strong";
+  if (score >= 50) return "warning";
+  return "leak";
+}
+
+function legacyAdherenceToTone(entry: HistoricoDia): ExecutionTone {
+  if (entry.total === 0) return "empty";
+  const pct = Math.round((entry.completados / entry.total) * 100);
+  return getExecutionScoreTone(pct);
+}
+
+export function getDayLeakSummary(entry: HistoricoDia): DayLeakSummary {
+  const hasCloseout = Boolean(entry.closeoutSavedAt);
+  const executionScore = entry.executionScore ?? null;
+  const primaryLeak = entry.closeoutLeaks?.[0] ?? null;
+
+  if (hasCloseout) {
+    return {
+      executionScore,
+      primaryLeak,
+      evidenceShort: entry.closeoutEvidence ?? null,
+      hasCloseout: true,
+      tone: getExecutionScoreTone(executionScore),
+    };
+  }
+
+  return {
+    executionScore: null,
+    primaryLeak: entry.itensPerdidos[0] ?? null,
+    evidenceShort:
+      entry.total > 0
+        ? `${entry.completados}/${entry.total} itens`
+        : null,
+    hasCloseout: false,
+    tone: legacyAdherenceToTone(entry),
+  };
+}
+
+function getWeekDaysInRange(start: string, end: string): string[] {
+  const days: string[] = [];
+  const cursor = new Date(start + "T12:00:00");
+  const endDate = new Date(end + "T12:00:00");
+
+  while (cursor <= endDate) {
+    days.push(dateToStr(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return days;
+}
+
+export function getWeeklyExecutionReview(
+  dias: Record<string, HistoricoDia>,
+  referenceDate: string,
+): WeeklyExecutionReview {
+  const weekBounds = getWeekBoundsForDate(referenceDate);
+  const weekDays = getWeekDaysInRange(weekBounds.start, weekBounds.end);
+
+  let scoreSum = 0;
+  let scoredDays = 0;
+  let closedDays = 0;
+  let daysWithLeaks = 0;
+  let bestDay: { date: string; score: number } | null = null;
+
+  for (const dateStr of weekDays) {
+    const entry = dias[dateStr];
+    if (!entry?.closeoutSavedAt) continue;
+
+    closedDays++;
+
+    if (entry.executionScore != null) {
+      scoreSum += entry.executionScore;
+      scoredDays++;
+
+      if (!bestDay || entry.executionScore > bestDay.score) {
+        bestDay = { date: dateStr, score: entry.executionScore };
+      }
+    }
+
+    if (entry.closeoutLeaks && entry.closeoutLeaks.length > 0) {
+      daysWithLeaks++;
+    }
+  }
+
+  return {
+    averageScore:
+      scoredDays > 0 ? Math.round(scoreSum / scoredDays) : null,
+    closedDays,
+    totalDays: weekDays.length,
+    daysWithLeaks,
+    bestDay,
+    mainLeak: getMainWeeklyLeak(dias, referenceDate),
+  };
+}
+
+export function getMainWeeklyLeak(
+  dias: Record<string, HistoricoDia>,
+  referenceDate: string,
+): WeeklyExecutionReview["mainLeak"] {
+  const weekBounds = getWeekBoundsForDate(referenceDate);
+  const leakCounts: Record<string, number> = {};
+
+  for (const [dateStr, entry] of Object.entries(dias)) {
+    if (dateStr < weekBounds.start || dateStr > weekBounds.end) continue;
+    if (!entry.closeoutSavedAt || !entry.closeoutLeaks?.length) continue;
+
+    for (const leakTitle of entry.closeoutLeaks) {
+      const type = classifyLeakTitle(leakTitle);
+      leakCounts[type] = (leakCounts[type] || 0) + 1;
+    }
+  }
+
+  const sorted = Object.entries(leakCounts).sort((a, b) => b[1] - a[1]);
+  const top = sorted[0];
+  if (!top || top[0] === "other") return null;
+
+  const [type, count] = top;
+  const label = LEAK_TYPE_LABELS[type] ?? type;
+
+  return {
+    type,
+    title: `${label} em ${count} ${count === 1 ? "dia" : "dias"}`,
+    count,
+    evidence: `${count} fechamento${count === 1 ? "" : "s"} registraram ${label.toLowerCase()} nesta semana.`,
+  };
+}
+
+export function getRecentCloseoutDays(
+  dias: Record<string, HistoricoDia>,
+  todayDate: string,
+  limit = 7,
+): RecentDaySummary[] {
+  return Object.values(dias)
+    .filter((entry) => Boolean(entry.closeoutSavedAt))
+    .sort((a, b) => b.data.localeCompare(a.data))
+    .slice(0, limit)
+    .map((entry) => buildRecentDaySummary(entry, todayDate));
+}
+
+export function getCalendarDayExecutionState(
+  dateStr: string,
+  todayDate: string,
+  entry: HistoricoDia | null | undefined,
+): CalendarDayExecutionState {
+  if (!entry?.closeoutSavedAt) {
+    return {
+      tone: "empty",
+      executionScore: null,
+      hasCloseout: false,
+      hasLeaks: false,
+    };
+  }
+
+  const executionScore = entry.executionScore ?? null;
+
+  return {
+    tone: getExecutionScoreTone(executionScore),
+    executionScore,
+    hasCloseout: true,
+    hasLeaks: Boolean(entry.closeoutLeaks && entry.closeoutLeaks.length > 0),
+  };
 }
 
 function getWeekBoundsForDate(todayDate: string): { start: string; end: string } {
@@ -233,51 +457,78 @@ function getDayLabel(dateStr: string, todayDate: string): string {
   return DAY_NAMES_SHORT[d.getDay()] ?? dateStr;
 }
 
-function getRecentDayTone(
-  entry: HistoricoDia
-): RecentDaySummary["tone"] {
-  if (entry.total === 0) return "empty";
-  const pct = (entry.completados / entry.total) * 100;
-  if (pct >= 100) return "perfect";
-  if (pct >= 80) return "strong";
-  if (pct >= 60) return "partial";
-  return "weak";
+function buildRecentDaySummary(
+  entry: HistoricoDia,
+  todayDate: string,
+): RecentDaySummary {
+  const leakSummary = getDayLeakSummary(entry);
+  const percentage = dayAdherence(entry);
+  const isToday = entry.data === todayDate;
+  const inProgress =
+    isToday &&
+    !entry.closeoutSavedAt &&
+    entry.total > 0 &&
+    entry.completados < entry.total;
+
+  return {
+    date: entry.data,
+    label: getDayLabel(entry.data, todayDate),
+    completed: entry.completados,
+    total: entry.total,
+    percentage: leakSummary.hasCloseout
+      ? leakSummary.executionScore
+      : percentage,
+    tone: leakSummary.tone,
+    inProgress,
+    executionScore: leakSummary.executionScore,
+    primaryLeak: leakSummary.primaryLeak,
+    evidenceShort: leakSummary.evidenceShort,
+    hasCloseout: leakSummary.hasCloseout,
+  };
 }
 
 export function getRecentDaySummaries(
   dias: Record<string, HistoricoDia>,
   todayDate: string,
-  limit = 7
+  limit = 7,
 ): RecentDaySummary[] {
   return Object.values(dias)
     .sort((a, b) => b.data.localeCompare(a.data))
     .slice(0, limit)
-    .map((entry) => {
-      const percentage = dayAdherence(entry);
-      const isToday = entry.data === todayDate;
-      const inProgress =
-        isToday && entry.total > 0 && entry.completados < entry.total;
+    .map((entry) => buildRecentDaySummary(entry, todayDate));
+}
 
-      return {
-        date: entry.data,
-        label: getDayLabel(entry.data, todayDate),
-        completed: entry.completados,
-        total: entry.total,
-        percentage,
-        tone: getRecentDayTone(entry),
-        inProgress,
-      };
-    });
+function executionToneToCalendarTone(tone: ExecutionTone): CalendarDayTone {
+  switch (tone) {
+    case "complete":
+      return "perfect";
+    case "strong":
+      return "strong";
+    case "warning":
+      return "partial";
+    case "leak":
+      return "weak";
+    default:
+      return "no-data";
+  }
 }
 
 export function getCalendarDayTone(
   dateStr: string,
   todayDate: string,
-  entry: HistoricoDia | null | undefined
+  entry: HistoricoDia | null | undefined,
 ): CalendarDayTone {
   if (dateStr > todayDate) return "future";
   if (dateStr === todayDate && !entry) return "today";
-  if (!entry || entry.total === 0) return "no-data";
+  if (!entry) return "no-data";
+
+  if (entry.closeoutSavedAt && entry.executionScore != null) {
+    return executionToneToCalendarTone(
+      getExecutionScoreTone(entry.executionScore),
+    );
+  }
+
+  if (entry.total === 0) return "no-data";
 
   const pct = (entry.completados / entry.total) * 100;
   if (pct >= 100) return "perfect";

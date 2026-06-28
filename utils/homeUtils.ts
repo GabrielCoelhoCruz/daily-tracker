@@ -1,6 +1,11 @@
 import type { Periodo } from "@/data/plano"
 import type { Treino } from "@/data/treinos"
 import { contarItens } from "@/utils/diaUtils"
+import type { TodayTrainingBriefing } from "@/utils/todayTrainingUtils"
+import {
+  formatTodayTrainingEvidence,
+  needsTodayTrainingAction,
+} from "@/utils/todayTrainingUtils"
 
 export const PREP_PHASE_LABEL = "Cutting Prep"
 
@@ -14,14 +19,6 @@ export type ProtocolProgress = {
   total: number
   remaining: number
   percentage: number
-}
-
-export type ProtocolTimelineStatus = "complete" | "active" | "upcoming"
-
-export type ProtocolTimelineItem = {
-  periodoId: string
-  nome: string
-  status: ProtocolTimelineStatus
 }
 
 export type HomeAction =
@@ -212,47 +209,6 @@ export function getTodayProtocolProgress(
   return { completed, total, remaining, percentage }
 }
 
-export function getProtocolTimelineItems(
-  periodos: Periodo[],
-  checks: Record<string, CheckState>,
-  refeicaoLivreUsada: boolean,
-  refeicaoLivrePeriodoId: string | null
-): ProtocolTimelineItem[] {
-  let activeAssigned = false
-
-  return periodos.map((periodo) => {
-    const complete = isPeriodComplete(
-      periodo,
-      checks,
-      refeicaoLivreUsada,
-      refeicaoLivrePeriodoId
-    )
-
-    if (complete) {
-      return {
-        periodoId: periodo.id,
-        nome: periodo.nome,
-        status: "complete" as const,
-      }
-    }
-
-    if (!activeAssigned) {
-      activeAssigned = true
-      return {
-        periodoId: periodo.id,
-        nome: periodo.nome,
-        status: "active" as const,
-      }
-    }
-
-    return {
-      periodoId: periodo.id,
-      nome: periodo.nome,
-      status: "upcoming" as const,
-    }
-  })
-}
-
 export function getNextHomeAction(input: {
   periodos: Periodo[]
   checks: Record<string, CheckState>
@@ -264,7 +220,8 @@ export function getNextHomeAction(input: {
   metaCardioMin: number
   isTrainingDay: boolean
   treino: Treino | null
-  workoutLogged: boolean
+  workoutLogged?: boolean
+  trainingBriefing?: TodayTrainingBriefing | null
 }): HomeAction {
   const {
     periodos,
@@ -277,7 +234,8 @@ export function getNextHomeAction(input: {
     metaCardioMin,
     isTrainingDay,
     treino,
-    workoutLogged,
+    workoutLogged = false,
+    trainingBriefing,
   } = input
 
   const hydrationBehind =
@@ -333,12 +291,25 @@ export function getNextHomeAction(input: {
     }
   }
 
-  if (isTrainingDay && treino && !workoutLogged) {
+  const trainingNeedsAction = trainingBriefing
+    ? needsTodayTrainingAction(trainingBriefing)
+    : isTrainingDay && treino && !workoutLogged
+
+  if (trainingNeedsAction && treino) {
+    const briefing = trainingBriefing
+    const subtitle = briefing
+      ? briefing.currentSetLabel
+        ? `${briefing.subtitle} · ${briefing.currentSetLabel}`
+        : briefing.subtitle
+      : `${treino.grupoMuscular} · ainda não iniciado`
+
+    const cta = briefing?.nextActionLabel ?? "Iniciar log de treino"
+
     return {
       type: "workout",
-      title: `Treino ${treino.letra}`,
-      subtitle: `${treino.grupoMuscular} · ainda não iniciado`,
-      cta: "Iniciar log de treino",
+      title: briefing?.title ?? `Treino ${treino.letra}`,
+      subtitle,
+      cta,
     }
   }
 
@@ -362,6 +333,8 @@ export function getDailyMetricSummaries(input: {
   isTrainingDay: boolean
   diaOffManual: boolean
   treino: Treino | null
+  trainingBriefing?: TodayTrainingBriefing | null
+  kinds?: DailyMetricKind[]
 }): DailyMetricSummary[] {
   const {
     periodos,
@@ -375,6 +348,7 @@ export function getDailyMetricSummaries(input: {
     isTrainingDay,
     diaOffManual,
     treino,
+    trainingBriefing,
   } = input
 
   const mealPeriods = periodos.filter(isMealPeriod)
@@ -393,12 +367,17 @@ export function getDailyMetricSummaries(input: {
   if (diaOffManual) {
     workoutValue = "Dia off"
     workoutDetail = "Pausado"
+  } else if (trainingBriefing && trainingBriefing.status !== "no-training") {
+    workoutValue = trainingBriefing.title
+    workoutDetail =
+      formatTodayTrainingEvidence(trainingBriefing) ??
+      trainingBriefing.subtitle
   } else if (isTrainingDay && treino) {
     workoutValue = treino.grupoMuscular
     workoutDetail = `Treino ${treino.letra}`
   }
 
-  return [
+  const allMetrics: DailyMetricSummary[] = [
     {
       kind: "water",
       label: "Água",
@@ -443,6 +422,12 @@ export function getDailyMetricSummaries(input: {
       mci: "dumbbell",
     },
   ]
+
+  if (input.kinds) {
+    return allMetrics.filter((metric) => input.kinds!.includes(metric.kind))
+  }
+
+  return allMetrics
 }
 
 export function getTodayWorkoutSummary(input: {

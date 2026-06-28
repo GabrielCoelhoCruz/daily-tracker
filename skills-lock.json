@@ -136,6 +136,12 @@
       "skillPath": "skills/product-launch-video/SKILL.md",
       "computedHash": "a73c99953777d77e4614d0186299b8068cdaa165455c71d82872522d4ab41d96"
     },
+    "react-native-best-practices": {
+      "source": "callstackincubator/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-native-best-practices/SKILL.md",
+      "computedHash": "bcfda6ceb62981ead5e28bd7781f1f9c08aef501e6731d5c8e7b790d8e302570"
+    },
     "remotion-to-hyperframes": {
       "source": "heygen-com/hyperframes",
       "sourceType": "github",
