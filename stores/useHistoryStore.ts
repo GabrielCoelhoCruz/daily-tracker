@@ -7,6 +7,11 @@ export type HistoricoDia = {
   completados: number;
   total: number;
   itensPerdidos: string[];
+  executionScore?: number;
+  closeoutSavedAt?: string;
+  closeoutEvidence?: string;
+  closeoutLeaks?: string[];
+  dayNote?: string;
 };
 
 type HistoryState = {

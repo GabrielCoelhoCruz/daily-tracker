@@ -1,31 +1,18 @@
 import { useEffect, useMemo, useRef } from "react";
-import {
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-  type ScrollView as ScrollViewType,
-} from "react-native";
-import { theme, withAlpha } from "@/constants/theme";
+import { Platform, ScrollView, View } from "react-native";
 import { plano } from "@/data/plano";
-import { GlassChip } from "@/components/ui/GlassChip";
-import { AppIcon } from "@/components/ui/AppIcon";
-import { PeriodoSection } from "@/components/checklist/PeriodoSection";
-import { HidratacaoCard } from "@/components/hidratacao/HidratacaoCard";
-import { CardioCard } from "@/components/cardio/CardioCard";
 import { TodayBriefingCard } from "@/components/home/TodayBriefingCard";
-import { DailyMetricsGrid } from "@/components/home/DailyMetricsGrid";
 import { TrainingTodayCard } from "@/components/home/TrainingTodayCard";
-import { ProtocolTimeline } from "@/components/home/ProtocolTimeline";
-import { HomeSectionHeader } from "@/components/home/HomeSectionHeader";
+import { DailyMetricsGrid } from "@/components/home/DailyMetricsGrid";
+import { DailyProtocolSummaryCard } from "@/components/home/DailyProtocolSummaryCard";
+import { ScreenSubtitle } from "@/components/ui/ScreenSubtitle";
 import { useDayStore } from "@/stores/useDayStore";
+import { useSplitStore } from "@/stores/useSplitStore";
 import { useGymStore } from "@/stores/useGymStore";
-import { animateWithHaptic } from "@/utils/animationUtils";
 import {
   isDiaDeTreino,
   filtrarItensDoDia,
-  getTreinoDoDia,
+  resolveTreinoForDay,
 } from "@/utils/diaUtils";
 import { checkAndReset } from "@/utils/resetUtils";
 import { cancelHydrationNotificacoes } from "@/utils/notificationUtils";
@@ -38,26 +25,32 @@ import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
 import {
   getDailyMetricSummaries,
   getNextHomeAction,
-  getProtocolTimelineItems,
   getTodayHeaderSubtitle,
   getTodayProtocolProgress,
-  getTodayWorkoutSummary,
 } from "@/utils/homeUtils";
+import { DailyCloseoutCard } from "@/components/home/DailyCloseoutCard";
+import { useHistoryStore } from "@/stores/useHistoryStore";
+import {
+  getDailyCloseoutSummary,
+  toCloseoutHistorico,
+  type DailyCloseoutInput,
+} from "@/utils/dailyCloseoutUtils";
+import { getDailyProtocolSummary } from "@/utils/dailyProtocolSummaryUtils";
+import { getTodayTrainingBriefing } from "@/utils/todayTrainingUtils";
+import { useRouter } from "expo-router";
 
 export default function HojeScreen() {
+  const router = useRouter();
   const checks = useDayStore((s) => s.checks);
   const bottomPadding = useTabContentBottomPadding();
   const diaOffManual = useDayStore((s) => s.diaOffManual);
-  const setDiaOff = useDayStore((s) => s.setDiaOff);
+  const treinoHojeId = useDayStore((s) => s.treinoHojeId);
+  const splitWeekPlan = useSplitStore((s) => s.splitWeekPlan);
   const refeicaoLivreUsada = useDayStore((s) => s.refeicaoLivreUsada);
   const refeicaoLivrePeriodoId = useDayStore((s) => s.refeicaoLivrePeriodoId);
-  const usarRefeicaoLivre = useDayStore((s) => s.usarRefeicaoLivre);
-  const desfazerRefeicaoLivre = useDayStore((s) => s.desfazerRefeicaoLivre);
   const aguaMl = useDayStore((s) => s.aguaMl);
   const sessoesCardio = useDayStore((s) => s.sessoesCardio);
   const prevAguaRef = useRef(aguaMl);
-  const scrollRef = useRef<ScrollViewType>(null);
-  const checklistOffsetRef = useRef(0);
 
   useEffect(() => {
     checkAndReset();
@@ -75,24 +68,79 @@ export default function HojeScreen() {
   }, [aguaMl]);
 
   const logicalDate = getLogicalDate(new Date());
+  const salvarDia = useHistoryStore((s) => s.salvarDia);
+  const savedCloseout = useHistoryStore((s) => s.dias[logicalDate]);
   const dayOfWeek = getLogicalDayOfWeek(new Date());
-  const treinoDoDia = getTreinoDoDia(dayOfWeek);
-  const isTrainingDay = isDiaDeTreino(dayOfWeek, diaOffManual);
+  const treinoDoDia = resolveTreinoForDay(dayOfWeek, {
+    todayDay: dayOfWeek,
+    treinoHojeId,
+    splitWeekPlan,
+  });
+  const isTrainingDay = isDiaDeTreino(dayOfWeek, diaOffManual, splitWeekPlan);
   const treino = isTrainingDay ? treinoDoDia : null;
 
   const periodosFiltrados = useMemo(
     () => filtrarItensDoDia(plano.periodos, dayOfWeek, diaOffManual),
-    [dayOfWeek, diaOffManual]
+    [dayOfWeek, diaOffManual],
   );
 
   const cardioMinutos = useMemo(
     () => sessoesCardio.reduce((sum, s) => sum + s.minutos, 0),
-    [sessoesCardio]
+    [sessoesCardio],
   );
 
-  const workoutLogged = useGymStore((s) =>
-    treino ? Boolean(s.getActiveSessionForTreinoAndDate(treino.id, logicalDate)) : false
+  const gymSession = useGymStore((s) =>
+    treino ? s.getActiveSessionForTreinoAndDate(treino.id, logicalDate) : undefined,
   );
+
+  const trainingBriefing = useMemo(
+    () =>
+      getTodayTrainingBriefing({
+        isTrainingDay,
+        diaOffManual,
+        treino,
+        session: gymSession,
+      }),
+    [isTrainingDay, diaOffManual, treino, gymSession],
+  );
+
+  const workoutComplete = trainingBriefing.status === "complete";
+
+  const closeoutInput = useMemo<DailyCloseoutInput>(
+    () => ({
+      date: logicalDate,
+      periodos: periodosFiltrados,
+      checks,
+      refeicaoLivreUsada,
+      refeicaoLivrePeriodoId,
+      aguaMl,
+      metaAguaMl: plano.metaHidratacao.aguaMl,
+      cardioMinutos,
+      metaCardioMin: plano.metaCardioMin,
+      isTrainingDay,
+      diaOffManual,
+      trainingBriefing,
+    }),
+    [
+      logicalDate,
+      periodosFiltrados,
+      checks,
+      refeicaoLivreUsada,
+      refeicaoLivrePeriodoId,
+      aguaMl,
+      cardioMinutos,
+      isTrainingDay,
+      diaOffManual,
+      trainingBriefing,
+    ],
+  );
+
+  const closeoutSummary = useMemo(
+    () => getDailyCloseoutSummary(closeoutInput),
+    [closeoutInput],
+  );
+
+  const isCloseoutSaved = Boolean(savedCloseout?.closeoutSavedAt);
 
   const progress = useMemo(
     () =>
@@ -100,9 +148,33 @@ export default function HojeScreen() {
         periodosFiltrados,
         checks,
         refeicaoLivreUsada,
-        refeicaoLivrePeriodoId
+        refeicaoLivrePeriodoId,
       ),
-    [periodosFiltrados, checks, refeicaoLivreUsada, refeicaoLivrePeriodoId]
+    [periodosFiltrados, checks, refeicaoLivreUsada, refeicaoLivrePeriodoId],
+  );
+
+  const protocolSummary = useMemo(
+    () =>
+      getDailyProtocolSummary({
+        periodos: periodosFiltrados,
+        checks,
+        refeicaoLivreUsada,
+        refeicaoLivrePeriodoId,
+        aguaMl,
+        metaAguaMl: plano.metaHidratacao.aguaMl,
+        cardioMinutos,
+        metaCardioMin: plano.metaCardioMin,
+        diaOffManual,
+      }),
+    [
+      periodosFiltrados,
+      checks,
+      refeicaoLivreUsada,
+      refeicaoLivrePeriodoId,
+      aguaMl,
+      cardioMinutos,
+      diaOffManual,
+    ],
   );
 
   const nextAction = useMemo(
@@ -118,7 +190,8 @@ export default function HojeScreen() {
         metaCardioMin: plano.metaCardioMin,
         isTrainingDay,
         treino,
-        workoutLogged,
+        workoutLogged: workoutComplete,
+        trainingBriefing,
       }),
     [
       periodosFiltrados,
@@ -129,8 +202,9 @@ export default function HojeScreen() {
       cardioMinutos,
       isTrainingDay,
       treino,
-      workoutLogged,
-    ]
+      workoutComplete,
+      trainingBriefing,
+    ],
   );
 
   const metrics = useMemo(
@@ -147,6 +221,8 @@ export default function HojeScreen() {
         isTrainingDay,
         diaOffManual,
         treino,
+        trainingBriefing,
+        kinds: ["diet", "workout"],
       }),
     [
       periodosFiltrados,
@@ -158,28 +234,8 @@ export default function HojeScreen() {
       isTrainingDay,
       diaOffManual,
       treino,
-    ]
-  );
-
-  const timelineItems = useMemo(
-    () =>
-      getProtocolTimelineItems(
-        periodosFiltrados,
-        checks,
-        refeicaoLivreUsada,
-        refeicaoLivrePeriodoId
-      ),
-    [periodosFiltrados, checks, refeicaoLivreUsada, refeicaoLivrePeriodoId]
-  );
-
-  const workoutSummary = useMemo(
-    () =>
-      getTodayWorkoutSummary({
-        isTrainingDay,
-        diaOffManual,
-        treino,
-      }),
-    [isTrainingDay, diaOffManual, treino]
+      trainingBriefing,
+    ],
   );
 
   const headerSubtitle = useMemo(
@@ -189,241 +245,72 @@ export default function HojeScreen() {
         diaOffManual,
         treino,
       }),
-    [isTrainingDay, diaOffManual, treino]
+    [isTrainingDay, diaOffManual, treino],
   );
 
-  function handleToggleDiaOff() {
-    animateWithHaptic(() => setDiaOff(!diaOffManual));
+  function handleOpenProtocol() {
+    router.push("/(tabs)/(hoje)/protocol");
   }
 
-  function handleRefeicaoLivre(periodoId: string) {
-    animateWithHaptic(() => usarRefeicaoLivre(periodoId));
+  function handleBriefingAction() {
+    if (nextAction.type === "workout") {
+      router.push("/(tabs)/(treino)");
+      return;
+    }
+    handleOpenProtocol();
   }
 
-  function handleDesfazerRefeicaoLivre() {
-    animateWithHaptic(() => desfazerRefeicaoLivre());
+  function handleGoExecute() {
+    const primaryLeak = closeoutSummary.primaryLeak;
+    if (primaryLeak?.type === "training") {
+      router.push("/(tabs)/(treino)");
+      return;
+    }
+    handleOpenProtocol();
   }
 
-  function handleOpenChecklist() {
-    scrollRef.current?.scrollTo({
-      y: checklistOffsetRef.current,
-      animated: true,
-    });
+  function handleCloseDay(dayNote: string) {
+    const historico = toCloseoutHistorico(closeoutInput, dayNote);
+    salvarDia(historico);
+
+    if (
+      gymSession &&
+      trainingBriefing.status !== "complete" &&
+      trainingBriefing.status !== "no-training"
+    ) {
+      useGymStore.getState().finishGymSession(gymSession.id);
+    }
   }
 
   return (
     <ScrollView
-      ref={scrollRef}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={{
         paddingHorizontal: 20,
         paddingBottom: bottomPadding,
       }}
     >
-      {/* ── Today header ── */}
-      <View style={{ paddingTop: 8, paddingBottom: 20, gap: 4 }}>
-        <Text
-          style={{
-            ...theme.typography.title3,
-            fontSize: 34,
-            fontWeight: "700",
-            letterSpacing: -0.5,
-          }}
-        >
-          Hoje
-        </Text>
-        <Text style={{ ...theme.typography.footnote, fontSize: 15 }}>
-          {formatLogicalDate(new Date())}
-        </Text>
-        <Text
-          style={{
-            ...theme.typography.callout,
-            color: theme.colors.primary.DEFAULT,
-            marginTop: 2,
-          }}
-        >
-          {headerSubtitle}
-        </Text>
-      </View>
+      <ScreenSubtitle
+        text={formatLogicalDate(new Date())}
+        secondary={headerSubtitle}
+      />
 
-      {/* ── Today Briefing ── */}
       <View style={{ gap: 20, marginBottom: 28 }}>
         <TodayBriefingCard
           progress={progress}
           nextAction={nextAction}
-          onOpenChecklist={handleOpenChecklist}
+          onOpenChecklist={handleBriefingAction}
         />
         <DailyMetricsGrid metrics={metrics} />
-        <TrainingTodayCard summary={workoutSummary} />
-      </View>
-
-      {/* ── Protocol timeline ── */}
-      <View style={{ marginBottom: 28 }}>
-        <HomeSectionHeader title="PROTOCOLO" />
-        <ProtocolTimeline items={timelineItems} />
-      </View>
-
-      {/* ── Day Off Toggle ── */}
-      <Pressable
-        onPress={handleToggleDiaOff}
-        accessibilityRole="button"
-        accessibilityLabel={
-          diaOffManual ? "Desativar Dia Off" : "Ativar Dia Off"
-        }
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          paddingHorizontal: 20,
-          paddingVertical: 16,
-          borderRadius: 16,
-          backgroundColor: diaOffManual
-            ? withAlpha(theme.colors.semantic.error, 0.08)
-            : withAlpha(theme.colors.surface.variant, 0.3),
-          borderWidth: 1,
-          borderColor: diaOffManual
-            ? withAlpha(theme.colors.semantic.error, 0.2)
-            : "rgba(255,255,255,0.05)",
-          marginBottom: 32,
-        }}
-      >
-        <View
-          style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
-        >
-          <AppIcon
-            sf="moon.fill"
-            mci="moon-waning-crescent"
-            size={20}
-            color={
-              diaOffManual
-                ? theme.colors.semantic.error
-                : theme.colors.onSurface.variant
-            }
-          />
-          <View>
-            <Text
-              style={{
-                fontSize: 13,
-                fontWeight: "700",
-                color: diaOffManual
-                  ? theme.colors.semantic.error
-                  : theme.colors.onSurface.DEFAULT,
-              }}
-            >
-              Dia Off
-            </Text>
-            <Text
-              style={{
-                fontSize: 10,
-                color: theme.colors.onSurface.variant,
-                marginTop: 2,
-              }}
-            >
-              {diaOffManual
-                ? "Treino e dieta pausados"
-                : "Pausar treino e dieta"}
-            </Text>
-          </View>
-        </View>
-
-        <View
-          style={{
-            width: 44,
-            height: 24,
-            borderRadius: 12,
-            backgroundColor: diaOffManual
-              ? theme.colors.semantic.error
-              : theme.colors.surface.containerHighest,
-            justifyContent: "center",
-            paddingHorizontal: 3,
-          }}
-        >
-          <View
-            style={{
-              width: 18,
-              height: 18,
-              borderRadius: 9,
-              backgroundColor: diaOffManual
-                ? theme.colors.onSurface.DEFAULT
-                : theme.colors.onSurface.variant,
-              alignSelf: diaOffManual ? "flex-end" : "flex-start",
-            }}
-          />
-        </View>
-      </Pressable>
-
-      {/* ── Section: Essenciais ── */}
-      <View style={{ gap: 16, marginBottom: 40 }}>
-        <Text
-          style={{
-            ...theme.typography.labelMedium,
-            color: theme.colors.onSurface.variant,
-            paddingHorizontal: 4,
-          }}
-        >
-          ESSENCIAIS DO DIA
-        </Text>
-
-        <HidratacaoCard />
-        <CardioCard />
-      </View>
-
-      {/* ── Section: Detailed Checklist ── */}
-      <View
-        style={{ gap: 16 }}
-        onLayout={(event) => {
-          checklistOffsetRef.current = event.nativeEvent.layout.y;
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            paddingHorizontal: 4,
-          }}
-        >
-          <Text
-            style={{
-              ...theme.typography.labelMedium,
-              color: theme.colors.onSurface.variant,
-            }}
-          >
-            CHECKLIST DETALHADO
-          </Text>
-
-          {isTrainingDay && refeicaoLivreUsada && (
-            <GlassChip
-              label="Desfazer livre"
-              tone="error"
-              uppercase
-              onPress={handleDesfazerRefeicaoLivre}
-              accessibilityLabel="Desfazer refeição livre"
-              icon={{ sf: "arrow.uturn.backward", mci: "undo" }}
-            />
-          )}
-        </View>
-
-        {periodosFiltrados.map((periodo) => (
-          <View key={periodo.id} style={{ gap: 8 }}>
-            <PeriodoSection periodo={periodo} />
-
-            {isTrainingDay &&
-              !refeicaoLivreUsada &&
-              periodo.itens.some((i) => i.categoria === "refeicao") && (
-                <GlassChip
-                  label="Usar refeição livre"
-                  tone="primary"
-                  uppercase
-                  centered
-                  onPress={() => handleRefeicaoLivre(periodo.id)}
-                  accessibilityLabel={`Usar refeição livre em ${periodo.nome}`}
-                  icon={{ sf: "fork.knife", mci: "food-apple-outline" }}
-                  style={{ paddingVertical: 10 }}
-                />
-              )}
-          </View>
-        ))}
+        <TrainingTodayCard briefing={trainingBriefing} />
+        <DailyProtocolSummaryCard summary={protocolSummary} />
+        <DailyCloseoutCard
+          summary={closeoutSummary}
+          isAlreadyClosed={isCloseoutSaved}
+          savedNote={savedCloseout?.dayNote}
+          onCloseDay={handleCloseDay}
+          onGoExecute={handleGoExecute}
+        />
       </View>
     </ScrollView>
   );

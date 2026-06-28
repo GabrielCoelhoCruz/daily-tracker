@@ -9,8 +9,10 @@ import { useAppFocusRefresh } from "@/utils/useAppFocusRefresh";
 import { getLogicalDate } from "@/utils/dateUtils";
 import {
   getCalendarDayTone,
+  getCalendarDayExecutionState,
   type CalendarDayTone,
 } from "@/utils/prepReviewUtils";
+import { ExecutionCalendarLegend } from "@/components/history/ExecutionCalendarLegend";
 
 type CalendarioProps = {
   onDayPress?: (dateStr: string) => void;
@@ -133,8 +135,10 @@ export function Calendario({ onDayPress }: CalendarioProps) {
           size={18}
           color={theme.colors.onSurface.variant}
         />
-        <Text style={theme.typography.callout}>Calendário</Text>
+        <Text style={theme.typography.callout}>Evidência do calendário</Text>
       </View>
+
+      <ExecutionCalendarLegend />
 
       <View className="mb-4 flex-row items-center justify-between">
         <Pressable
@@ -182,6 +186,11 @@ export function Calendario({ onDayPress }: CalendarioProps) {
 
           const historico = dias[cell.dateStr];
           const tone = getCalendarDayTone(cell.dateStr, todayStr, historico);
+          const executionState = getCalendarDayExecutionState(
+            cell.dateStr,
+            todayStr,
+            historico,
+          );
           const isToday = tone === "today" || cell.dateStr === todayStr;
           const future = tone === "future";
           const showAdherence =
@@ -235,6 +244,19 @@ export function Calendario({ onDayPress }: CalendarioProps) {
                 >
                   {cell.day}
                 </Text>
+                {executionState.hasLeaks ? (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: 4,
+                      right: 4,
+                      width: 5,
+                      height: 5,
+                      borderRadius: 2.5,
+                      backgroundColor: theme.colors.semantic.error,
+                    }}
+                  />
+                ) : null}
               </View>
             </Pressable>
           );

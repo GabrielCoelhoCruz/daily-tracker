@@ -9,11 +9,14 @@ type DaySummaryRowProps = {
 
 function getToneColor(tone: RecentDaySummary["tone"]): string {
   switch (tone) {
+    case "complete":
     case "perfect":
     case "strong":
       return theme.colors.semantic.success;
+    case "warning":
     case "partial":
-      return theme.colors.primary.DEFAULT;
+      return theme.colors.accent.DEFAULT;
+    case "leak":
     case "weak":
       return theme.colors.semantic.error;
     default:
@@ -27,14 +30,19 @@ export function DaySummaryRow({ summary, onPress }: DaySummaryRowProps) {
 
   const valueText = summary.inProgress
     ? "Em andamento"
-    : summary.percentage !== null
-      ? `${summary.percentage}%`
-      : "—";
+    : summary.hasCloseout && summary.executionScore != null
+      ? `${summary.executionScore}%`
+      : summary.percentage !== null
+        ? `${summary.percentage}%`
+        : "—";
 
-  const detailText =
-    summary.total > 0
-      ? `${summary.completed} de ${summary.total}`
-      : undefined;
+  const detailText = summary.primaryLeak
+    ? summary.primaryLeak
+    : summary.evidenceShort
+      ? summary.evidenceShort
+      : summary.total > 0
+        ? `${summary.completed} de ${summary.total}`
+        : undefined;
 
   return (
     <Pressable
@@ -48,33 +56,35 @@ export function DaySummaryRow({ summary, onPress }: DaySummaryRowProps) {
         minHeight: 44,
         paddingVertical: 10,
         paddingHorizontal: 4,
+        gap: 12,
       }}
     >
-      <Text style={{ ...theme.typography.body, fontWeight: "500" }}>
-        {summary.label}
-      </Text>
-      <View style={{ alignItems: "flex-end", gap: 2 }}>
-        <Text
-          style={{
-            ...theme.typography.callout,
-            fontWeight: "600",
-            fontVariant: ["tabular-nums"],
-            color,
-          }}
-        >
-          {valueText}
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={{ ...theme.typography.body, fontWeight: "500" }}>
+          {summary.label}
         </Text>
         {detailText ? (
           <Text
+            numberOfLines={1}
             style={{
               ...theme.typography.caption,
-              fontVariant: ["tabular-nums"],
+              color: theme.colors.onSurface.variant,
             }}
           >
             {detailText}
           </Text>
         ) : null}
       </View>
+      <Text
+        style={{
+          ...theme.typography.callout,
+          fontWeight: "600",
+          fontVariant: ["tabular-nums"],
+          color,
+        }}
+      >
+        {valueText}
+      </Text>
     </Pressable>
   );
 }

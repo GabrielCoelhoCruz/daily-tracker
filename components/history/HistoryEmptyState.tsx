@@ -27,8 +27,8 @@ export function HistoryEmptyState() {
         }}
       >
         <AppIcon
-          sf="calendar.badge.clock"
-          mci="calendar-clock"
+          sf="chart.bar.doc.horizontal"
+          mci="chart-timeline-variant"
           size={32}
           color={theme.colors.onSurface.variant}
         />
@@ -40,7 +40,7 @@ export function HistoryEmptyState() {
           textAlign: "center",
         }}
       >
-        Nenhum registro ainda
+        Nenhum fechamento ainda
       </Text>
       <Text
         style={{
@@ -50,8 +50,8 @@ export function HistoryEmptyState() {
           color: theme.colors.onSurface.variant,
         }}
       >
-        Complete seu primeiro dia para desbloquear{"\n"}padrões semanais de
-        preparação.
+        Feche seu primeiro dia na aba Hoje para mapear{"\n"}score, evidência e
+        vazamentos de prep.
       </Text>
     </View>
   );

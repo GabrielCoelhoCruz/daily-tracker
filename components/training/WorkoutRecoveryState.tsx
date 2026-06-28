@@ -7,25 +7,39 @@ type WorkoutRecoveryStateProps = {
   summary: TrainingSessionSummary;
   dayName: string;
   isWeekend: boolean;
+  isCardio?: boolean;
 };
 
 export function WorkoutRecoveryState({
   summary,
   dayName,
   isWeekend,
+  isCardio = false,
 }: WorkoutRecoveryStateProps) {
   const isDayOff = summary.mode === "day-off";
-  const iconSf = isDayOff ? ("pause.circle.fill" as const) : ("moon.fill" as const);
-  const iconMci = isDayOff ? ("pause-circle" as const) : ("moon-waning-crescent" as const);
+  const iconSf = isDayOff
+    ? ("pause.circle.fill" as const)
+    : isCardio
+      ? ("figure.run" as const)
+      : ("moon.fill" as const);
+  const iconMci = isDayOff
+    ? ("pause-circle" as const)
+    : isCardio
+      ? ("run" as const)
+      : ("moon-waning-crescent" as const);
 
   const bodyText = isDayOff
     ? "Choose another day to view the protocol."
-    : isWeekend
-      ? "Use this day to recover and stay on protocol."
-      : "Use this day to recover and stay on protocol.";
+    : isCardio
+      ? "Registre o cardio na aba Hoje."
+      : isWeekend
+        ? "Use this day to recover and stay on protocol."
+        : "Use this day to recover and stay on protocol.";
 
-  const subtitle =
-    summary.mode === "rest" && !isWeekend
+  const title = isCardio ? "Cardio" : summary.title;
+  const subtitle = isCardio
+    ? "Dia de cardio no plano"
+    : summary.mode === "rest" && !isWeekend
       ? "No workout scheduled today."
       : summary.subtitle;
 
@@ -69,7 +83,7 @@ export function WorkoutRecoveryState({
           textAlign: "center",
         }}
       >
-        {summary.title}
+        {title}
       </Text>
       <Text
         style={{

@@ -2,9 +2,9 @@ import { useCallback, useMemo } from "react";
 import { ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Calendario } from "@/components/historico/Calendario";
-import { PrepReviewHeader } from "@/components/history/PrepReviewHeader";
+import { ScreenSubtitle } from "@/components/ui/ScreenSubtitle";
 import { WeeklyReviewCard } from "@/components/history/WeeklyReviewCard";
-import { PatternInsightCard } from "@/components/history/PatternInsightCard";
+import { MainLeakCard } from "@/components/history/MainLeakCard";
 import { HistoryMetricsGrid } from "@/components/history/HistoryMetricsGrid";
 import { RecentDaysList } from "@/components/history/RecentDaysList";
 import { HistoryEmptyState } from "@/components/history/HistoryEmptyState";
@@ -12,8 +12,7 @@ import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { getLogicalDate } from "@/utils/dateUtils";
 import {
-  getPrepReviewSummary,
-  getPrimaryPrepInsight,
+  getWeeklyExecutionReview,
   getRecentDaySummaries,
 } from "@/utils/prepReviewUtils";
 
@@ -24,14 +23,14 @@ export default function HistoricoScreen() {
   const bottomPadding = useTabContentBottomPadding();
   const todayDate = getLogicalDate(new Date());
 
-  const summary = useMemo(
-    () => getPrepReviewSummary(dias, todayDate),
-    [dias, todayDate]
+  const weeklyReview = useMemo(
+    () => getWeeklyExecutionReview(dias, todayDate),
+    [dias, todayDate],
   );
-  const insight = useMemo(() => getPrimaryPrepInsight(dias), [dias]);
+
   const recentDays = useMemo(
     () => getRecentDaySummaries(dias, todayDate, 7),
-    [dias, todayDate]
+    [dias, todayDate],
   );
 
   const handleDayPress = useCallback(
@@ -41,7 +40,7 @@ export default function HistoricoScreen() {
         router.push(`/dia-detalhe?date=${dateStr}`);
       }
     },
-    [dias, router]
+    [dias, router],
   );
 
   return (
@@ -54,13 +53,16 @@ export default function HistoricoScreen() {
         gap: 16,
       }}
     >
-      <PrepReviewHeader />
+      <ScreenSubtitle text="Onde sua execução está vazando?" />
 
       {hasHistory ? (
         <>
-          <WeeklyReviewCard summary={summary} />
-          <PatternInsightCard insight={insight} />
-          <HistoryMetricsGrid summary={summary} />
+          <WeeklyReviewCard review={weeklyReview} />
+          <MainLeakCard
+            mainLeak={weeklyReview.mainLeak}
+            closedDays={weeklyReview.closedDays}
+          />
+          <HistoryMetricsGrid review={weeklyReview} />
           <Calendario onDayPress={handleDayPress} />
           <RecentDaysList days={recentDays} onDayPress={handleDayPress} />
         </>

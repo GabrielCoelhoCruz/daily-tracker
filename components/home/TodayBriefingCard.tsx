@@ -16,6 +16,10 @@ export function TodayBriefingCard({
 }: TodayBriefingCardProps) {
   const isComplete = nextAction.type === "complete"
 
+  const actionAccent = isComplete
+    ? theme.colors.semantic.success
+    : theme.colors.primary.DEFAULT
+
   return (
     <View
       style={{
@@ -27,13 +31,14 @@ export function TodayBriefingCard({
         gap: 20,
       }}
     >
+      {/* ── Próxima Ação hero ── */}
       <View style={{ gap: 6 }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           <AppIcon
-            sf="chart.line.uptrend.xyaxis"
-            mci="chart-line"
+            sf={isComplete ? "checkmark.circle.fill" : "bolt.fill"}
+            mci={isComplete ? "check-circle" : "lightning-bolt"}
             size={16}
-            color={theme.colors.onSurface.variant}
+            color={actionAccent}
           />
           <Text
             style={{
@@ -41,47 +46,18 @@ export function TodayBriefingCard({
               fontWeight: "700",
               letterSpacing: 0.5,
               textTransform: "uppercase",
+              color: actionAccent,
             }}
           >
-            Protocolo Diário
+            Próxima Ação
           </Text>
         </View>
 
         <Text
           style={{
             ...theme.typography.title3,
-            fontSize: 28,
+            fontSize: 22,
             fontWeight: "700",
-          }}
-        >
-          {progress.percentage}% completo
-        </Text>
-        <Text style={{ ...theme.typography.footnote }}>
-          {progress.completed} de {progress.total} concluídos
-        </Text>
-      </View>
-
-      <View
-        style={{
-          height: 1,
-          backgroundColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.06),
-        }}
-      />
-
-      <View style={{ gap: 8 }}>
-        <Text
-          style={{
-            ...theme.typography.caption,
-            fontWeight: "700",
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
-          }}
-        >
-          Próximo
-        </Text>
-        <Text
-          style={{
-            ...theme.typography.headline,
             color: isComplete
               ? theme.colors.semantic.success
               : theme.colors.onSurface.DEFAULT,
@@ -92,6 +68,67 @@ export function TodayBriefingCard({
         <Text style={{ ...theme.typography.footnote }}>{nextAction.subtitle}</Text>
       </View>
 
+      <View
+        style={{
+          height: 1,
+          backgroundColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.06),
+        }}
+      />
+
+      {/* ── Progresso do protocolo ── */}
+      <View style={{ gap: 10 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={{
+              ...theme.typography.caption,
+              fontWeight: "700",
+              letterSpacing: 0.5,
+              textTransform: "uppercase",
+            }}
+          >
+            Protocolo
+          </Text>
+          <Text
+            style={{
+              ...theme.typography.caption,
+              fontWeight: "700",
+              color: actionAccent,
+            }}
+          >
+            {progress.percentage}%
+          </Text>
+        </View>
+
+        {/* Barra de progresso */}
+        <View
+          style={{
+            height: 4,
+            borderRadius: 2,
+            backgroundColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.08),
+            overflow: "hidden",
+          }}
+        >
+          <View
+            style={{
+              height: 4,
+              borderRadius: 2,
+              backgroundColor: actionAccent,
+              width: `${progress.percentage}%`,
+            }}
+          />
+        </View>
+
+        <Text style={{ ...theme.typography.footnote }}>
+          {progress.completed} de {progress.total} concluídos
+        </Text>
+      </View>
+
       <Pressable
         onPress={onOpenChecklist}
         accessibilityRole="button"
@@ -99,19 +136,9 @@ export function TodayBriefingCard({
         style={{
           minHeight: 44,
           borderRadius: theme.radius.lg,
-          backgroundColor: withAlpha(
-            isComplete
-              ? theme.colors.semantic.success
-              : theme.colors.primary.container,
-            0.12
-          ),
+          backgroundColor: withAlpha(actionAccent, 0.12),
           borderWidth: 1,
-          borderColor: withAlpha(
-            isComplete
-              ? theme.colors.semantic.success
-              : theme.colors.primary.DEFAULT,
-            0.2
-          ),
+          borderColor: withAlpha(actionAccent, 0.2),
           alignItems: "center",
           justifyContent: "center",
           paddingHorizontal: 16,
@@ -120,9 +147,7 @@ export function TodayBriefingCard({
         <Text
           style={{
             ...theme.typography.callout,
-            color: isComplete
-              ? theme.colors.semantic.success
-              : theme.colors.primary.DEFAULT,
+            color: actionAccent,
           }}
         >
           {nextAction.cta}

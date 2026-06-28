@@ -1,291 +1,472 @@
-import { useRef, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
-import { theme, withAlpha } from "@/constants/theme";
+import { useLayoutEffect, useMemo, useState } from "react";
+
+import { ScrollView } from "react-native";
+
+import { useNavigation } from "expo-router";
+
 import { DAY_NAMES_FULL } from "@/constants/days";
-import { getTreinoDoDia } from "@/utils/diaUtils";
+
+import { resolveTreinoForDay } from "@/utils/diaUtils";
+
+import { getWeekDaySlot } from "@/utils/splitWeekUtils";
+
 import { useDayStore } from "@/stores/useDayStore";
+
+import { useSplitStore } from "@/stores/useSplitStore";
+
 import { useGymStore } from "@/stores/useGymStore";
+
 import { getLogicalDayOfWeek, getLogicalDate } from "@/utils/dateUtils";
-import { GymLogPanel } from "@/components/treino/GymLogPanel";
+
 import {
-  FocalExercicioCard,
-  ExercicioItem,
-} from "@/components/treino/ExercicioItem";
-import { DayOfWeekPicker, getInitialWorkoutDay } from "@/components/workout/DayOfWeekPicker";
+
+  SplitWeekPlanner,
+
+  getInitialWorkoutDay,
+
+} from "@/components/workout/SplitWeekPlanner";
+
 import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
+
 import { useGymSessionForToday } from "@/hooks/useGymSession";
+
 import { TrainingSessionHeader } from "@/components/training/TrainingSessionHeader";
-import { CurrentLiftCard } from "@/components/training/CurrentLiftCard";
-import { TrainingProgressRail } from "@/components/training/TrainingProgressRail";
-import { UpcomingExercisesCard } from "@/components/training/UpcomingExercisesCard";
+
+import { CurrentSetCard } from "@/components/training/CurrentSetCard";
+
+import { SessionVolumeCard } from "@/components/training/SessionVolumeCard";
+
+import { RestTimerCard } from "@/components/training/RestTimerCard";
+
+import { ExerciseProgressList } from "@/components/training/ExerciseProgressList";
+
+import { SessionSummaryCard } from "@/components/training/SessionSummaryCard";
+
+import { ExerciseProtocolList } from "@/components/training/ExerciseProtocolList";
+
 import { WorkoutRecoveryState } from "@/components/training/WorkoutRecoveryState";
+
 import {
-  getCurrentTrainingExercise,
-  getPreviousLoadForExercise,
+
+  getPreviousBestSetDisplay,
+
   getSuggestedLoad,
-  getTrainingProgress,
+
   getTrainingSessionSummary,
-  getUpcomingTrainingExercises,
+
 } from "@/utils/trainingSessionUtils";
 
+import {
+
+  getCompletedSetCount,
+
+  getCurrentSet,
+
+  getTotalSetCount,
+
+} from "@/utils/trainingPerformanceUtils";
+
+
+
 export default function TreinoScreen() {
+
   const todayDay = getLogicalDayOfWeek(new Date());
+
   const todayDate = getLogicalDate(new Date());
-  const [selectedDay, setSelectedDay] = useState(() => getInitialWorkoutDay(todayDay));
+
+  const splitWeekPlan = useSplitStore((s) => s.splitWeekPlan);
+
+  const setWeekDaySlot = useSplitStore((s) => s.setWeekDaySlot);
+
+  const [selectedDay, setSelectedDay] = useState(() =>
+
+    getInitialWorkoutDay(todayDay, splitWeekPlan),
+
+  );
+
   const diaOffManual = useDayStore((s) => s.diaOffManual);
-  const gymSessions = useGymStore((s) => Object.values(s.gymSessions));
+
+  const treinoHojeId = useDayStore((s) => s.treinoHojeId);
+
+  const gymSessionsRecord = useGymStore((s) => s.gymSessions);
+
+  const gymSessions = useMemo(
+
+    () => Object.values(gymSessionsRecord),
+
+    [gymSessionsRecord],
+
+  );
+
   const bottomPadding = useTabContentBottomPadding();
-  const scrollViewRef = useRef<ScrollView>(null);
-  const [gymLogPanelY, setGymLogPanelY] = useState(0);
+
+  const [restTimerActive, setRestTimerActive] = useState(false);
+
+
 
   const isViewingToday = selectedDay === todayDay;
+
   const isTodayOff = isViewingToday && diaOffManual;
-  const treino = isTodayOff ? null : getTreinoDoDia(selectedDay);
+
+  const selectedSlot = getWeekDaySlot(selectedDay, splitWeekPlan);
+
+  const treino = isTodayOff
+
+    ? null
+
+    : resolveTreinoForDay(selectedDay, {
+
+        todayDay,
+
+        treinoHojeId: isViewingToday ? treinoHojeId : null,
+
+        splitWeekPlan,
+
+      });
+
   const dayName = DAY_NAMES_FULL[selectedDay];
+
   const showGymLog = isViewingToday && !diaOffManual && treino != null;
 
-  const { session, startSession } = useGymSessionForToday(
-    showGymLog ? treino : null,
-    todayDate,
-  );
+
+
+  const {
+
+    session,
+
+    startSession,
+
+    completeSet,
+
+    undoSet,
+
+    finishSession,
+
+  } = useGymSessionForToday(showGymLog ? treino : null, todayDate);
+
+
 
   const sessionSummary = getTrainingSessionSummary({
+
     selectedDay,
+
     todayDay,
+
     diaOffManual,
+
     treino,
+
   });
 
-  const handleScrollToGymLog = () => {
-    scrollViewRef.current?.scrollTo({
-      y: Math.max(gymLogPanelY - 16, 0),
-      animated: true,
-    });
-  };
 
-  const handlePrimaryLiftAction = () => {
-    if (!session) {
-      startSession();
+
+  const navigation = useNavigation();
+
+
+
+  useLayoutEffect(() => {
+
+    if (!treino) {
+
+      navigation.setOptions({
+
+        title:
+
+          isTodayOff
+
+            ? "Descanso"
+
+            : selectedSlot.kind === "cardio"
+
+              ? "Cardio"
+
+              : "Treino",
+
+      });
+
       return;
+
     }
-    handleScrollToGymLog();
+
+    navigation.setOptions({ title: `Treino ${treino.letra}` });
+
+  }, [navigation, treino, isTodayOff, selectedSlot.kind]);
+
+
+
+  const currentSet = treino ? getCurrentSet(session, treino.exercicios) : null;
+
+  const previousPerformance =
+
+    currentSet && treino
+
+      ? getPreviousBestSetDisplay(
+
+          currentSet.exercicioId,
+
+          todayDate,
+
+          gymSessions,
+
+          treino.exercicios,
+
+        )
+
+      : null;
+
+  const suggestedLoadKg = getSuggestedLoad(
+
+    previousPerformance
+
+      ? Number.parseFloat(previousPerformance.split("kg")[0])
+
+      : null,
+
+  );
+
+
+
+  const isSessionComplete =
+
+    session != null &&
+
+    getCompletedSetCount(session) === getTotalSetCount(session) &&
+
+    getTotalSetCount(session) > 0;
+
+
+
+  const handleCompleteSet = (data: {
+
+    loadKg: number;
+
+    repsCompleted: number;
+
+    isFailure: boolean;
+
+  }) => {
+
+    if (!currentSet) return;
+
+    completeSet(currentSet.exercicioId, currentSet.set.id, data);
+
+    setRestTimerActive(true);
+
   };
 
-  // ─── Rest / Day Off ────────────────────────────────────────────────
+
+
+  const handleUndoSet = () => {
+
+    if (!currentSet) return;
+
+    undoSet(currentSet.exercicioId, currentSet.set.id);
+
+    setRestTimerActive(false);
+
+  };
+
+
+
+  const planner = (
+
+    <SplitWeekPlanner
+
+      selectedDay={selectedDay}
+
+      todayDay={todayDay}
+
+      diaOffManual={diaOffManual}
+
+      treinoHojeId={treinoHojeId}
+
+      splitWeekPlan={splitWeekPlan}
+
+      onSelectDay={setSelectedDay}
+
+      onSetWeekDaySlot={setWeekDaySlot}
+
+    />
+
+  );
+
+
 
   if (!treino) {
-    const isWeekend = selectedDay === 0 || selectedDay === 6;
+
+    const isCardio = selectedSlot.kind === "cardio";
+
+
 
     return (
+
       <ScrollView
+
         contentInsetAdjustmentBehavior="automatic"
+
         contentContainerStyle={{
+
           flexGrow: 1,
+
           paddingHorizontal: 24,
+
           paddingBottom: bottomPadding,
+
           paddingTop: 8,
+
         }}
+
       >
-        <DayOfWeekPicker
-          selectedDay={selectedDay}
-          todayDay={todayDay}
-          diaOffManual={diaOffManual}
-          onSelectDay={setSelectedDay}
-        />
+
+        {planner}
+
+
 
         <WorkoutRecoveryState
+
           summary={sessionSummary}
+
           dayName={dayName}
-          isWeekend={isWeekend}
+
+          isWeekend={selectedSlot.kind === "rest"}
+
+          isCardio={isCardio}
+
         />
+
       </ScrollView>
+
     );
+
   }
 
-  // ─── Training Day ──────────────────────────────────────────────────
 
-  const [firstExercise, ...remainingExercises] = treino.exercicios;
-  const currentExercise = getCurrentTrainingExercise(treino.exercicios, session);
-  const progress = getTrainingProgress(treino.exercicios, session);
-  const previousLoadKg = getPreviousLoadForExercise(
-    currentExercise.exerciseId,
-    todayDate,
-    gymSessions,
-  );
-  const suggestedLoadKg = getSuggestedLoad(previousLoadKg);
-  const upcomingExercises = getUpcomingTrainingExercises(
-    treino.exercicios,
-    currentExercise.index,
-    3,
-  );
-  const isFinalLift = currentExercise.index === treino.exercicios.length - 1;
 
   return (
+
     <ScrollView
-      ref={scrollViewRef}
+
       contentInsetAdjustmentBehavior="automatic"
+
       contentContainerStyle={{
+
         paddingHorizontal: 24,
+
         paddingBottom: bottomPadding,
+
         paddingTop: 8,
+
       }}
+
     >
-      <DayOfWeekPicker
-        selectedDay={selectedDay}
-        todayDay={todayDay}
-        diaOffManual={diaOffManual}
-        onSelectDay={setSelectedDay}
-      />
+
+      {planner}
+
+
 
       <TrainingSessionHeader
+
         summary={sessionSummary}
+
         isViewingToday={isViewingToday}
+
         dayName={dayName}
+
       />
 
-      <CurrentLiftCard
-        currentExercise={currentExercise}
-        previousLoadKg={previousLoadKg}
-        suggestedLoadKg={suggestedLoadKg}
-        hasSession={session != null}
-        showPrimaryAction={showGymLog}
-        onPrimaryAction={handlePrimaryLiftAction}
-      />
 
-      <TrainingProgressRail
-        progress={progress}
-        exercicios={treino.exercicios}
-        session={session}
-        currentIndex={currentExercise.index}
-      />
 
-      <UpcomingExercisesCard
-        upcomingExercises={upcomingExercises}
-        isFinalLift={isFinalLift}
-      />
+      {isSessionComplete && session ? (
 
-      <View
-        onLayout={(event) => {
-          setGymLogPanelY(event.nativeEvent.layout.y);
-        }}
-      >
-        <GymLogPanel treino={treino} date={todayDate} visible={showGymLog} />
-      </View>
+        <SessionSummaryCard
 
-      {/* ── Full Protocol ── */}
-      <View style={{ marginBottom: 8, marginTop: 8 }}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderBottomWidth: 1,
-            borderBottomColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.05),
-            paddingBottom: 12,
-            marginBottom: 16,
-            paddingHorizontal: 4,
-          }}
-        >
-          <Text
-            style={{
-              ...theme.typography.labelSmall,
-              color: withAlpha(theme.colors.onSurface.variant, 0.6),
-            }}
-          >
-            Full Protocol
-          </Text>
-        </View>
+          session={session}
 
-        <FocalExercicioCard exercicio={firstExercise} index={0} />
+          exercicios={treino.exercicios}
 
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 8,
-            marginTop: 16,
-            paddingHorizontal: 4,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 9,
-              fontWeight: "900",
-              color: withAlpha(theme.colors.onSurface.variant, 0.4),
-              letterSpacing: 2,
-              textTransform: "uppercase",
-            }}
-          >
-            Grupo:
-          </Text>
-          <View
-            style={{
-              backgroundColor: theme.colors.surface.containerHigh,
-              paddingHorizontal: 10,
-              paddingVertical: 5,
-              borderRadius: 8,
-              borderWidth: 1,
-              borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.05),
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 9,
-                fontWeight: "900",
-                color: theme.colors.onSurface.DEFAULT,
-                letterSpacing: 2,
-                textTransform: "uppercase",
-              }}
-            >
-              {treino.grupoMuscular}
-            </Text>
-          </View>
-        </View>
-      </View>
+          gymSessions={gymSessions}
 
-      {remainingExercises.length > 0 && (
-        <View style={{ marginTop: 32 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              borderBottomWidth: 1,
-              borderBottomColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.05),
-              paddingBottom: 12,
-              marginBottom: 16,
-              paddingHorizontal: 4,
-            }}
-          >
-            <Text
-              style={{
-                ...theme.typography.labelSmall,
-                color: withAlpha(theme.colors.onSurface.variant, 0.6),
-              }}
-            >
-              PRÓXIMOS NO PROTOCOLO
-            </Text>
-            <Text
-              style={{
-                ...theme.typography.labelSmall,
-                color: withAlpha(theme.colors.onSurface.variant, 0.4),
-              }}
-            >
-              {remainingExercises.length} restantes
-            </Text>
-          </View>
+          onFinish={finishSession}
 
-          <View style={{ gap: 10 }}>
-            {remainingExercises.map((exercicio, index) => (
-              <ExercicioItem
-                key={exercicio.id}
-                exercicio={exercicio}
-                index={index + 1}
-              />
-            ))}
-          </View>
-        </View>
+        />
+
+      ) : (
+
+        <CurrentSetCard
+
+          currentSet={currentSet}
+
+          previousPerformance={previousPerformance}
+
+          suggestedLoadKg={suggestedLoadKg}
+
+          hasSession={session != null}
+
+          workoutLabel={
+
+            sessionSummary.workoutLabel ?? sessionSummary.title
+
+          }
+
+          showPrimaryAction={showGymLog}
+
+          onStartSession={startSession}
+
+          onCompleteSet={handleCompleteSet}
+
+          onUndoSet={handleUndoSet}
+
+        />
+
       )}
+
+
+
+      <SessionVolumeCard session={session} />
+
+
+
+      <RestTimerCard
+
+        setType={currentSet?.set.plannedSetType ?? null}
+
+        active={restTimerActive}
+
+        onComplete={() => setRestTimerActive(false)}
+
+      />
+
+
+
+      <ExerciseProgressList
+
+        exercicios={treino.exercicios}
+
+        session={session}
+
+      />
+
+
+
+      <ExerciseProtocolList
+
+        exercicios={treino.exercicios}
+
+        currentIndex={currentSet?.exerciseIndex ?? 0}
+
+        session={session}
+
+        muscleGroup={treino.grupoMuscular}
+
+        currentDate={todayDate}
+
+        gymSessions={gymSessions}
+
+      />
+
     </ScrollView>
+
   );
+
 }
+

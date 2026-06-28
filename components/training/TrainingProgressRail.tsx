@@ -3,6 +3,7 @@ import { theme, withAlpha } from "@/constants/theme";
 import { AppIcon } from "@/components/ui/AppIcon";
 import type { Exercicio } from "@/data/treinos";
 import type { GymSession } from "@/stores/slices/gymLogSlice";
+import { isExerciseFullyLogged, migrateLegacyExerciseLog } from "@/utils/trainingPerformanceUtils";
 import type { TrainingProgress } from "@/utils/trainingSessionUtils";
 
 type TrainingProgressRailProps = {
@@ -15,13 +16,15 @@ type TrainingProgressRailProps = {
 type DotState = "completed" | "active" | "pending";
 
 function getDotState(
-  exercicioId: string,
+  exercicio: Exercicio,
   index: number,
   currentIndex: number,
   session: GymSession | undefined,
 ): DotState {
-  const log = session?.logs.find((entry) => entry.exercicioId === exercicioId);
-  if (log?.cargaKg != null) return "completed";
+  const log = session?.logs.find((entry) => entry.exercicioId === exercicio.id);
+  if (log && isExerciseFullyLogged(migrateLegacyExerciseLog(log, exercicio))) {
+    return "completed";
+  }
   if (index === currentIndex) return "active";
   return "pending";
 }
@@ -78,7 +81,7 @@ export function TrainingProgressRail({
       >
         {exercicios.map((exercicio, index) => {
           const state = getDotState(
-            exercicio.id,
+            exercicio,
             index,
             currentIndex,
             session,

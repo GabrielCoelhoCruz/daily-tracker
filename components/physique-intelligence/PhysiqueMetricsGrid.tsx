@@ -2,15 +2,10 @@ import { Text, View } from "react-native";
 import { theme, withAlpha } from "@/constants/theme";
 import { AppIcon } from "@/components/ui/AppIcon";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import type {
-  PhysiqueIntelligenceSummary,
-  StageReadinessTrend,
-} from "@/utils/physiqueIntelligenceUtils";
-import { getStageReadinessTrendLabel } from "@/utils/physiqueIntelligenceUtils";
+import type { PhysiqueIntelligenceSummary } from "@/utils/physiqueIntelligenceUtils";
 
 type PhysiqueMetricsGridProps = {
   summary: PhysiqueIntelligenceSummary;
-  readinessTrend: StageReadinessTrend;
 };
 
 type MetricCardProps = {
@@ -83,42 +78,43 @@ function MetricCard({
   );
 }
 
-function getTrendColor(direction: StageReadinessTrend["direction"]) {
-  switch (direction) {
-    case "improving":
-      return theme.colors.semantic.success;
-    case "declining":
-      return theme.colors.semantic.error;
-    default:
-      return theme.colors.onSurface.DEFAULT;
+function getWeightTrendValue(deltaKg: number | null): {
+  value: string;
+  color: string;
+} {
+  if (deltaKg == null) {
+    return { value: "—", color: theme.colors.onSurface.variant };
   }
+
+  const formatted = `${deltaKg >= 0 ? "+" : ""}${deltaKg}kg`;
+  if (deltaKg < 0) {
+    return { value: formatted, color: theme.colors.semantic.success };
+  }
+  if (deltaKg > 0) {
+    return { value: formatted, color: theme.colors.semantic.warning };
+  }
+  return { value: formatted, color: theme.colors.onSurface.DEFAULT };
 }
 
-export function PhysiqueMetricsGrid({
-  summary,
-  readinessTrend,
-}: PhysiqueMetricsGridProps) {
+export function PhysiqueMetricsGrid({ summary }: PhysiqueMetricsGridProps) {
   const weightValue =
     summary.latestWeightKg != null ? `${summary.latestWeightKg}kg` : "—";
-  const weightDetail =
-    summary.weightDeltaKg != null
-      ? `${summary.weightDeltaKg >= 0 ? "+" : ""}${summary.weightDeltaKg}kg`
-      : undefined;
+
+  const weightTrend = getWeightTrendValue(summary.weightDeltaKg);
 
   const metrics: MetricCardProps[] = [
     {
       label: "Weight",
       value: weightValue,
-      detail: weightDetail,
       sf: "scalemass.fill",
       mci: "scale-bathroom",
     },
     {
-      label: "Readiness",
-      value: getStageReadinessTrendLabel(readinessTrend),
+      label: "Delta peso",
+      value: weightTrend.value,
       sf: "chart.line.uptrend.xyaxis",
       mci: "chart-line",
-      valueColor: getTrendColor(readinessTrend.direction),
+      valueColor: weightTrend.color,
     },
     {
       label: "Check-ins",

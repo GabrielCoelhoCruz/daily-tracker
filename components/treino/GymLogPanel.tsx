@@ -55,8 +55,8 @@ function GymExerciseLogRow({
         {log.nome}
       </Text>
       <Text style={{ ...theme.typography.caption, color: theme.colors.onSurface.variant }}>
-        {log.series} séries
-        {log.repeticoes > 0 ? ` · ${log.repeticoes} reps` : ''}
+        {log.series ?? log.plannedSets ?? 0} séries
+        {(log.repeticoes ?? 0) > 0 ? ` · ${log.repeticoes} reps` : ''}
       </Text>
       <TextInput
         accessibilityLabel={`Carga em kg para ${log.nome}`}

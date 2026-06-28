@@ -18,6 +18,7 @@ if (
 }
 import "../global.css";
 import { theme } from "@/constants/theme";
+import { nativeHeaderGlass } from "@/constants/glassTheme";
 import { useConfigStore } from "@/stores/useConfigStore";
 import { scheduleNotificacoes } from "@/utils/notificationUtils";
 
@@ -28,6 +29,15 @@ export const unstable_settings = {
 };
 
 SplashScreen.preventAutoHideAsync();
+
+const AppDarkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: theme.colors.bg.primary,
+    card: theme.colors.bg.primary,
+  },
+};
 
 export default function RootLayout() {
   const router = useRouter();
@@ -94,7 +104,7 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={DarkTheme}>
+    <ThemeProvider value={AppDarkTheme}>
       <View style={{ flex: 1, backgroundColor: theme.colors.bg.primary }}>
         <StatusBar style="light" />
         <Stack
@@ -114,10 +124,9 @@ export default function RootLayout() {
               headerTitle: "Configurações",
               headerTransparent: true,
               headerShadowVisible: false,
-              headerBlurEffect: "none",
-              headerStyle: { backgroundColor: "transparent" },
               headerTintColor: theme.colors.text.primary,
               contentStyle: { backgroundColor: "transparent" },
+              ...nativeHeaderGlass,
             }}
           />
         </Stack>

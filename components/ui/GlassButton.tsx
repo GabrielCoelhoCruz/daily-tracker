@@ -8,6 +8,7 @@ import {
 import { BlurView } from "expo-blur";
 import { GlassView } from "expo-glass-effect";
 import { theme } from "@/constants/theme";
+import { glassSolidFallback, glassSurfaceProps } from "@/constants/glassTheme";
 import {
   useShouldRenderBlurFallback,
   useShouldRenderGlass,
@@ -37,9 +38,9 @@ function SolidFallbackButton({
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: theme.colors.surface.containerHighest,
+          backgroundColor: glassSolidFallback.backgroundColor,
           borderWidth: 1,
-          borderColor: theme.colors.outline.variant,
+          borderColor: glassSolidFallback.borderColor,
           alignItems: "center",
           justifyContent: "center",
         },
@@ -70,7 +71,7 @@ export function GlassButton({
   if (shouldRenderGlass) {
     surface = (
       <GlassView
-        glassEffectStyle="regular"
+        {...glassSurfaceProps}
         style={{
           width: size,
           height: size,
@@ -85,8 +86,8 @@ export function GlassButton({
   } else if (shouldRenderBlur) {
     surface = (
       <BlurView
-        tint="systemUltraThinMaterialDark"
-        intensity={70}
+        tint="dark"
+        intensity={80}
         style={{
           width: size,
           height: size,
@@ -95,7 +96,7 @@ export function GlassButton({
           alignItems: "center",
           justifyContent: "center",
           borderWidth: StyleSheet.hairlineWidth,
-          borderColor: theme.colors.outline.variant,
+          borderColor: glassSolidFallback.borderColor,
         }}
       >
         {children}

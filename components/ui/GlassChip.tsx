@@ -10,6 +10,7 @@ import { GlassView } from "expo-glass-effect";
 import { SymbolViewProps } from "expo-symbols";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme, withAlpha } from "@/constants/theme";
+import { glassSolidFallback, glassSurfaceProps } from "@/constants/glassTheme";
 import { AppIcon } from "@/components/ui/AppIcon";
 import {
   useShouldRenderBlurFallback,
@@ -104,7 +105,7 @@ function GlassSurfaceChip({
 }: Omit<GlassChipProps, "onPress" | "accessibilityLabel">) {
   return (
     <GlassView
-      glassEffectStyle="regular"
+      {...glassSurfaceProps}
       style={[
         {
           borderRadius: uppercase ? theme.radius.sm : theme.radius.lg,
@@ -138,8 +139,8 @@ function BlurSurfaceChip({
 
   return (
     <BlurView
-      tint="systemUltraThinMaterialDark"
-      intensity={70}
+      tint="dark"
+      intensity={80}
       style={[
         {
           borderRadius: uppercase ? theme.radius.sm : theme.radius.lg,

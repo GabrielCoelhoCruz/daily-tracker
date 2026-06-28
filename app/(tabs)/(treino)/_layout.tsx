@@ -13,7 +13,7 @@ export default function TreinoLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Workout",
+          title: "Treino",
         }}
       />
     </Stack>

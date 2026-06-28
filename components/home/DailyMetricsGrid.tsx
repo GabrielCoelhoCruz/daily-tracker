@@ -7,21 +7,13 @@ type DailyMetricsGridProps = {
 }
 
 export function DailyMetricsGrid({ metrics }: DailyMetricsGridProps) {
-  const topRow = metrics.slice(0, 2)
-  const bottomRow = metrics.slice(2, 4)
+  if (metrics.length === 0) return null
 
   return (
-    <View style={{ gap: 12 }}>
-      <View style={{ flexDirection: "row", gap: 12 }}>
-        {topRow.map((metric) => (
-          <HomeMetricCard key={metric.kind} metric={metric} />
-        ))}
-      </View>
-      <View style={{ flexDirection: "row", gap: 12 }}>
-        {bottomRow.map((metric) => (
-          <HomeMetricCard key={metric.kind} metric={metric} />
-        ))}
-      </View>
+    <View style={{ flexDirection: "row", gap: 12 }}>
+      {metrics.map((metric) => (
+        <HomeMetricCard key={metric.kind} metric={metric} />
+      ))}
     </View>
   )
 }

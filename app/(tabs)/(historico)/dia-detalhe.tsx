@@ -1,8 +1,10 @@
+import { useMemo } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { theme, withAlpha } from "@/constants/theme";
 import { ProgressBar } from "@/components/checklist/ProgressBar";
 import { AppIcon } from "@/components/ui/AppIcon";
+import { CloseoutDayDetail } from "@/components/history/CloseoutDayDetail";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { useGymStore } from "@/stores/useGymStore";
 import { formatPtBR } from "@/utils/dateUtils";
@@ -10,8 +12,8 @@ import { formatGymSessionsForHistory } from "@/utils/gymLogUtils";
 
 function getStatusText(completados: number, total: number): string {
   if (total === 0) return "Sem dados";
-  if (completados >= total) return "Completo";
-  return "Parcial";
+  if (completados >= total) return "Checklist completo";
+  return "Checklist parcial";
 }
 
 function getStatusColor(completados: number, total: number): string {
@@ -25,21 +27,41 @@ function getStatusColor(completados: number, total: number): string {
 export default function DiaDetalheScreen() {
   const { date } = useLocalSearchParams<{ date: string }>();
   const historico = useHistoryStore((s) => (date ? s.dias[date] : undefined));
-  const gymSessions = useGymStore((s) =>
-    date ? s.getGymSessionsByDate(date) : [],
+  const gymSessionsRecord = useGymStore((s) => s.gymSessions);
+  const gymSessions = useMemo(
+    () =>
+      date
+        ? Object.values(gymSessionsRecord).filter(
+            (session) => session.date === date,
+          )
+        : [],
+    [gymSessionsRecord, date],
   );
   const gymHistoryCards = formatGymSessionsForHistory(gymSessions);
 
   if (!historico && gymHistoryCards.length === 0) {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          paddingHorizontal: 32,
+        }}
+      >
         <AppIcon
           sf="calendar"
           mci="calendar-outline"
           size={48}
           color={theme.colors.text.muted}
         />
-        <Text style={{ ...theme.typography.body, color: theme.colors.text.muted, marginTop: 16 }}>
+        <Text
+          style={{
+            ...theme.typography.body,
+            color: theme.colors.text.muted,
+            marginTop: 16,
+          }}
+        >
           Nenhum dado encontrado
         </Text>
       </View>
@@ -62,18 +84,47 @@ export default function DiaDetalheScreen() {
         {historico ? formatPtBR(historico.data) : date ? formatPtBR(date) : ""}
       </Text>
 
+      {historico ? <CloseoutDayDetail historico={historico} /> : null}
+
       {historico && (
         <>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <AppIcon
-              sf={historico.completados >= historico.total ? "checkmark.circle.fill" : "exclamationmark.circle.fill"}
-              mci={historico.completados >= historico.total ? "check-circle" : "alert-circle"}
-              size={20}
-              color={statusColor}
-            />
-            <Text style={{ ...theme.typography.footnote, fontWeight: "500", color: statusColor }}>
-              {statusText}
+          <View style={{ gap: 8 }}>
+            <Text
+              style={{
+                ...theme.typography.caption,
+                fontWeight: "700",
+                letterSpacing: 0.5,
+                textTransform: "uppercase",
+                color: theme.colors.onSurface.variant,
+              }}
+            >
+              Protocolo legado
             </Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <AppIcon
+                sf={
+                  historico.completados >= historico.total
+                    ? "checkmark.circle.fill"
+                    : "exclamationmark.circle.fill"
+                }
+                mci={
+                  historico.completados >= historico.total
+                    ? "check-circle"
+                    : "alert-circle"
+                }
+                size={20}
+                color={statusColor}
+              />
+              <Text
+                style={{
+                  ...theme.typography.footnote,
+                  fontWeight: "500",
+                  color: statusColor,
+                }}
+              >
+                {statusText}
+              </Text>
+            </View>
           </View>
 
           <ProgressBar
@@ -83,20 +134,36 @@ export default function DiaDetalheScreen() {
 
           {historico.itensPerdidos.length > 0 && (
             <View style={{ gap: 8 }}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+              >
                 <AppIcon
                   sf="xmark.circle"
                   mci="close-circle-outline"
                   size={16}
                   color={theme.colors.semantic.error}
                 />
-                <Text style={{ ...theme.typography.footnote, fontWeight: "500", color: theme.colors.text.secondary }}>
+                <Text
+                  style={{
+                    ...theme.typography.footnote,
+                    fontWeight: "500",
+                    color: theme.colors.text.secondary,
+                  }}
+                >
                   Itens perdidos ({historico.itensPerdidos.length})
                 </Text>
               </View>
 
               {historico.itensPerdidos.map((item, index) => (
-                <View key={`${index}-${item}`} style={{ marginLeft: 24, flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <View
+                  key={`${index}-${item}`}
+                  style={{
+                    marginLeft: 24,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
                   <View
                     style={{
                       height: 6,
@@ -114,7 +181,8 @@ export default function DiaDetalheScreen() {
           )}
 
           {historico.itensPerdidos.length === 0 &&
-            historico.completados >= historico.total && (
+            historico.completados >= historico.total &&
+            !historico.closeoutSavedAt && (
               <View
                 style={{
                   alignItems: "center",
@@ -147,7 +215,13 @@ export default function DiaDetalheScreen() {
 
       {gymHistoryCards.length > 0 && (
         <View style={{ gap: 12 }}>
-          <Text style={{ ...theme.typography.footnote, fontWeight: "600", color: theme.colors.text.secondary }}>
+          <Text
+            style={{
+              ...theme.typography.footnote,
+              fontWeight: "600",
+              color: theme.colors.text.secondary,
+            }}
+          >
             Treino registrado
           </Text>
           {gymHistoryCards.map((card, index) => (
@@ -170,7 +244,11 @@ export default function DiaDetalheScreen() {
                 <Text
                   key={`${lineIndex}-${line}`}
                   selectable
-                  style={{ ...theme.typography.body, fontSize: 14, color: theme.colors.onSurface.variant }}
+                  style={{
+                    ...theme.typography.body,
+                    fontSize: 14,
+                    color: theme.colors.onSurface.variant,
+                  }}
                 >
                   {line}
                 </Text>

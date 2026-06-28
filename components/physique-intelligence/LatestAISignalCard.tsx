@@ -1,55 +1,30 @@
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { theme, withAlpha } from "@/constants/theme";
 import { AppIcon } from "@/components/ui/AppIcon";
-import { MODE_LABELS, type PhysiqueCheckIn } from "@/stores/usePhysiqueStore";
-import type { AISignal } from "@/utils/physiqueIntelligenceUtils";
+import type { EvidenceAISignal } from "@/utils/physiqueIntelligenceUtils";
 
 type LatestAISignalCardProps = {
-  signal: AISignal;
-  latestCheckIn: PhysiqueCheckIn | null;
-  onPress?: () => void;
+  signal: EvidenceAISignal;
 };
 
-export function LatestAISignalCard({
-  signal,
-  latestCheckIn,
-  onPress,
-}: LatestAISignalCardProps) {
+export function LatestAISignalCard({ signal }: LatestAISignalCardProps) {
   const accent = signal.hasAnalysis
     ? theme.colors.primary.DEFAULT
     : theme.colors.onSurface.variant;
 
-  const footer =
-    latestCheckIn && signal.hasAnalysis
-      ? `Week ${latestCheckIn.week} · ${MODE_LABELS[latestCheckIn.mode] ?? latestCheckIn.mode}`
-      : latestCheckIn
-        ? "Analysis pending"
-        : null;
-
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={!onPress}
-      accessibilityRole="button"
-      accessibilityLabel={`Latest AI signal. ${signal.message}`}
-      accessibilityState={{ disabled: !onPress }}
+    <View
       style={{
         borderRadius: theme.radius.xl,
-        backgroundColor: theme.colors.surface.container,
+        backgroundColor: withAlpha(accent, signal.hasAnalysis ? 0.08 : 0.04),
         borderWidth: 1,
-        borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.06),
-        padding: 20,
+        borderColor: withAlpha(accent, 0.18),
+        padding: 18,
         gap: 10,
-        minHeight: 44,
       }}
     >
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-        <AppIcon
-          sf="brain.head.profile"
-          mci="brain"
-          size={16}
-          color={accent}
-        />
+        <AppIcon sf="brain.head.profile" mci="brain" size={16} color={accent} />
         <Text
           style={{
             ...theme.typography.caption,
@@ -59,26 +34,56 @@ export function LatestAISignalCard({
             color: accent,
           }}
         >
-          {signal.title}
+          Sinal de IA
         </Text>
       </View>
 
-      <Text
-        style={{
-          ...theme.typography.body,
-          color: signal.hasAnalysis
-            ? theme.colors.onSurface.DEFAULT
-            : theme.colors.onSurface.variant,
-        }}
-      >
-        {signal.hasAnalysis
-          ? signal.message
-          : "Open the latest check-in to generate or view analysis."}
-      </Text>
+      <View style={{ gap: 4 }}>
+        <Text
+          style={{
+            ...theme.typography.caption,
+            color: theme.colors.onSurface.variant,
+          }}
+        >
+          Sinal
+        </Text>
+        <Text
+          style={{
+            ...theme.typography.body,
+            color: signal.hasAnalysis
+              ? theme.colors.onSurface.DEFAULT
+              : theme.colors.onSurface.variant,
+          }}
+        >
+          {signal.message}
+        </Text>
+      </View>
 
-      {footer ? (
-        <Text style={{ ...theme.typography.caption, fontSize: 11 }}>{footer}</Text>
+      <View style={{ gap: 4 }}>
+        <Text
+          style={{
+            ...theme.typography.caption,
+            color: theme.colors.onSurface.variant,
+          }}
+        >
+          Evidência
+        </Text>
+        <Text style={{ ...theme.typography.footnote }}>{signal.evidence}</Text>
+      </View>
+
+      {signal.limitation ? (
+        <View style={{ gap: 4 }}>
+          <Text
+            style={{
+              ...theme.typography.caption,
+              color: theme.colors.onSurface.variant,
+            }}
+          >
+            Limitação
+          </Text>
+          <Text style={{ ...theme.typography.footnote }}>{signal.limitation}</Text>
+        </View>
       ) : null}
-    </Pressable>
+    </View>
   );
 }

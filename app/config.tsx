@@ -4,6 +4,7 @@ import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useConfigStore } from "@/stores/useConfigStore";
 import { plano } from "@/data/plano";
+import { DemoModeCard } from "@/components/settings/DemoModeCard";
 
 const INTERVALO_OPTIONS = [1, 2, 3] as const;
 
@@ -158,6 +159,11 @@ export default function ConfigScreen() {
       contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="pb-12"
     >
+      <SectionHeader>DEMO MODE</SectionHeader>
+      <View style={{ paddingHorizontal: 16 }}>
+        <DemoModeCard />
+      </View>
+
       {/* Period Notifications */}
       <SectionHeader>NOTIFICAÇÕES POR PERÍODO</SectionHeader>
       <Card className="p-0">

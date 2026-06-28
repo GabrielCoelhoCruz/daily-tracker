@@ -15,6 +15,8 @@ type SessaoCardio = {
 export type DayState = {
   checks: Record<string, CheckState>;
   diaOffManual: boolean;
+  /** Overrides today's scheduled split (e.g. legs instead of arms). Resets daily. */
+  treinoHojeId: string | null;
   aguaMl: number;
   chaMl: number;
   sessoesCardio: SessaoCardio[];
@@ -27,6 +29,7 @@ export type DayState = {
 type DayActions = {
   toggleCheck: (id: string) => void;
   setDiaOff: (value: boolean) => void;
+  setTreinoHoje: (treinoId: string | null) => void;
   addAgua: (ml: number) => void;
   removeAgua: (ml: number) => void;
   addCha: (ml: number) => void;
@@ -43,6 +46,7 @@ import { getLogicalDate, getWeekIdForDate } from "@/utils/dateUtils";
 const initialState: DayState = {
   checks: {},
   diaOffManual: false,
+  treinoHojeId: null,
   aguaMl: 0,
   chaMl: 0,
   sessoesCardio: [],
@@ -72,6 +76,8 @@ export const useDayStore = create<DayState & DayActions>()(
         }),
 
       setDiaOff: (value: boolean) => set({ diaOffManual: value }),
+
+      setTreinoHoje: (treinoId: string | null) => set({ treinoHojeId: treinoId }),
 
       addAgua: (ml: number) =>
         set((state) => ({ aguaMl: state.aguaMl + ml })),
@@ -116,6 +122,7 @@ export const useDayStore = create<DayState & DayActions>()(
         set({
           checks: {},
           diaOffManual: false,
+          treinoHojeId: null,
           aguaMl: 0,
           chaMl: 0,
           sessoesCardio: [],

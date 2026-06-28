@@ -1,73 +1,77 @@
 import { Text, View } from "react-native";
 import { theme, withAlpha } from "@/constants/theme";
 import { AppIcon } from "@/components/ui/AppIcon";
-import type { PrepReviewSummary } from "@/utils/prepReviewUtils";
+import type { WeeklyExecutionReview } from "@/utils/prepReviewUtils";
+import { formatPtBR } from "@/utils/dateUtils";
 
 type HistoryMetricsGridProps = {
-  summary: PrepReviewSummary;
+  review: WeeklyExecutionReview;
 };
 
 type MetricItem = {
   label: string;
   value: string;
   color: string;
-  sf: "flame.fill" | "calendar" | "calendar.badge.clock" | "checkmark.seal.fill";
-  mci: "fire" | "calendar-week" | "calendar-month" | "check-decagram";
+  sf:
+    | "chart.bar.fill"
+    | "exclamationmark.triangle.fill"
+    | "star.fill"
+    | "checkmark.seal.fill";
+  mci: "chart-bar" | "alert" | "star" | "check-decagram";
 };
 
-function buildMetrics(summary: PrepReviewSummary): MetricItem[] {
-  const weeklyColor =
-    summary.weeklyAdherence !== null && summary.weeklyAdherence >= 80
+function buildMetrics(review: WeeklyExecutionReview): MetricItem[] {
+  const averageColor =
+    review.averageScore != null && review.averageScore >= 75
       ? theme.colors.semantic.success
-      : summary.weeklyAdherence !== null && summary.weeklyAdherence >= 60
-        ? theme.colors.primary.DEFAULT
-        : theme.colors.onSurface.variant;
+      : review.averageScore != null && review.averageScore >= 50
+        ? theme.colors.accent.DEFAULT
+        : review.averageScore != null
+          ? theme.colors.semantic.error
+          : theme.colors.onSurface.variant;
 
-  const monthlyColor =
-    summary.monthlyAdherence !== null && summary.monthlyAdherence >= 80
-      ? theme.colors.semantic.success
-      : summary.monthlyAdherence !== null && summary.monthlyAdherence >= 60
-        ? theme.colors.primary.DEFAULT
-        : theme.colors.onSurface.variant;
+  const bestDayShort = review.bestDay
+    ? formatPtBR(review.bestDay.date).split(" ")[0] ?? "—"
+    : null;
 
   return [
     {
-      label: "Streak",
-      value: `${summary.streak}`,
+      label: "Execução média",
+      value:
+        review.averageScore != null ? `${review.averageScore}%` : "—",
+      color: averageColor,
+      sf: "chart.bar.fill",
+      mci: "chart-bar",
+    },
+    {
+      label: "Com vazamento",
+      value: `${review.daysWithLeaks}`,
       color:
-        summary.streak > 0
+        review.daysWithLeaks > 0
+          ? theme.colors.semantic.warning
+          : theme.colors.semantic.success,
+      sf: "exclamationmark.triangle.fill",
+      mci: "alert",
+    },
+    {
+      label: bestDayShort ? `Melhor · ${bestDayShort}` : "Melhor dia",
+      value: review.bestDay ? `${review.bestDay.score}%` : "—",
+      color:
+        review.bestDay != null
           ? theme.colors.semantic.success
           : theme.colors.onSurface.variant,
-      sf: "flame.fill",
-      mci: "fire",
+      sf: "star.fill",
+      mci: "star",
     },
     {
-      label: "Semanal",
-      value:
-        summary.weeklyAdherence !== null
-          ? `${summary.weeklyAdherence}%`
-          : "—",
-      color: weeklyColor,
-      sf: "calendar.badge.clock",
-      mci: "calendar-week",
-    },
-    {
-      label: "Mensal",
-      value:
-        summary.monthlyAdherence !== null
-          ? `${summary.monthlyAdherence}%`
-          : "—",
-      color: monthlyColor,
-      sf: "calendar",
-      mci: "calendar-month",
-    },
-    {
-      label: "Perfeitos",
-      value: `${summary.perfectDaysThisWeek}`,
+      label: "Fechamentos",
+      value: `${review.closedDays}/${review.totalDays}`,
       color:
-        summary.perfectDaysThisWeek > 0
+        review.closedDays >= 5
           ? theme.colors.semantic.success
-          : theme.colors.onSurface.variant,
+          : review.closedDays >= 3
+            ? theme.colors.primary.DEFAULT
+            : theme.colors.onSurface.variant,
       sf: "checkmark.seal.fill",
       mci: "check-decagram",
     },
@@ -82,26 +86,34 @@ function MetricCell({ metric }: { metric: MetricItem }) {
         alignItems: "center",
         gap: 4,
         paddingVertical: 12,
+        paddingHorizontal: 4,
       }}
     >
       <AppIcon sf={metric.sf} mci={metric.mci} size={18} color={metric.color} />
       <Text
         style={{
           ...theme.typography.title3,
-          fontSize: 22,
+          fontSize: 20,
           fontVariant: ["tabular-nums"],
           color: metric.color,
         }}
       >
         {metric.value}
       </Text>
-      <Text style={{ ...theme.typography.caption }}>{metric.label}</Text>
+      <Text
+        style={{
+          ...theme.typography.caption,
+          textAlign: "center",
+        }}
+      >
+        {metric.label}
+      </Text>
     </View>
   );
 }
 
-export function HistoryMetricsGrid({ summary }: HistoryMetricsGridProps) {
-  const metrics = buildMetrics(summary);
+export function HistoryMetricsGrid({ review }: HistoryMetricsGridProps) {
+  const metrics = buildMetrics(review);
   const topRow = metrics.slice(0, 2);
   const bottomRow = metrics.slice(2, 4);
 

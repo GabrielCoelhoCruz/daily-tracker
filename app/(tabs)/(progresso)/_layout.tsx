@@ -17,7 +17,7 @@ export default function ProgressoLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Stats",
+          title: "Physique Intelligence",
         }}
       />
       <Stack.Screen

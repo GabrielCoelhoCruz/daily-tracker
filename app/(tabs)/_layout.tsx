@@ -5,6 +5,7 @@ import { DynamicColorIOS, Platform } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { theme } from "@/constants/theme";
+import { nativeTabBarGlass } from "@/constants/glassTheme";
 
 import { usePendingDashCount } from "@/hooks/usePendingDashCount";
 
@@ -34,6 +35,22 @@ const tabTint =
 
 
 
+const tabLabelColor =
+
+  Platform.OS === "ios"
+
+    ? DynamicColorIOS({
+
+        dark: theme.colors.onSurface.variant,
+
+        light: theme.colors.onSurface.variant,
+
+      })
+
+    : theme.colors.onSurface.variant;
+
+
+
 export default function TabLayout() {
 
   const pendingDash = usePendingDashCount();
@@ -46,7 +63,11 @@ export default function TabLayout() {
 
   return (
 
-    <NativeTabs tintColor={tabTint}>
+    <NativeTabs
+      tintColor={tabTint}
+      {...nativeTabBarGlass}
+      labelStyle={{ color: tabLabelColor }}
+    >
 
       <NativeTabs.Trigger name="(hoje)">
 
@@ -86,7 +107,7 @@ export default function TabLayout() {
 
         />
 
-        <Label>Today</Label>
+        <Label>Hoje</Label>
 
         {badgeLabel ? <Badge>{badgeLabel}</Badge> : null}
 
@@ -118,7 +139,7 @@ export default function TabLayout() {
 
         />
 
-        <Label>Workout</Label>
+        <Label>Treino</Label>
 
       </NativeTabs.Trigger>
 

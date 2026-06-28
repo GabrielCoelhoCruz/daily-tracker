@@ -2,6 +2,7 @@ import { Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { theme, withAlpha } from "@/constants/theme";
+import { APP_BACKGROUND } from "@/constants/glassTheme";
 
 /**
  * Header settings control — MaterialCommunityIcons only (SymbolView can render
@@ -25,9 +26,9 @@ export function SettingsHeaderButton() {
           borderRadius: 17,
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: withAlpha(theme.colors.surface.containerHigh, 0.85),
+          backgroundColor: withAlpha(APP_BACKGROUND, 0.92),
           borderWidth: 1,
-          borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.08),
+          borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.1),
         }}
       >
         <MaterialCommunityIcons

@@ -7,9 +7,14 @@ import type { RecentDaySummary } from "@/utils/prepReviewUtils";
 type RecentDaysListProps = {
   days: RecentDaySummary[];
   onDayPress: (date: string) => void;
+  title?: string;
 };
 
-export function RecentDaysList({ days, onDayPress }: RecentDaysListProps) {
+export function RecentDaysList({
+  days,
+  onDayPress,
+  title = "Dias recentes",
+}: RecentDaysListProps) {
   if (days.length === 0) return null;
 
   return (
@@ -34,7 +39,7 @@ export function RecentDaysList({ days, onDayPress }: RecentDaysListProps) {
             color: theme.colors.onSurface.variant,
           }}
         >
-          Dias Recentes
+          {title}
         </Text>
       </View>
 
@@ -57,7 +62,7 @@ export function RecentDaysList({ days, onDayPress }: RecentDaysListProps) {
                   height: 1,
                   backgroundColor: withAlpha(
                     theme.colors.onSurface.DEFAULT,
-                    0.06
+                    0.06,
                   ),
                 }}
               />

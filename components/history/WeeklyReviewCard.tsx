@@ -1,33 +1,25 @@
 import { Text, View } from "react-native";
 import { theme, withAlpha } from "@/constants/theme";
 import { AppIcon } from "@/components/ui/AppIcon";
-import type { PrepReviewSummary } from "@/utils/prepReviewUtils";
+import type { WeeklyExecutionReview } from "@/utils/prepReviewUtils";
 
 type WeeklyReviewCardProps = {
-  summary: PrepReviewSummary;
+  review: WeeklyExecutionReview;
 };
 
-function formatWeeklySubtitle(summary: PrepReviewSummary): string {
-  const strongCount =
-    summary.strongDaysThisWeek + summary.perfectDaysThisWeek;
-  const parts: string[] = [];
+export function WeeklyReviewCard({ review }: WeeklyReviewCardProps) {
+  const hasCloseoutData = review.closedDays > 0;
 
-  if (strongCount > 0) {
-    parts.push(
-      `${strongCount} ${strongCount === 1 ? "dia forte" : "dias fortes"}`
-    );
-  }
-  if (summary.weakDaysThisWeek > 0) {
-    parts.push(
-      `${summary.weakDaysThisWeek} ${summary.weakDaysThisWeek === 1 ? "dia fraco" : "dias fracos"}`
-    );
-  }
-
-  return parts.join(" · ");
-}
-
-export function WeeklyReviewCard({ summary }: WeeklyReviewCardProps) {
-  const hasWeeklyData = summary.loggedDaysThisWeek > 0;
+  const scoreColor =
+    review.averageScore != null && review.averageScore >= 90
+      ? theme.colors.semantic.success
+      : review.averageScore != null && review.averageScore >= 75
+        ? theme.colors.primary.DEFAULT
+        : review.averageScore != null && review.averageScore >= 50
+          ? theme.colors.accent.DEFAULT
+          : review.averageScore != null
+            ? theme.colors.semantic.error
+            : theme.colors.onSurface.variant;
 
   return (
     <View
@@ -59,7 +51,7 @@ export function WeeklyReviewCard({ summary }: WeeklyReviewCardProps) {
         </Text>
       </View>
 
-      {hasWeeklyData ? (
+      {hasCloseoutData && review.averageScore != null ? (
         <>
           <Text
             style={{
@@ -67,33 +59,51 @@ export function WeeklyReviewCard({ summary }: WeeklyReviewCardProps) {
               fontSize: 28,
               fontWeight: "700",
               fontVariant: ["tabular-nums"],
-              color:
-                summary.weeklyAdherence !== null &&
-                summary.weeklyAdherence >= 80
-                  ? theme.colors.semantic.success
-                  : summary.weeklyAdherence !== null &&
-                      summary.weeklyAdherence >= 60
-                    ? theme.colors.primary.DEFAULT
-                    : theme.colors.onSurface.DEFAULT,
+              color: scoreColor,
             }}
           >
-            {summary.weeklyAdherence}% aderência
+            {review.averageScore}% execução
           </Text>
           <Text style={{ ...theme.typography.footnote }}>
-            {formatWeeklySubtitle(summary)}
+            {review.closedDays}/{review.totalDays} dias fechados
+            {review.daysWithLeaks > 0
+              ? ` · ${review.daysWithLeaks} com vazamento`
+              : " · sem vazamentos dominantes"}
+          </Text>
+        </>
+      ) : hasCloseoutData ? (
+        <>
+          <Text
+            style={{
+              ...theme.typography.title3,
+              fontSize: 22,
+              fontWeight: "700",
+              color: theme.colors.onSurface.DEFAULT,
+            }}
+          >
+            {review.closedDays} fechamento
+            {review.closedDays === 1 ? "" : "s"} esta semana
+          </Text>
+          <Text style={{ ...theme.typography.footnote }}>
+            Score ainda não disponível nos fechamentos salvos.
           </Text>
         </>
       ) : (
-        <Text
-          style={{
-            ...theme.typography.title3,
-            fontSize: 20,
-            fontWeight: "600",
-            color: theme.colors.onSurface.variant,
-          }}
-        >
-          Nenhum dia registrado ainda
-        </Text>
+        <>
+          <Text
+            style={{
+              ...theme.typography.title3,
+              fontSize: 20,
+              fontWeight: "600",
+              color: theme.colors.onSurface.variant,
+            }}
+          >
+            Nenhum fechamento esta semana
+          </Text>
+          <Text style={{ ...theme.typography.footnote }}>
+            Feche o dia na aba Hoje para registrar execução e vazamentos.
+          </Text>
+        </>
       )}
     </View>
   );
