@@ -35,7 +35,7 @@ export function PhysiqueEmptyState({
           textAlign: "center",
         }}
       >
-        Create your first check-in to start tracking stage readiness.
+        Crie seu primeiro check-in para acompanhar a prontidão para o palco.
       </Text>
 
       <Pressable
@@ -50,10 +50,10 @@ export function PhysiqueEmptyState({
           justifyContent: "center",
         }}
         accessibilityRole="button"
-        accessibilityLabel="New check-in"
+        accessibilityLabel="Novo check-in"
       >
         <Text style={{ color: "#000", fontWeight: "700", fontSize: 15 }}>
-          New Check-in
+          Novo Check-in
         </Text>
       </Pressable>
 

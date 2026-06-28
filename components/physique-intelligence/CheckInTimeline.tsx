@@ -45,7 +45,7 @@ export function CheckInTimeline({ items, onItemPress }: CheckInTimelineProps) {
               key={item.id}
               onPress={() => onItemPress(item.id)}
               accessibilityRole="button"
-              accessibilityLabel={`Week ${item.week}, ${weightLine}, ${item.modeLabel}`}
+              accessibilityLabel={`Semana ${item.week}, ${weightLine}, ${item.modeLabel}`}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -76,12 +76,12 @@ export function CheckInTimeline({ items, onItemPress }: CheckInTimelineProps) {
 
               <View style={{ flex: 1, gap: 4 }}>
                 <Text style={{ ...theme.typography.callout }}>
-                  Week {item.week}
+                  Semana {item.week}
                 </Text>
                 <Text style={{ ...theme.typography.footnote }}>{weightLine}</Text>
                 {item.stageReadinessLabel ? (
                   <Text style={{ ...theme.typography.caption, fontSize: 11 }}>
-                    Stage: {item.stageReadinessLabel}
+                    Prontidão: {item.stageReadinessLabel}
                   </Text>
                 ) : null}
                 <Text

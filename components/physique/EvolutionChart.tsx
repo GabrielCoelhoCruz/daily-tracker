@@ -28,13 +28,13 @@ export function EvolutionChart() {
   if (data.length < 2) return null;
 
   const yLabels = STAGE_READINESS_ORDER.map((_, i) =>
-    i === 0 ? "Longe" : i === 4 ? "Ready" : ""
+    i === 0 ? "Longe" : i === 4 ? "Pronto" : ""
   );
 
   return (
-    <View accessibilityLabel="Gráfico de evolução stage readiness">
+    <View accessibilityLabel="Gráfico de evolução — prontidão para o palco">
       <Text style={[theme.typography.footnote, { marginBottom: 8 }]}>
-        Stage Readiness
+        Prontidão para o Palco
       </Text>
       <LineChart
         data={data}

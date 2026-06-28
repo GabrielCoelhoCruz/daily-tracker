@@ -1,5 +1,8 @@
 import { Stack } from "expo-router";
-import { tabStackScreenOptions } from "@/constants/stackScreenOptions";
+import {
+  detailStackScreenOptions,
+  tabStackScreenOptions,
+} from "@/constants/stackScreenOptions";
 import { SettingsHeaderButton } from "@/components/ui/SettingsHeaderButton";
 
 export default function HojeLayout() {
@@ -13,7 +16,15 @@ export default function HojeLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Today",
+          title: "Hoje",
+        }}
+      />
+      <Stack.Screen
+        name="protocol"
+        options={{
+          ...detailStackScreenOptions,
+          headerLargeTitle: false,
+          title: "Protocolo do Dia",
         }}
       />
     </Stack>

@@ -22,7 +22,10 @@ function getReadinessColor(tone: PhysiqueIntelligenceSummary["stageReadinessTone
   }
 }
 
-export function StageReadinessHero({ summary, onPress }: StageReadinessHeroProps) {
+export function StageReadinessHero({
+  summary,
+  onPress,
+}: StageReadinessHeroProps) {
   const hasScores =
     summary.stageReadinessLabel != null ||
     summary.overallConditioning != null ||
@@ -31,11 +34,20 @@ export function StageReadinessHero({ summary, onPress }: StageReadinessHeroProps
 
   const scoreParts: string[] = [];
   if (summary.overallConditioning != null) {
-    scoreParts.push(`Conditioning ${summary.overallConditioning}/10`);
+    scoreParts.push(`Condicionamento ${summary.overallConditioning}/10`);
   }
   if (summary.vTaper != null) {
     scoreParts.push(`V-Taper ${summary.vTaper}/10`);
   }
+
+  const readinessTitle =
+    summary.stageReadinessLabel ?? (hasScores ? "Scores disponíveis" : "Análise pendente");
+
+  const scoreDetail = hasScores
+    ? scoreParts.length > 0
+      ? scoreParts.join(" · ")
+      : "Abra o último check-in para ver os scores completos."
+    : "Crie ou abra um check-in para gerar scores.";
 
   return (
     <Pressable
@@ -44,8 +56,8 @@ export function StageReadinessHero({ summary, onPress }: StageReadinessHeroProps
       accessibilityRole="button"
       accessibilityLabel={
         hasScores
-          ? `Stage readiness: ${summary.stageReadinessLabel}. ${scoreParts.join(", ")}`
-          : "Stage readiness analysis pending"
+          ? `Prontidão para o palco: ${readinessTitle}. ${scoreParts.join(", ")}`
+          : "Análise de prontidão pendente"
       }
       accessibilityState={{ disabled: !onPress }}
       style={{
@@ -54,44 +66,41 @@ export function StageReadinessHero({ summary, onPress }: StageReadinessHeroProps
         borderWidth: 1,
         borderColor: withAlpha(accent, 0.18),
         padding: 22,
-        gap: 10,
         minHeight: 44,
       }}
     >
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-        <AppIcon
-          sf="figure.strengthtraining.traditional"
-          mci="weight-lifter"
-          size={16}
-          color={theme.colors.onSurface.variant}
-        />
+      <View style={{ gap: 10 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <AppIcon
+            sf="figure.strengthtraining.traditional"
+            mci="weight-lifter"
+            size={16}
+            color={theme.colors.onSurface.variant}
+          />
+          <Text
+            style={{
+              ...theme.typography.caption,
+              fontWeight: "700",
+              letterSpacing: 0.5,
+              textTransform: "uppercase",
+            }}
+          >
+            Prontidão para o Palco
+          </Text>
+        </View>
+
         <Text
           style={{
-            ...theme.typography.caption,
-            fontWeight: "700",
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
+            ...theme.typography.headline,
+            fontSize: 24,
+            color: hasScores ? accent : theme.colors.onSurface.variant,
           }}
         >
-          Stage Readiness
+          {readinessTitle}
         </Text>
+
+        <Text style={{ ...theme.typography.footnote }}>{scoreDetail}</Text>
       </View>
-
-      <Text
-        style={{
-          ...theme.typography.headline,
-          fontSize: 24,
-          color: hasScores ? accent : theme.colors.onSurface.variant,
-        }}
-      >
-        {hasScores ? summary.stageReadinessLabel : "Analysis pending"}
-      </Text>
-
-      <Text style={{ ...theme.typography.footnote }}>
-        {hasScores
-          ? scoreParts.join(" · ")
-          : "Create or open a check-in to generate scores."}
-      </Text>
     </Pressable>
   );
 }

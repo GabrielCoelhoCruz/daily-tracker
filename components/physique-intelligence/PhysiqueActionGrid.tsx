@@ -35,40 +35,40 @@ export function PhysiqueActionGrid({
   const actions: ActionItem[] = [
     {
       key: "new-checkin",
-      label: "New Check-in",
+      label: "Novo Check-in",
       sf: "camera.viewfinder",
       mci: "camera-outline",
       onPress: onNewCheckIn,
       primary: true,
-      accessibilityLabel: "New check-in",
+      accessibilityLabel: "Novo check-in",
     },
     {
       key: "compare",
-      label: "Compare",
+      label: "Comparar",
       sf: "square.on.square",
       mci: "compare",
       onPress: onCompare,
       disabled: compareDisabled,
       accessibilityLabel: compareDisabled
-        ? "Compare check-ins, unavailable until you have at least two check-ins"
-        : "Compare check-ins",
+        ? "Comparar check-ins, disponível a partir de 2 check-ins"
+        : "Comparar check-ins",
     },
     {
       key: "categories",
-      label: "Category Finder",
+      label: "Categorias",
       sf: "magnifyingglass",
       mci: "magnify",
       onPress: onCategoryFinder,
       disabled: !profileComplete,
-      accessibilityLabel: "Category Finder",
+      accessibilityLabel: "Buscar categoria",
     },
     {
       key: "profile",
-      label: "Profile",
+      label: "Perfil",
       sf: "person.crop.circle",
       mci: "account-outline",
       onPress: onProfile,
-      accessibilityLabel: "Athlete profile",
+      accessibilityLabel: "Perfil do atleta",
     },
   ];
 
@@ -83,7 +83,7 @@ export function PhysiqueActionGrid({
           paddingHorizontal: 4,
         }}
       >
-        Actions
+        Ações
       </Text>
 
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>

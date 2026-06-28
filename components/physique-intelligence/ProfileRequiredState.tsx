@@ -25,7 +25,7 @@ export function ProfileRequiredState({
         color={theme.colors.onSurface.variant}
       />
       <Text style={{ ...theme.typography.callout, textAlign: "center" }}>
-        Complete your athlete profile
+        Configure seu perfil de atleta
       </Text>
       <Text
         style={{
@@ -33,8 +33,8 @@ export function ProfileRequiredState({
           textAlign: "center",
         }}
       >
-        This unlocks category matching, AI analysis context, and stage-readiness
-        tracking.
+        Isso habilita categorização, contexto de análise IA e acompanhamento de
+        prontidão para o palco.
       </Text>
 
       <Pressable
@@ -49,10 +49,10 @@ export function ProfileRequiredState({
           justifyContent: "center",
         }}
         accessibilityRole="button"
-        accessibilityLabel="Configure profile"
+        accessibilityLabel="Configurar perfil"
       >
         <Text style={{ color: "#000", fontWeight: "700", fontSize: 15 }}>
-          Configure Profile
+          Configurar Perfil
         </Text>
       </Pressable>
     </View>

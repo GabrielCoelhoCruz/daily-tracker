@@ -29,10 +29,10 @@ export function CurrentLiftCard({
     animateWithHaptic(onPrimaryAction);
   };
 
-  const buttonLabel = hasSession ? "Log Set" : "Start Session";
+  const buttonLabel = hasSession ? "Registrar Série" : "Iniciar Sessão";
   const buttonAccessibilityLabel = hasSession
-    ? `Log set for ${currentExercise.name}`
-    : `Start training session for ${currentExercise.name}`;
+    ? `Registrar série de ${currentExercise.name}`
+    : `Iniciar sessão de ${currentExercise.name}`;
 
   return (
     <View
