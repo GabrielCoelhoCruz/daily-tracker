@@ -27,6 +27,18 @@
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         padding: 80px 56px;
       }
+      .bg-photo {
+        position: absolute; inset: 0; overflow: hidden;
+      }
+      .bg-photo-img {
+        position: absolute; inset: -8%; width: 116%; height: 116%;
+        object-fit: cover; display: block;
+        will-change: transform;
+      }
+      .bg-photo-overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(180deg, rgba(15,14,13,0.55) 0%, rgba(15,14,13,0.82) 55%, rgba(15,14,13,0.92) 100%);
+      }
       .bg-gym {
         position: absolute; inset: 0;
         background:
@@ -154,6 +166,23 @@
       .code-body .fn { color: #51e77b; }
       .code-body .str { color: #fbbf24; }
       .code-body .cm { color: #534434; }
+      .terminal-panel {
+        width: 920px; margin-top: 20px; border-radius: 14px; overflow: hidden;
+        border: 1px solid #373433; background: #0a0908;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.45);
+      }
+      .terminal-bar {
+        padding: 10px 16px; background: #151312; border-bottom: 1px solid #373433;
+        font-size: 12px; color: var(--muted); font-family: "JetBrains Mono", monospace;
+      }
+      .terminal-body {
+        padding: 18px 20px; font-family: "JetBrains Mono", monospace; font-size: 13px;
+        line-height: 1.55; color: #a08e7a;
+      }
+      .terminal-body .ok { color: #22c55e; }
+      .terminal-body .dim { color: #534434; }
+      .tech-wrap { display: flex; flex-direction: column; align-items: center; z-index: 2; position: relative; }
+      .split-photo { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.55; }
       .stack-row {
         display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 32px;
       }
@@ -199,11 +228,23 @@
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="main" data-duration="60" data-width="1080" data-height="1920">
+    <div id="root" data-composition-id="main" data-start="0" data-duration="60" data-width="1080" data-height="1920">
+
+      <audio
+        id="bgm"
+        src="assets/bgm/track.mp3"
+        data-start="0"
+        data-duration="60"
+        data-track-index="20"
+        data-volume="0.38"
+      ></audio>
 
       <!-- 1 Hook 0–4s -->
       <section id="s1" class="clip" data-start="0" data-duration="4" data-track-index="1">
-        <div class="bg-gym"></div>
+        <div class="bg-photo">
+          <img class="bg-photo-img" id="s1-bg-img" src="assets/footage/gym-1.jpg" alt="" />
+          <div class="bg-photo-overlay"></div>
+        </div>
         <div class="vignette"></div>
         <div class="kinetic-xl" id="s1-l1">Apps fitness</div>
         <div class="kinetic-xl accent" id="s1-l2" style="margin-top:12px">não entendem prep.</div>
@@ -211,7 +252,10 @@
 
       <!-- 2 Pain 4–9s -->
       <section id="s2" class="clip" data-start="4" data-duration="5" data-track-index="1">
-        <div class="bg-gym"></div>
+        <div class="bg-photo">
+          <img class="bg-photo-img" id="s2-bg-img" src="assets/footage/gym-2.jpg" alt="" />
+          <div class="bg-photo-overlay"></div>
+        </div>
         <div class="vignette"></div>
         <div class="word-grid">
           <div class="word-cell" id="s2-w1">Dieta.</div>
@@ -224,8 +268,21 @@
       <!-- 3 Turn 9–13s -->
       <section id="s3" class="clip" data-start="9" data-duration="4" data-track-index="1">
         <div class="split-scene">
-          <div class="split-gym" id="s3-gym"><span class="split-icon">🏋</span></div>
-          <div class="split-code" id="s3-code"><span class="split-icon" style="color:#51e77b;font-family:monospace">&lt;/&gt;</span></div>
+          <div class="split-gym" id="s3-gym">
+            <img class="split-photo" src="assets/footage/gym-1.jpg" alt="" />
+          </div>
+          <div class="split-code" id="s3-code">
+            <div class="code-panel" style="width:92%;transform:scale(0.88)">
+              <div class="code-bar">
+                <span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span>
+                <span class="code-title">analyze+api.ts</span>
+              </div>
+              <div class="code-body" style="font-size:11px;padding:14px">
+                <span class="cm">// server-side Claude Vision</span><br />
+                <span class="kw">const</span> systemPrompt = <span class="fn">buildSystemPrompt</span>(profile);
+              </div>
+            </div>
+          </div>
         </div>
         <div class="vignette"></div>
         <div class="kinetic-lg" id="s3-t1" style="position:relative;z-index:2">Então eu</div>
@@ -238,7 +295,7 @@
         <div class="brand-block">
           <img class="brand-icon" id="s4-icon" src="assets/icon.png" alt="" />
           <div class="brand-name" id="s4-name">Shape<span class="accent">IQ</span></div>
-          <div class="brand-tag" id="s4-tag">Seu prep. Seu shape. Com IA.</div>
+          <div class="brand-tag" id="s4-tag">Sua prep. Seu shape. Com IA.</div>
         </div>
       </section>
 
@@ -249,18 +306,19 @@
         <div class="phone" id="s5-phone">
           <div class="phone-notch"></div>
           <div class="phone-screen">
-            <div><div class="ui-header">Hoje</div><div class="ui-sub">Sexta · Protocolo A</div></div>
+            <div><div class="ui-header">Today</div><div class="ui-sub">Sábado · Cutting Prep</div></div>
             <div class="ui-card ui-card-accent">
-              <div class="ui-label">Próxima ação</div>
-              <div style="font-size:18px;font-weight:700;margin-top:6px">Refeição 3 — 200g frango</div>
+              <div class="ui-label">Protocolo Diário</div>
+              <div style="font-size:18px;font-weight:700;margin-top:6px">68% completo · 36/53</div>
+              <div style="font-size:14px;color:var(--muted);margin-top:6px">Próximo: Hidratação</div>
             </div>
             <div class="ui-card">
-              <div class="ui-row"><span class="ui-label">Protocolo</span><span class="ui-value">68%</span></div>
+              <div class="ui-row"><span class="ui-label">Água</span><span class="ui-value">2.4L</span></div>
               <div class="ui-progress"><span class="ui-progress-fill"></span></div>
             </div>
             <div class="ui-grid-2">
-              <div class="ui-card ui-mini"><span class="ui-label">Água</span><strong>2.4L</strong></div>
-              <div class="ui-card ui-mini"><span class="ui-label">Cardio</span><strong>35 min</strong></div>
+              <div class="ui-card ui-mini"><span class="ui-label">Cardio</span><strong>35/90</strong></div>
+              <div class="ui-card ui-mini"><span class="ui-label">Refeições</span><strong>3/5</strong></div>
             </div>
           </div>
         </div>
@@ -273,7 +331,7 @@
         <div class="phone" id="s6-phone">
           <div class="phone-notch"></div>
           <div class="phone-screen">
-            <div><div class="ui-header">Treino A</div><div class="ui-sub">Peito · Ombros · Tríceps</div></div>
+            <div><div class="ui-header">Split A</div><div class="ui-sub">Peito · Segunda</div></div>
             <div class="ui-card ui-card-accent">
               <div class="ui-label">Current lift</div>
               <div style="font-size:22px;font-weight:800;margin-top:6px">Supino reto</div>
@@ -340,25 +398,38 @@
       <!-- 9 Tech 44–51s -->
       <section id="s9" class="clip" data-start="44" data-duration="7" data-track-index="1">
         <div class="bg-code"></div>
-        <div class="code-panel" id="s9-code">
-          <div class="code-bar">
-            <span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span>
-            <span class="code-title">analyzePhysique.ts</span>
+        <div class="tech-wrap">
+          <div class="code-panel" id="s9-code">
+            <div class="code-bar">
+              <span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span>
+              <span class="code-title">app/api/analyze+api.ts</span>
+            </div>
+            <div class="code-body">
+              <span class="cm">// Build system prompt SERVER-SIDE</span><br />
+              <span class="kw">const</span> systemPrompt = <span class="fn">buildSystemPrompt</span>(body.athleteProfile);<br /><br />
+              <span class="kw">const</span> response = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">"https://api.anthropic.com/v1/messages"</span>, {<br />
+              &nbsp;&nbsp;method: <span class="str">"POST"</span>,<br />
+              &nbsp;&nbsp;body: JSON.stringify({ model, system: systemPrompt, messages }),<br />
+              });
+            </div>
           </div>
-          <div class="code-body">
-            <span class="kw">const</span> analysis = <span class="kw">await</span> <span class="fn">claudeVision</span>({<br />
-            &nbsp;&nbsp;images: checkIn.photos,<br />
-            &nbsp;&nbsp;criteria: <span class="str">"IFBB/NPC"</span>,<br />
-            &nbsp;&nbsp;focus: [<span class="str">"conditioning"</span>, <span class="str">"symmetry"</span>],<br />
-            });<br />
-            <span class="cm">// stage readiness → structured scores</span>
+          <div class="terminal-panel" id="s9-term">
+            <div class="terminal-bar">planTracker — powershell</div>
+            <div class="terminal-body">
+              <span class="dim">&gt; npm test</span><br />
+              <span class="ok">PASS</span> tests/homeUtils.test.ts<br />
+              <span class="ok">PASS</span> tests/physiqueIntelligenceUtils.test.ts<br />
+              <span class="ok">PASS</span> tests/trainingSessionUtils.test.ts<br />
+              <span class="dim">Test Suites: 9 passed, 9 total</span><br />
+              <span class="ok">Tests: 103 passed, 103 total</span>
+            </div>
           </div>
-        </div>
-        <div class="stack-row" id="s9-stack">
+          <div class="stack-row" id="s9-stack" style="margin-top:24px">
           <span class="stack-pill">Expo</span>
           <span class="stack-pill">React Native</span>
           <span class="stack-pill">TypeScript</span>
           <span class="stack-pill accent" style="border-color:rgba(245,158,11,0.4)">Claude Vision</span>
+          </div>
         </div>
       </section>
 
@@ -368,7 +439,7 @@
         <div class="brand-block">
           <img class="brand-icon" id="s10-icon" src="assets/icon.png" alt="" />
           <div class="brand-name" id="s10-name">Shape<span class="accent">IQ</span></div>
-          <div class="brand-tag" id="s10-tag">Seu prep. Seu shape. Com IA.</div>
+          <div class="brand-tag" id="s10-tag">Sua prep. Seu shape. Com IA.</div>
           <div class="tabs-row" id="s10-tabs">
             <span class="tab-pill active">Dash</span>
             <span class="tab-pill active">Train</span>
@@ -394,10 +465,12 @@
       const tl = gsap.timeline({ paused: true });
 
       // S1 Hook
+      tl.fromTo("#s1-bg-img", { scale: 1.12 }, { scale: 1, duration: 4, ease: "none" }, 0);
       tl.from("#s1-l1", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" }, 0.15);
       tl.from("#s1-l2", { y: 60, opacity: 0, duration: 0.5, ease: "power3.out" }, 0.45);
 
       // S2 Pain
+      tl.fromTo("#s2-bg-img", { scale: 1.1 }, { scale: 1, duration: 5, ease: "none" }, 4);
       tl.from(["#s2-w1","#s2-w2","#s2-w3","#s2-w4"], { scale: 0.85, opacity: 0, duration: 0.35, stagger: 0.1, ease: "back.out(1.5)" }, 4.2);
 
       // S3 Turn
@@ -429,7 +502,8 @@
 
       // S9 Tech
       tl.from("#s9-code", { y: 40, opacity: 0, duration: 0.5, ease: "power3.out" }, 44.2);
-      tl.from("#s9-stack .stack-pill", { y: 20, opacity: 0, duration: 0.35, stagger: 0.08, ease: "power2.out" }, 44.7);
+      tl.from("#s9-term", { y: 24, opacity: 0, duration: 0.45, ease: "power3.out" }, 44.55);
+      tl.from("#s9-stack .stack-pill", { y: 20, opacity: 0, duration: 0.35, stagger: 0.08, ease: "power2.out" }, 44.9);
 
       // S10 Close
       tl.from("#s10-icon", { scale: 0.8, opacity: 0, duration: 0.45, ease: "back.out(1.5)" }, 51.2);

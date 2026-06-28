@@ -8,7 +8,6 @@
     <style>
       :root {
         --bg: #0f0e0d; --ink: #e8e1df; --muted: #78716c; --accent: #f59e0b;
-        --gym-warm: rgba(180, 90, 30, 0.25);
       }
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body {
@@ -20,13 +19,23 @@
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         padding: 80px 56px; text-align: center;
       }
-      .bg {
-        position: absolute; inset: 0;
-        background: radial-gradient(ellipse 90% 60% at 50% 100%, var(--gym-warm), transparent 65%), var(--bg);
+      .bg-photo { position: absolute; inset: 0; overflow: hidden; }
+      .bg-photo-img {
+        position: absolute; inset: -8%; width: 116%; height: 116%;
+        object-fit: cover; display: block;
       }
+      .bg-photo-overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(180deg, rgba(15,14,13,0.5) 0%, rgba(15,14,13,0.88) 100%);
+      }
+      .vignette {
+        position: absolute; inset: 0;
+        background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.5) 100%);
+        pointer-events: none;
+      }
+      .content { position: relative; z-index: 2; }
       .xl { font-size: 80px; font-weight: 900; line-height: 1.08; }
       .lg { font-size: 56px; font-weight: 800; line-height: 1.12; }
-      .md { font-size: 44px; font-weight: 700; }
       .accent { color: var(--accent); }
       .feature { font-size: 36px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
       .brand-icon { width: 100px; height: 100px; border-radius: 24px; margin-bottom: 24px; }
@@ -34,57 +43,99 @@
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="main" data-duration="20" data-width="1080" data-height="1920">
+    <div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920">
 
-      <section class="clip" data-start="0" data-duration="2" data-track-index="1">
-        <div class="bg"></div>
-        <div class="xl" id="c1a">Apps fitness</div>
-        <div class="xl accent" id="c1b">não entendem prep.</div>
+      <audio
+        id="bgm"
+        src="assets/bgm/track.mp3"
+        data-start="0"
+        data-duration="20"
+        data-track-index="20"
+        data-volume="0.4"
+      ></audio>
+
+      <section id="c1" class="clip" data-start="0" data-duration="2" data-track-index="1">
+        <div class="bg-photo">
+          <img class="bg-photo-img" id="c1-bg" src="assets/footage/gym-1.jpg" alt="" />
+          <div class="bg-photo-overlay"></div>
+        </div>
+        <div class="vignette"></div>
+        <div class="content">
+          <div class="xl" id="c1a">Apps fitness</div>
+          <div class="xl accent" id="c1b">não entendem prep.</div>
+        </div>
       </section>
 
-      <section class="clip" data-start="2" data-duration="3" data-track-index="1">
-        <div class="bg"></div>
-        <div class="lg" id="c2">Dieta. Cardio.<br />Treino. Físico.</div>
+      <section id="c2" class="clip" data-start="2" data-duration="3" data-track-index="1">
+        <div class="bg-photo">
+          <img class="bg-photo-img" id="c2-bg" src="assets/footage/gym-2.jpg" alt="" />
+          <div class="bg-photo-overlay"></div>
+        </div>
+        <div class="vignette"></div>
+        <div class="content">
+          <div class="lg" id="c2t">Dieta. Cardio.<br />Treino. Físico.</div>
+        </div>
       </section>
 
-      <section class="clip" data-start="5" data-duration="3" data-track-index="1">
-        <div class="bg"></div>
-        <img class="brand-icon" id="c3-icon" src="assets/icon.png" alt="" />
-        <div class="xl" id="c3">Então construí<br />o <span class="accent">ShapeIQ</span>.</div>
+      <section id="c3" class="clip" data-start="5" data-duration="3" data-track-index="1">
+        <div class="bg-photo">
+          <img class="bg-photo-img" id="c3-bg" src="assets/footage/gym-1.jpg" alt="" />
+          <div class="bg-photo-overlay"></div>
+        </div>
+        <div class="vignette"></div>
+        <div class="content">
+          <img class="brand-icon" id="c3-icon" src="assets/icon.png" alt="" />
+          <div class="xl" id="c3">Então construí<br />o <span class="accent">ShapeIQ</span>.</div>
+        </div>
       </section>
 
-      <section class="clip" data-start="8" data-duration="3" data-track-index="1">
-        <div class="bg"></div>
-        <div class="feature" id="c4">Today Briefing</div>
-        <div class="tag" id="c4sub">Próxima ação do dia.</div>
+      <section id="c4" class="clip" data-start="8" data-duration="3" data-track-index="1">
+        <div class="vignette" style="background:rgba(15,14,13,0.35)"></div>
+        <div class="content">
+          <div class="feature" id="c4">Today Briefing</div>
+          <div class="tag" id="c4sub">Próxima ação do dia.</div>
+        </div>
       </section>
 
-      <section class="clip" data-start="11" data-duration="3" data-track-index="1">
-        <div class="bg"></div>
-        <div class="feature" id="c5">Training Session</div>
-        <div class="tag" id="c5sub">Treino guiado.</div>
+      <section id="c5" class="clip" data-start="11" data-duration="3" data-track-index="1">
+        <div class="vignette" style="background:rgba(15,14,13,0.35)"></div>
+        <div class="content">
+          <div class="feature" id="c5">Training Session</div>
+          <div class="tag" id="c5sub">Treino guiado.</div>
+        </div>
       </section>
 
-      <section class="clip" data-start="14" data-duration="3" data-track-index="1">
-        <div class="bg"></div>
-        <div class="feature" id="c6">Physique Intelligence</div>
-        <div class="tag" id="c6sub">IA analisando meu físico.</div>
+      <section id="c6" class="clip" data-start="14" data-duration="3" data-track-index="1">
+        <div class="vignette" style="background:rgba(15,14,13,0.35)"></div>
+        <div class="content">
+          <div class="feature" id="c6">Physique Intelligence</div>
+          <div class="tag" id="c6sub">IA analisando meu físico.</div>
+        </div>
       </section>
 
-      <section class="clip" data-start="17" data-duration="3" data-track-index="1">
-        <div class="bg"></div>
-        <img class="brand-icon" id="c7-icon" src="assets/icon.png" alt="" />
-        <div class="xl" id="c7">Shape<span class="accent">IQ</span></div>
-        <div class="tag" id="c7tag">Seu prep. Seu shape. Com IA.</div>
+      <section id="c7" class="clip" data-start="17" data-duration="3" data-track-index="1">
+        <div class="bg-photo">
+          <img class="bg-photo-img" id="c7-bg" src="assets/footage/gym-2.jpg" alt="" />
+          <div class="bg-photo-overlay"></div>
+        </div>
+        <div class="vignette"></div>
+        <div class="content">
+          <img class="brand-icon" id="c7-icon" src="assets/icon.png" alt="" />
+          <div class="xl" id="c7t">Shape<span class="accent">IQ</span></div>
+          <div class="tag" id="c7tag">Sua prep. Seu shape. Com IA.</div>
+        </div>
       </section>
     </div>
 
     <script>
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#c1-bg", { scale: 1.1 }, { scale: 1, duration: 2, ease: "none" }, 0);
       tl.from("#c1a", { y: 50, opacity: 0, duration: 0.35, ease: "power3.out" }, 0.1);
       tl.from("#c1b", { y: 50, opacity: 0, duration: 0.35, ease: "power3.out" }, 0.35);
-      tl.from("#c2", { scale: 0.9, opacity: 0, duration: 0.4, ease: "power3.out" }, 2.15);
+      tl.fromTo("#c2-bg", { scale: 1.08 }, { scale: 1, duration: 3, ease: "none" }, 2);
+      tl.from("#c2t", { scale: 0.9, opacity: 0, duration: 0.4, ease: "power3.out" }, 2.15);
+      tl.fromTo("#c3-bg", { scale: 1.1 }, { scale: 1, duration: 3, ease: "none" }, 5);
       tl.from("#c3-icon", { scale: 0.6, opacity: 0, duration: 0.4, ease: "back.out(1.7)" }, 5.1);
       tl.from("#c3", { y: 30, opacity: 0, duration: 0.4, ease: "power3.out" }, 5.35);
       tl.from("#c4", { y: 24, opacity: 0, duration: 0.35, ease: "power2.out" }, 8.1);
@@ -93,8 +144,9 @@
       tl.from("#c5sub", { y: 16, opacity: 0, duration: 0.3, ease: "power2.out" }, 11.35);
       tl.from("#c6", { y: 24, opacity: 0, duration: 0.35, ease: "power2.out" }, 14.1);
       tl.from("#c6sub", { y: 16, opacity: 0, duration: 0.3, ease: "power2.out" }, 14.35);
+      tl.fromTo("#c7-bg", { scale: 1.08 }, { scale: 1, duration: 3, ease: "none" }, 17);
       tl.from("#c7-icon", { scale: 0.7, opacity: 0, duration: 0.35, ease: "back.out(1.5)" }, 17.1);
-      tl.from("#c7", { y: 20, opacity: 0, duration: 0.35, ease: "power3.out" }, 17.35);
+      tl.from("#c7t", { y: 20, opacity: 0, duration: 0.35, ease: "power3.out" }, 17.35);
       tl.from("#c7tag", { y: 12, opacity: 0, duration: 0.3, ease: "power2.out" }, 17.55);
       window.__timelines["main"] = tl;
     </script>

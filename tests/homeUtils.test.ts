@@ -3,7 +3,6 @@ import { filtrarItensDoDia } from "@/utils/diaUtils"
 import {
   getDailyMetricSummaries,
   getNextHomeAction,
-  getProtocolTimelineItems,
   getTodayProtocolProgress,
   getTodayWorkoutSummary,
   isPeriodComplete,
@@ -50,49 +49,6 @@ describe("getTodayProtocolProgress", () => {
     )
 
     expect(withFree.completed).toBeGreaterThan(withoutFree.completed)
-  })
-})
-
-describe("getProtocolTimelineItems", () => {
-  it("marks completed periods, the first incomplete period as active, and later periods as upcoming", () => {
-    const jejum = mondayPeriodos.find((p) => p.id === "jejum")
-    expect(jejum).toBeDefined()
-
-    const jejumIds =
-      jejum?.itens.flatMap((item) =>
-        item.subItens?.length ? item.subItens.map((s) => s.id) : [item.id]
-      ) ?? []
-
-    const timeline = getProtocolTimelineItems(
-      mondayPeriodos,
-      makeChecks(jejumIds),
-      false,
-      null
-    )
-
-    const jejumItem = timeline.find((item) => item.periodoId === "jejum")
-    expect(jejumItem?.status).toBe("complete")
-
-    const activeItems = timeline.filter((item) => item.status === "active")
-    expect(activeItems).toHaveLength(1)
-
-    const activeIndex = timeline.findIndex((item) => item.status === "active")
-    const upcomingAfterActive = timeline
-      .slice(activeIndex + 1)
-      .every((item) => item.status === "upcoming")
-    expect(upcomingAfterActive).toBe(true)
-  })
-
-  it("treats free-meal period as complete", () => {
-    const timeline = getProtocolTimelineItems(
-      mondayPeriodos,
-      {},
-      true,
-      "ref1"
-    )
-
-    const freeMeal = timeline.find((item) => item.periodoId === "ref1")
-    expect(freeMeal?.status).toBe("complete")
   })
 })
 
@@ -222,6 +178,49 @@ describe("getNextHomeAction", () => {
 
     expect(action.type).toBe("complete")
   })
+
+  it("suggests continue workout when training briefing is in-progress", () => {
+    const { getTreinoDoDia } = require("@/utils/diaUtils")
+    const { getTodayTrainingBriefing } = require("@/utils/todayTrainingUtils")
+    const treino = getTreinoDoDia(1)
+    const allIds = mondayPeriodos.flatMap((periodo) =>
+      periodo.itens.flatMap((item) =>
+        item.subItens?.length ? item.subItens.map((s) => s.id) : [item.id]
+      )
+    )
+
+    const briefing = getTodayTrainingBriefing({
+      isTrainingDay: true,
+      diaOffManual: false,
+      treino,
+      session: undefined,
+    })
+
+    const inProgressBriefing = {
+      ...briefing,
+      status: "in-progress" as const,
+      title: "Treino em andamento",
+      subtitle: "8/18 sets concluídos",
+      nextActionLabel: "Continuar treino",
+      completedSets: 8,
+      totalSets: 18,
+      currentSetLabel: "Supino inclinado · Set 3",
+    }
+
+    const action = getNextHomeAction({
+      ...baseInput,
+      checks: makeChecks(allIds),
+      aguaMl: 4000,
+      cardioMinutos: 90,
+      treino,
+      trainingBriefing: inProgressBriefing,
+    })
+
+    expect(action.type).toBe("workout")
+    expect(action.title).toBe("Treino em andamento")
+    expect(action.cta).toBe("Continuar treino")
+    expect(action.subtitle).toContain("Set 3")
+  })
 })
 
 describe("getDailyMetricSummaries", () => {
@@ -254,6 +253,27 @@ describe("getDailyMetricSummaries", () => {
 
     const workout = summaries.find((s) => s.kind === "workout")
     expect(workout?.value).toBe("Peito")
+  })
+
+  it("filters metrics by kinds when provided", () => {
+    const { getTreinoDoDia } = require("@/utils/diaUtils")
+    const summaries = getDailyMetricSummaries({
+      periodos: mondayPeriodos,
+      checks: {},
+      refeicaoLivreUsada: false,
+      refeicaoLivrePeriodoId: null,
+      aguaMl: 2250,
+      metaAguaMl: 4000,
+      cardioMinutos: 30,
+      metaCardioMin: 90,
+      isTrainingDay: true,
+      diaOffManual: false,
+      treino: getTreinoDoDia(1),
+      kinds: ["diet", "workout"],
+    })
+
+    expect(summaries).toHaveLength(2)
+    expect(summaries.map((s) => s.kind)).toEqual(["diet", "workout"])
   })
 })
 

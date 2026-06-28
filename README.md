@@ -40,32 +40,39 @@
 
 <table>
 <tr>
-<td align="center" width="160">
+<td align="center" width="130">
 <br/>
 <samp><strong>TODAY</strong></samp><br/>
-<sup>Today Briefing</sup><br/>
-<sup>Hydration · Cardio</sup><br/>
+<sup>Command Center</sup><br/>
+<sup>Briefing · Closeout</sup><br/>
 <br/>
 </td>
-<td align="center" width="160">
+<td align="center" width="130">
+<br/>
+<samp><strong>PROTOCOL</strong></samp><br/>
+<sup>Daily Protocol</sup><br/>
+<sup>Meals · Cardio</sup><br/>
+<br/>
+</td>
+<td align="center" width="130">
 <br/>
 <samp><strong>WORKOUT</strong></samp><br/>
 <sup>Training Session</sup><br/>
-<sup>A–E protocols</sup><br/>
+<sup>Set-by-set · Volume</sup><br/>
 <br/>
 </td>
-<td align="center" width="160">
+<td align="center" width="130">
 <br/>
 <samp><strong>LOGS</strong></samp><br/>
 <sup>Prep Review</sup><br/>
-<sup>Day detail · Stats</sup><br/>
+<sup>Leak Map</sup><br/>
 <br/>
 </td>
-<td align="center" width="160">
+<td align="center" width="130">
 <br/>
 <samp><strong>STATS</strong></samp><br/>
-<sup>Physique Intelligence</sup><br/>
-<sup>Categories · Compare</sup><br/>
+<sup>Evidence Board</sup><br/>
+<sup>Check-ins · AI</sup><br/>
 <br/>
 </td>
 </tr>
@@ -82,7 +89,7 @@
 **ShapeIQ**  
 *Seu prep. Seu shape. Com IA.*
 
-Built for competitive bodybuilding prep, ShapeIQ turns daily execution into structured data and AI-powered physique intelligence.
+ShapeIQ is an iOS-first React Native app that turns bodybuilding prep into daily execution, training performance, adherence review, and AI-powered physique intelligence.
 
 <br/>
 
@@ -90,7 +97,16 @@ Built for competitive bodybuilding prep, ShapeIQ turns daily execution into stru
 
 ## <samp>OVERVIEW</samp>
 
-ShapeIQ is an **iOS-first AI bodybuilding prep companion** built for competitive athletes. It combines daily protocol tracking, training execution, prep adherence history, physique check-ins, and Claude Vision analysis into one focused mobile experience.
+ShapeIQ is built around the real workflow of bodybuilding prep:
+
+- execute the daily protocol
+- log training performance set by set
+- close the day with evidence
+- review leaks across the week
+- track physique check-ins
+- interpret AI analysis with visible evidence
+
+ShapeIQ is an **iOS-first AI bodybuilding prep companion** for competitive athletes. It combines a **Today Command Center**, **Daily Protocol**, **Training Session** logging, **Prep Review / Leak Map**, and **Physique Intelligence / Evidence Board** into one focused mobile experience.
 
 Unlike generic fitness apps, ShapeIQ is built around bodybuilding prep:
 
@@ -105,6 +121,18 @@ Unlike generic fitness apps, ShapeIQ is built around bodybuilding prep:
 ShapeIQ is an **offline-first** React Native app. It covers the full daily protocol — meal timing, supplement tracking, hydration targets, cardio sessions — and goes further with **AI-powered physique analysis** that evaluates progress photos against IFBB/NPC competition standards.
 
 > **Why this exists** — I'm a full-stack developer (React, TypeScript, Python, AWS) who also competes in bodybuilding. I wanted an app that could track my cutting prep with the rigor it deserves: conditional meal plans, hydration goals, training periodization, and — most importantly — AI-powered feedback on my progress photos using real IFBB judging criteria. Existing fitness apps don't understand competitive bodybuilding, so I built one.
+
+<br/>
+
+## <samp>SURFACE MODEL</samp>
+
+| Surface | Role | Answers |
+|:---|:---|:---|
+| **Today** | Command Center | What should I do now? |
+| **Protocol** | Daily Protocol | What exactly is in today's plan? |
+| **Workout** | Training Session | What set do I execute now? |
+| **Logs** | Prep Review / Leak Map | Where is execution leaking? |
+| **Stats** | Physique Intelligence / Evidence Board | What evidence shows my shape is changing? |
 
 <br/>
 
@@ -170,40 +198,39 @@ ShapeIQ is an **offline-first** React Native app. It covers the full daily proto
 ## <samp>ARCHITECTURE</samp>
 
 ```
+ShapeIQ Surface Model
+
+Today (Command Center)
+  ├─ Today Briefing · next action · metrics
+  ├─ Training Today · set progress
+  ├─ Daily Protocol summary → Protocol screen
+  └─ Daily Closeout · execution score · leaks
+
+Protocol (Daily Protocol)          Workout (Training Session)
+  meals · hydration · cardio         set-by-set logging · volume · rest
+
+Daily Protocol ──┐
+                 ├─→ Daily Closeout ─→ Prep Review / Leak Map
+Training Session ┘              │
+                                 └─→ Physique Intelligence context
+
                           ┌─────────────────────────────────┐
                           │         EXPO ROUTER              │
-                          │     (file-based navigation)      │
                           └───────────────┬─────────────────┘
                                           │
-              ┌───────────┬───────────────┼───────────────┬───────────┐
-              │           │               │               │           │
-        ┌─────┴─────┐ ┌──┴──────┐ ┌──────┴──────┐ ┌─────┴────────┐  │
-        │   DASH    │ │  TRAIN  │ │    LOGS     │ │    STATS     │  │
-        │           │ │         │ │             │ │              │  │
-        │ Checklist │ │ Workout │ │  Calendar   │ │ AI Analysis  │  │
-        │ Hydration │ │  Split  │ │   Stats     │ │ Categories   │  │
-        │  Cardio   │ │  A – E  │ │  Day View   │ │  Comparison  │  │
-        └─────┬─────┘ └────┬────┘ └──────┬──────┘ └──────┬───────┘  │
-              │            │             │               │           │
-              └────────────┴─────────────┴───────────────┘           │
-                                         │                           │
-                     ┌───────────────────┴───────────────────┐       │
-                     │      ZUSTAND STORES (persisted)       │       │
-                     │                                       │       │
-                     │  DayStore · AthleteStore · Physique   │       │
-                     │  HistoryStore · ConfigStore           │       │
-                     └───────────────────┬───────────────────┘       │
-                                         │                           │
-                     ┌───────────────────┴───────────────────┐       │
-                     │          SERVICES LAYER               │       │
-                     │                                       │       │
-                     │  physiqueAnalysis · categoryFinder    │       │
-                     └───────────────────┬───────────────────┘       │
-                                         │                           │
-                     ┌───────────────────┴───────────────────┐       │
-                     │       /api/analyze (API ROUTE)        │───────┘
-                     │                                       │
-                     │  Server-side prompt + Claude proxy    │
+        ┌──────────┬──────────┬───────────┼───────────┬──────────┐
+        │  TODAY   │ PROTOCOL │  WORKOUT  │   LOGS    │  STATS   │
+        └────┬─────┴────┬─────┴─────┬─────┴─────┬─────┴────┬─────┘
+             │          │           │           │          │
+             └──────────┴───────────┴───────────┴──────────┘
+                                         │
+                     ┌───────────────────┴───────────────────┐
+                     │      ZUSTAND STORES (persisted)       │
+                     │  Day · History · Gym · Physique · …   │
+                     └───────────────────┬───────────────────┘
+                                         │
+                     ┌───────────────────┴───────────────────┐
+                     │       /api/analyze (Claude Vision)      │
                      └───────────────────────────────────────┘
 ```
 
@@ -215,73 +242,90 @@ ShapeIQ is an **offline-first** React Native app. It covers the full daily proto
 
 <!-- ─── DAILY CHECKLIST ─── -->
 
-<details>
-<summary>&ensp;<img src="https://img.shields.io/badge/01-DAILY_PROTOCOL-f59e0b?style=flat-square&labelColor=151312" />&ensp;<code>app/(tabs)/(hoje)</code></summary>
+<details open>
+<summary>&ensp;<img src="https://img.shields.io/badge/01-TODAY_COMMAND_CENTER-f59e0b?style=flat-square&labelColor=151312" />&ensp;<code>app/(tabs)/(hoje)</code></summary>
 
 <br/>
 
-> Tracks the full daily routine with conditional logic per day-of-week and training status.
+> Command Center — next action first, not a long checklist.
+
+| Feature | Description |
+|:---|:---|
+| **Today Briefing** | Next action, protocol progress, CTA to Protocol or Workout |
+| **Daily Metrics** | Critical diet + training metrics at a glance |
+| **Training Today** | Set-by-set status, volume, current set |
+| **Protocol Summary** | Compact evidence (meals · water · cardio) → full Protocol screen |
+| **Daily Closeout** | Execution score, evidence, leaks, day note |
+
+<br/>
+</details>
+
+<details>
+<summary>&ensp;<img src="https://img.shields.io/badge/02-DAILY_PROTOCOL-f59e0b?style=flat-square&labelColor=151312" />&ensp;<code>app/(tabs)/(hoje)/protocol.tsx</code></summary>
+
+<br/>
+
+> Full operational checklist — meals, hydration, cardio, supplements, free meal, day off.
 
 | Feature | Description |
 |:---|:---|
 | **Meal periods** | Per-item checkboxes, conditional on day-of-week / training day |
-| **Hydration** | Water (4000ml) + tea (500ml) goals with add/remove buttons |
-| **Cardio** | Session logging with minutes + timestamps |
-| **Free meal** | One per week, scoped to a specific meal period |
+| **Hydration** | Water + tea goals with add/remove |
+| **Cardio** | Session logging with minutes |
+| **Free meal** | One per week, scoped to a meal period |
 | **Day off** | Manual toggle skips training-day items |
-| **Progress** | Non-optional completion bar |
 
 <br/>
 </details>
-
-<!-- ─── TRAINING SPLIT ─── -->
 
 <details>
-<summary>&ensp;<img src="https://img.shields.io/badge/02-TRAINING_SPLIT-f59e0b?style=flat-square&labelColor=151312" />&ensp;<code>app/(tabs)/(treino)</code></summary>
+<summary>&ensp;<img src="https://img.shields.io/badge/03-TRAINING_SESSION-f59e0b?style=flat-square&labelColor=151312" />&ensp;<code>app/(tabs)/(treino)</code></summary>
 
 <br/>
 
-> Displays the workout for the current day from a 5-day split.
+> Set-by-set performance logging with volume, rest timer, and session history.
 
-| Day | Split | Focus |
-|:---:|:---:|:---|
-| **MON** | A | Chest / Triceps |
-| **TUE** | B | Back / Biceps |
-| **WED** | C | Legs |
-| **THU** | D | Shoulders / Abs |
-| **FRI** | E | Full Body / Specialty |
-| **SAT–SUN** | — | Rest Day |
-
-**GymLog (v1)** — on today's training tab, tap **Registrar treino**, enter load (kg) per exercise; data persists locally and appears under **Treino registrado** in day history.
+| Feature | Description |
+|:---|:---|
+| **Set logging** | Load, reps, set type (warmup / working / top / backoff) |
+| **Session volume** | Running total kg × reps |
+| **Rest timer** | Between-set countdown |
+| **Progress list** | Exercise completion state |
+| **5-day split** | A–E protocols (Mon–Fri) |
 
 <br/>
 </details>
-
-<!-- ─── HISTORY ─── -->
 
 <details>
-<summary>&ensp;<img src="https://img.shields.io/badge/03-HISTORY_&_LOGS-f59e0b?style=flat-square&labelColor=151312" />&ensp;<code>app/(tabs)/(historico)</code></summary>
+<summary>&ensp;<img src="https://img.shields.io/badge/04-PREP_REVIEW-f59e0b?style=flat-square&labelColor=151312" />&ensp;<code>app/(tabs)/(historico)</code></summary>
 
 <br/>
 
-> Calendar view with completion markers, day detail, and aggregate stats.
+> Prep Review / Leak Map — where is execution leaking?
 
-- **Calendar** — interactive with visual markers for tracked days
-- **Day detail** — completion percentage + missed items list
-- **GymLog history** — registered workout loads (kg) per exercise for that day
-- **Stats card** — aggregate completion trends across weeks
+- **Weekly execution** — average score from daily closeouts
+- **Main leak** — most frequent leak type (e.g. cardio)
+- **Calendar evidence** — days colored by execution score
+- **Recent days** — score + primary leak per day
+- **Day detail** — closeout evidence, leaks, day note, training summary
 
 <br/>
 </details>
-
-<!-- ─── AI PHYSIQUE ANALYSIS ─── -->
 
 <details open>
-<summary>&ensp;<img src="https://img.shields.io/badge/04-AI_PHYSIQUE_ANALYSIS-f59e0b?style=flat-square&labelColor=151312" />&ensp;<code>app/(tabs)/(progresso)</code></summary>
+<summary>&ensp;<img src="https://img.shields.io/badge/05-PHYSIQUE_INTELLIGENCE-f59e0b?style=flat-square&labelColor=151312" />&ensp;<code>app/(tabs)/(progresso)</code></summary>
 
 <br/>
 
-> The core feature. Claude vision evaluates progress photos against IFBB/NPC competition standards with structured scoring.
+> Physique Intelligence / Evidence Board — check-ins with traceable AI signals.
+
+### <samp>EVIDENCE BOARD</samp>
+
+- **Stage Readiness Hero** — readiness label + compact AI signal
+- **Evidence Snapshot** — last check-in, photos, freshness, analysis status
+- **Latest AI Signal** — signal + evidence + limitations (no magic conclusions)
+- **Prep Context** — last 7 days execution from closeouts (no invented causality)
+- **Check-in timeline** + **Evolution chart**
 
 ### <samp>ANALYSIS MODES</samp>
 
@@ -399,17 +443,19 @@ planTracker/
 │
 ├── app/                              # EXPO ROUTER (file-based)
 │   ├── _layout.tsx                   # Root Stack + notification setup
-│   ├── config.tsx                    # Settings modal
+│   ├── config.tsx                    # Settings + Demo Mode
 │   ├── api/
 │   │   └── analyze+api.ts            # Claude API proxy (POST /api/analyze)
 │   └── (tabs)/
-│       ├── (hoje)/index.tsx          # Daily checklist
-│       ├── (treino)/index.tsx        # Workout display
+│       ├── (hoje)/
+│       │   ├── index.tsx          # Today Command Center
+│       │   └── protocol.tsx       # Daily Protocol (full checklist)
+│       ├── (treino)/index.tsx     # Training Session (set-by-set)
 │       ├── (historico)/
-│       │   ├── index.tsx             # Calendar + stats
-│       │   └── dia-detalhe.tsx       # Day detail view
+│       │   ├── index.tsx          # Prep Review / Leak Map
+│       │   └── dia-detalhe.tsx    # Day detail + closeout
 │       └── (progresso)/
-│           ├── index.tsx             # Check-in list
+│           ├── index.tsx          # Physique Intelligence / Evidence Board
 │           ├── new-checkin.tsx       # Create check-in + AI trigger
 │           ├── result.tsx            # View analysis + share
 │           ├── compare.tsx           # Side-by-side comparison
@@ -423,7 +469,12 @@ planTracker/
 │   ├── hidratacao/                   # HidratacaoCard
 │   ├── cardio/                       # CardioCard
 │   ├── physique/                     # PhotoSlots, WeightDelta, EvolutionChart
-│   ├── historico/                    # Calendario, StatsCard
+│   ├── home/                         # Today Briefing, Closeout, Protocol summary
+│   ├── history/                      # Leak Map, Weekly review, Main leak
+│   ├── physique-intelligence/        # Evidence Board cards
+│   ├── training/                     # Set logger, rest timer, volume
+│   ├── historico/                    # Calendario (execution evidence)
+│   ├── settings/                     # DemoModeCard
 │   ├── dicas/                        # DicasSection (tips)
 │   └── treino/                       # ExercicioItem, GymLogPanel
 │
@@ -452,12 +503,21 @@ planTracker/
 │   ├── diaUtils.ts                   # Training day logic + filtering
 │   ├── resetUtils.ts                 # Daily midnight reset
 │   ├── notificationUtils.ts          # Schedule / cancel notifications
-│   └── animationUtils.ts             # Haptic + layout animation
+│   ├── animationUtils.ts             # Haptic + layout animation
+│   ├── dailyProtocolSummaryUtils.ts  # Protocol summary for Today
+│   ├── prepReviewUtils.ts            # Leak Map · weekly execution
+│   ├── physiqueIntelligenceUtils.ts  # Evidence Board · AI signal
+│   ├── trainingPerformanceUtils.ts   # Set logging · volume
+│   └── demoSeedUtils.ts              # Demo Mode seed / clear
+│
+├── tests/                            # Jest (utils + stores)
 │
 ├── constants/
 │   └── theme.ts                      # Design tokens (colors, type, radius)
 │
-└── docs/                             # IFBB rules PDF, product specs
+├── docs/
+│   ├── screenshots/                  # Portfolio captures (Phase 8B)
+│   └── …                             # IFBB rules PDF, product specs
 ```
 
 <br/>
@@ -705,13 +765,97 @@ eas build --profile production --platform all      # Production
 
 <br/>
 
-## <samp>PROJECT STATUS</samp>
+## <samp>CURRENT STATUS</samp>
+
+| Area | Status |
+|:---|:---|
+| Today Command Center | ✅ Functional |
+| Daily Protocol | ✅ Functional |
+| Training Session | ✅ Set-by-set logging |
+| Daily Closeout | ✅ Execution score + leaks |
+| Prep Review / Leak Map | ✅ Weekly leaks + calendar evidence |
+| Physique Intelligence | ✅ Evidence Board |
+| Demo Mode | ✅ Local seeded data |
+| RPE/RIR UI | Planned |
+| Persistent rest timer | Planned |
+| Coach Weekly Report | Planned |
+
+<br/>
+
+## <samp>DEMO MODE</samp>
+
+ShapeIQ includes a local **Demo Mode** for screenshots, videos, and manual testing.
+
+It seeds:
+
+- 13 days of prep history with execution scores and leaks
+- 4 physique check-ins with descending weight and demo AI analysis
+- Active workout session with set-by-set logging and volume
+- Partial daily protocol state (meals · water · cardio)
+- Prep execution context for the Stats Evidence Board
+
+Enable it from:
+
+**Settings → Demo Mode → Activate Demo Mode**
+
+Clear demo-only data with **Limpar dados demo** (preserves non-demo records).
+
+See [`docs/screenshots/README.md`](./docs/screenshots/README.md) for capture checklist and promo script.
+
+<br/>
+
+## <samp>SCREENSHOTS</samp>
+
+> Capture with **Demo Mode** enabled. See [`docs/screenshots/README.md`](./docs/screenshots/README.md).
+
+| Screen | File | Status |
+|:---|:---|:---:|
+| Today Command Center | `docs/screenshots/today-command-center.png` | Pending |
+| Daily Protocol | `docs/screenshots/daily-protocol.png` | Pending |
+| Training Session | `docs/screenshots/training-session.png` | Pending |
+| Prep Review / Leak Map | `docs/screenshots/prep-review-leak-map.png` | Pending |
+| Physique Evidence Board | `docs/screenshots/physique-evidence-board.png` | Pending |
+
+<!-- Uncomment after Phase 8B capture:
+
+| Today Command Center | Daily Protocol |
+|---|---|
+| ![Today Command Center](./docs/screenshots/today-command-center.png) | ![Daily Protocol](./docs/screenshots/daily-protocol.png) |
+
+| Training Session | Prep Review |
+|---|---|
+| ![Training Session](./docs/screenshots/training-session.png) | ![Prep Review Leak Map](./docs/screenshots/prep-review-leak-map.png) |
+
+| Physique Intelligence |
+|---|
+| ![Physique Evidence Board](./docs/screenshots/physique-evidence-board.png) |
+
+-->
+
+<br/>
+
+## <samp>WHY THIS PROJECT MATTERS</samp>
+
+ShapeIQ is not a generic habit tracker.
+
+It is a **domain-specific mobile product** for competitive bodybuilding prep, combining:
+
+- mobile UX (Expo / React Native)
+- offline-first local state (Zustand + AsyncStorage)
+- training performance logging (set-by-set)
+- prep adherence intelligence (closeout · leaks · weekly review)
+- AI vision analysis (Claude, evidence-backed UI)
+- evidence-based product design (next action first)
+
+<br/>
+
+## <samp>PROJECT STATUS (LEGACY ROADMAP)</samp>
 
 <div align="center">
 <br/>
 <img src="https://img.shields.io/badge/STATUS-ACTIVE-f59e0b?style=flat-square&labelColor=151312" />
 &ensp;
-<img src="https://img.shields.io/badge/TESTS-PASSING_CATEGORYFINDER-22c55e?style=flat-square&labelColor=151312" />
+<img src="https://img.shields.io/badge/TESTS-195_PASSING-22c55e?style=flat-square&labelColor=151312" />
 &ensp;
 <img src="https://img.shields.io/badge/DEPLOY-EAS_BUILD_READY-4630EB?style=flat-square&logo=expo&labelColor=151312" />
 <br/><br/>
@@ -719,16 +863,14 @@ eas build --profile production --platform all      # Production
 
 | Phase | Status | Description |
 |:---:|:---:|:---|
-| ✅ **Daily Protocol** | Complete | Checklist, hydration, cardio, free meal, notifications |
-| ✅ **Training Split** | Complete | 5-day A–E workout reference with periodization |
-| ✅ **History & Logs** | Complete | Calendar view, day detail, adherence stats, streaks |
-| ✅ **Category Finder** | Complete | 13 IFBB/NPC categories with eligibility calculator + tests |
-| ✅ **API Proxy** | Complete | Server-side prompt with rate limiting, input validation |
-| ✅ **Dynamic Profile** | Complete | Editable athlete profile with gender, height, weight |
-| 🟡 **AI Physique Analysis** | Beta | Claude Vision v3 prompt with 13 categories, female support |
-| ✅ **GymLog (Workout Logging)** | Complete | Register today's workout loads (kg) per exercise; persisted locally; view in day history |
-| ⬜ **iOS Widget** | Planned | Home screen quick-glance of pending items |
-| ⬜ **Web Version** | Planned | Deploy to Vercel for portfolio demo |
+| ✅ **Surface Model** | Complete | Today · Protocol · Workout · Logs · Stats |
+| ✅ **Daily Closeout** | Complete | Execution score, evidence, leaks |
+| ✅ **Demo Mode** | Complete | Local seeded prep narrative |
+| ✅ **Category Finder** | Complete | 13 IFBB/NPC categories + tests |
+| ✅ **API Proxy** | Complete | Server-side Claude Vision proxy |
+| 🟡 **AI Physique Analysis** | Beta | Claude Vision with structured scoring |
+| ⬜ **RPE/RIR UI** | Planned | In-set effort logging |
+| ⬜ **Coach Weekly Report** | Planned | Aggregated prep summary |
 
 <br/>
 

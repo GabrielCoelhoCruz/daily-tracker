@@ -3,12 +3,10 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 )
 
 import { useGymStore } from '../stores/useGymStore'
+import { treinos } from '../data/treinos'
 
 describe('useGymStore', () => {
-  const mockExs = [
-    { id: 'e1', nome: 'Supino Reto', series: 4, repeticoes: 10 },
-    { id: 'e2', nome: 'Desenvolvimento', series: 3, repeticoes: 12 },
-  ]
+  const mockExs = treinos[0].exercicios.slice(0, 2)
 
   beforeEach(() => {
     useGymStore.setState({ gymSessions: {} })
@@ -26,6 +24,7 @@ describe('useGymStore', () => {
     expect(session?.treinoId).toBe('treino-a')
     expect(session?.date).toBe('2026-06-26')
     expect(session?.logs).toHaveLength(2)
+    expect(session?.logs[0].sets?.length).toBeGreaterThan(0)
     expect(useGymStore.getState().gymSessions[id]).toBeDefined()
   })
 

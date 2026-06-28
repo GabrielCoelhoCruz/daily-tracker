@@ -51,7 +51,7 @@ describe('useGymSession logic', () => {
     const session = resolveGymSessionForTreino(treinoA, date, store)
     updateGymSessionCarga(session, treinoA.exercicios[0].id, 80, store)
     const updated = store.getGymSessionById(session.id)!
-    expect(updated.logs[0].cargaKg).toBe(80)
+    expect(updated.logs[0].sets?.[0].loadKg).toBe(80)
   })
 
   it('session = getActiveSessionForTreinoAndDate', () => {

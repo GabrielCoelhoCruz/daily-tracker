@@ -53,7 +53,7 @@ Primeiros 2 segundos decidem tudo. Sem stack. Só dor real.
 - transition_in: crossfade
 - status: outline
 - voiceover: Um app iOS de prep, feito para acompanhar rotina, físico e evolução competitiva.
-- overlay: ShapeIQ / Seu prep. Seu shape. Com IA.
+- overlay: ShapeIQ / Sua prep. Seu shape. Com IA.
 - src: compositions/frames/04-brand.html
 
 ## Frame 5 — Today Briefing
@@ -124,7 +124,7 @@ Primeiros 2 segundos decidem tudo. Sem stack. Só dor real.
 - transition_in: crossfade
 - status: outline
 - voiceover: Não é só um side project. É o app que eu queria usar na minha própria preparação.
-- overlay: ShapeIQ / Seu prep. Seu shape. Com IA.
+- overlay: ShapeIQ / Sua prep. Seu shape. Com IA.
 - src: compositions/frames/10-close.html
 
 ## Frame 11 — CTA

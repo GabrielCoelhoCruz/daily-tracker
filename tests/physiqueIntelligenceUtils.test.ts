@@ -5,9 +5,13 @@ import {
   getStageReadinessTrend,
   getWeightTrendSummary,
   getLatestAISignal,
+  getEvidenceSnapshot,
+  getEvidenceAISignal,
+  getPhysiquePrepContext,
   getNextPhysiqueAction,
   getCheckInTimelineItems,
 } from "@/utils/physiqueIntelligenceUtils";
+import type { HistoricoDia } from "@/stores/useHistoryStore";
 
 function makeCheckIn(
   overrides: Partial<PhysiqueCheckIn> & Pick<PhysiqueCheckIn, "id" | "week">
@@ -258,17 +262,17 @@ describe("getWeightTrendSummary", () => {
 
 describe("getLatestAISignal", () => {
   it("returns first-check-in prompt when no check-in exists", () => {
-    const signal = getLatestAISignal(null);
+    const signal = getLatestAISignal(null, 0);
 
     expect(signal.hasAnalysis).toBe(false);
-    expect(signal.message).toMatch(/first check-in/i);
+    expect(signal.message).toMatch(/primeiro check-in/i);
   });
 
   it("returns pending-analysis message when latest check-in has no analysis", () => {
-    const signal = getLatestAISignal(makeCheckIn({ id: "a", week: 1 }));
+    const signal = getLatestAISignal(makeCheckIn({ id: "a", week: 1 }), 1);
 
     expect(signal.hasAnalysis).toBe(false);
-    expect(signal.message).toMatch(/generate or view analysis/i);
+    expect(signal.message).toMatch(/Análise pendente/i);
   });
 
   it("extracts concise signal from markdown analysis", () => {
@@ -278,7 +282,7 @@ describe("getLatestAISignal", () => {
       analysis: "## Upper Body\nUpper body sharper. Lower back still needs tightening.\n\n## Next Steps\nCut carbs.",
     });
 
-    const signal = getLatestAISignal(checkIn);
+    const signal = getLatestAISignal(checkIn, 2);
 
     expect(signal.hasAnalysis).toBe(true);
     expect(signal.message).toBe(
@@ -293,7 +297,7 @@ describe("getLatestAISignal", () => {
       analysis: "### Conditioning\nV-taper improving week over week.",
     });
 
-    const signal = getLatestAISignal(checkIn);
+    const signal = getLatestAISignal(checkIn, 2);
     expect(signal.message).toBe("V-taper improving week over week.");
   });
 
@@ -305,7 +309,7 @@ describe("getLatestAISignal", () => {
       analysis: longLine,
     });
 
-    const signal = getLatestAISignal(checkIn);
+    const signal = getLatestAISignal(checkIn, 2);
     expect(signal.message.length).toBeLessThanOrEqual(181);
     expect(signal.message.endsWith("…")).toBe(true);
   });
@@ -391,5 +395,130 @@ describe("getCheckInTimelineItems", () => {
       hasAnalysis: true,
       thumbnailUri: "file:///photo.jpg",
     });
+  });
+});
+
+describe("getEvidenceSnapshot", () => {
+  const referenceDate = "2026-06-27";
+
+  it("retorna empty quando não há check-ins", () => {
+    const snapshot = getEvidenceSnapshot([], referenceDate);
+
+    expect(snapshot.hasEvidence).toBe(false);
+    expect(snapshot.freshnessStatus).toBe("empty");
+    expect(snapshot.nextActionLabel).toBe("Criar primeiro check-in");
+  });
+
+  it("calcula daysSinceCheckIn e freshnessStatus", () => {
+    const checkIns = [
+      makeCheckIn({
+        id: "latest",
+        week: 4,
+        date: "2026-06-20",
+        weight: 83.2,
+        photoPaths: ["a", "b", "c"],
+        analysis: "Sharp upper body.",
+      }),
+    ];
+
+    const snapshot = getEvidenceSnapshot(checkIns, referenceDate);
+
+    expect(snapshot.daysSinceCheckIn).toBe(7);
+    expect(snapshot.freshnessStatus).toBe("due-soon");
+    expect(snapshot.hasAnalysis).toBe(true);
+    expect(snapshot.photoCount).toBe(3);
+    expect(snapshot.evidenceLabel).toContain("Week 4");
+    expect(snapshot.evidenceLabel).toContain("83.2kg");
+  });
+
+  it("marca overdue após 10 dias", () => {
+    const snapshot = getEvidenceSnapshot(
+      [makeCheckIn({ id: "a", week: 3, date: "2026-06-10" })],
+      referenceDate,
+    );
+
+    expect(snapshot.freshnessStatus).toBe("overdue");
+    expect(snapshot.nextActionLabel).toBe("Criar novo check-in");
+  });
+});
+
+describe("getEvidenceAISignal", () => {
+  it("inclui limitação quando há menos de 2 check-ins", () => {
+    const signal = getEvidenceAISignal(
+      makeCheckIn({ id: "a", week: 1, analysis: "Progress visible." }),
+      1,
+    );
+
+    expect(signal.limitation).toMatch(/2 check-ins/i);
+  });
+
+  it("inclui limitação quando há menos de 3 fotos", () => {
+    const signal = getEvidenceAISignal(
+      makeCheckIn({
+        id: "a",
+        week: 2,
+        photoPaths: ["front.jpg"],
+        analysis: "Good conditioning.",
+      }),
+      2,
+    );
+
+    expect(signal.limitation).toMatch(/menos de 3 fotos/i);
+    expect(signal.evidence).toContain("Week 2");
+  });
+});
+
+describe("getPhysiquePrepContext", () => {
+  const referenceDate = "2026-06-27";
+
+  function makeHistorico(
+    data: string,
+    executionScore: number,
+    leaks: string[] = [],
+  ): HistoricoDia {
+    return {
+      data,
+      completados: 8,
+      total: 10,
+      itensPerdidos: [],
+      executionScore,
+      closeoutSavedAt: `${data}T22:00:00.000Z`,
+      closeoutLeaks: leaks,
+    };
+  }
+
+  it("calcula averageExecutionScore usando closeouts", () => {
+    const dias: Record<string, HistoricoDia> = {
+      "2026-06-23": makeHistorico("2026-06-23", 80),
+      "2026-06-25": makeHistorico("2026-06-25", 90),
+    };
+
+    const context = getPhysiquePrepContext(dias, referenceDate);
+
+    expect(context.hasCloseouts).toBe(true);
+    expect(context.averageExecutionScore).toBe(85);
+    expect(context.closedDays).toBe(2);
+    expect(context.evidence).toContain("85% execução média");
+  });
+
+  it("retorna mainLeakTitle sem inventar correlação", () => {
+    const dias: Record<string, HistoricoDia> = {
+      "2026-06-23": makeHistorico("2026-06-23", 70, ["Cardio 65min abaixo"]),
+      "2026-06-24": makeHistorico("2026-06-24", 72, ["Cardio 40min abaixo"]),
+    };
+
+    const context = getPhysiquePrepContext(dias, referenceDate);
+
+    expect(context.mainLeakTitle).toContain("Cardio incompleto");
+    expect(context.evidence).toContain("Use esse contexto");
+    expect(context.evidence).not.toMatch(/causou|por causa|devido ao shape/i);
+  });
+
+  it("retorna estado vazio quando não há closeouts", () => {
+    const context = getPhysiquePrepContext({}, referenceDate);
+
+    expect(context.hasCloseouts).toBe(false);
+    expect(context.averageExecutionScore).toBeNull();
+    expect(context.mainLeakTitle).toBeNull();
   });
 });

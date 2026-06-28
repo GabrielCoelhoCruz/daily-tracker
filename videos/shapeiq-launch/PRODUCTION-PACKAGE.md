@@ -11,13 +11,13 @@ Vertical 9:16 · 60s (PT-BR) + 20s cut · Dark premium iOS · Gym + code
 | 0:00–0:04 | Hook | Apps fitness não entendem prep. | Todo app fitness que eu testei parecia feito pra gente casual. |
 | 0:04–0:09 | Dor | Dieta. Cardio. Treino. Check-in. | Mas em bodybuilding prep, errar execução muda tudo. |
 | 0:09–0:13 | Virada | Então eu construí o meu. | Então eu construí o ShapeIQ. |
-| 0:13–0:17 | Marca | ShapeIQ / Seu prep. Seu shape. Com IA. | Um app iOS de prep, feito para acompanhar rotina, físico e evolução competitiva. |
+| 0:13–0:17 | Marca | ShapeIQ / Sua prep. Seu shape. Com IA. | Um app iOS de prep, feito para acompanhar rotina, físico e evolução competitiva. |
 | 0:17–0:23 | Today Briefing | Today Briefing | A home mostra o que importa agora e qual é a próxima ação do dia. |
 | 0:23–0:29 | Training | Training Session | O treino vira uma sessão guiada, não uma lista parada. |
 | 0:29–0:35 | Logs | Prep Review | Os logs mostram padrões: onde estou consistente e onde estou vazando execução. |
 | 0:35–0:44 | IA | Physique Intelligence | E a parte principal: IA analisando check-ins físicos com critérios competitivos. |
 | 0:44–0:51 | Tech | Expo · React Native · TypeScript · Claude Vision | Feito com Expo, React Native, TypeScript, Zustand e Claude Vision. |
-| 0:51–0:58 | Fechamento | ShapeIQ / Seu prep. Seu shape. Com IA. | Não é só um side project. É o app que eu queria usar na minha própria preparação. |
+| 0:51–0:58 | Fechamento | ShapeIQ / Sua prep. Seu shape. Com IA. | Não é só um side project. É o app que eu queria usar na minha própria preparação. |
 | 0:58–1:00 | CTA | ShapeIQ / GitHub: GabrielCoelhoCruz | ShapeIQ. Built for prep. Built as portfolio. |
 
 ---
@@ -35,13 +35,13 @@ Ver `SCRIPT.md` — 11 linhas, ~58s de fala, pausas de corte entre cenas.
 | 1 | Apps fitness | não entendem prep. |
 | 2 | Dieta. Cardio. | Treino. Check-in. |
 | 3 | Então eu | construí o meu. |
-| 4 | ShapeIQ | Seu prep. Seu shape. Com IA. |
+| 4 | ShapeIQ | Sua prep. Seu shape. Com IA. |
 | 5 | Today Briefing | — |
 | 6 | Training Session | — |
 | 7 | Prep Review | — |
 | 8 | Physique Intelligence | — |
 | 9 | Expo · React Native | TypeScript · Claude Vision |
-| 10 | ShapeIQ | Seu prep. Seu shape. Com IA. |
+| 10 | ShapeIQ | Sua prep. Seu shape. Com IA. |
 | 11 | ShapeIQ | GitHub: GabrielCoelhoCruz |
 
 Regra: máximo 5–7 palavras por tela. Fonte Inter/SF, branco `#e8e1df`, destaque amber `#f59e0b`.
@@ -142,7 +142,7 @@ Então construí o ShapeIQ.
 
 Um app iOS feito com Expo, React Native, TypeScript, Zustand e Claude Vision — usando IA para analisar check-ins físicos com lógica competitiva.
 
-Seu prep. Seu shape. Com IA.
+Sua prep. Seu shape. Com IA.
 
 Built for my prep.
 Built as my portfolio.
@@ -178,7 +178,7 @@ ShapeIQ uses AI vision to analyze physique check-ins against competitive bodybui
 This project is personal, but also represents the kind of software I like building:
 real workflow, real user, real constraints, AI where it actually adds value.
 
-ShapeIQ — Seu prep. Seu shape. Com IA.
+ShapeIQ — Sua prep. Seu shape. Com IA.
 ```
 
 ---
@@ -201,7 +201,7 @@ ShapeIQ — Seu prep. Seu shape. Com IA.
 | 8–11s | Today Briefing | Próxima ação do dia. |
 | 11–14s | Training Session | Treino guiado. |
 | 14–17s | Physique Intelligence | IA analisando meu físico. |
-| 17–20s | ShapeIQ / Seu prep. Seu shape. Com IA. | — |
+| 17–20s | ShapeIQ / Sua prep. Seu shape. Com IA. | — |
 
 Composição: `videos/shapeiq-launch-short/index.html`
 

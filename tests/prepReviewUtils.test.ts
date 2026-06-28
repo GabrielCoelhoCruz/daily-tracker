@@ -6,15 +6,31 @@ import {
   getRecentDaySummaries,
   getCalendarDayTone,
   getBestAndWeakestDays,
+  getWeeklyExecutionReview,
+  getMainWeeklyLeak,
+  getExecutionScoreTone,
+  getDayLeakSummary,
+  getRecentCloseoutDays,
+  getCalendarDayExecutionState,
 } from "@/utils/prepReviewUtils";
 
 function makeDia(
   data: string,
   completados: number,
   total: number,
-  itensPerdidos: string[] = []
+  itensPerdidos: string[] = [],
+  closeout?: Partial<
+    Pick<
+      HistoricoDia,
+      | "executionScore"
+      | "closeoutSavedAt"
+      | "closeoutEvidence"
+      | "closeoutLeaks"
+      | "dayNote"
+    >
+  >,
 ): HistoricoDia {
-  return { data, completados, total, itensPerdidos };
+  return { data, completados, total, itensPerdidos, ...closeout };
 }
 
 describe("getPrepReviewSummary", () => {
@@ -134,22 +150,22 @@ describe("getRecentDaySummaries", () => {
     ]);
   });
 
-  it("assigns perfect, strong, partial, weak, and empty tones correctly", () => {
+  it("assigns execution tones for legacy days without closeout", () => {
     const dias: Record<string, HistoricoDia> = {
       "2026-06-23": makeDia("2026-06-23", 10, 10),
       "2026-06-24": makeDia("2026-06-24", 9, 10),
       "2026-06-25": makeDia("2026-06-25", 7, 10),
-      "2026-06-26": makeDia("2026-06-26", 5, 10),
+      "2026-06-26": makeDia("2026-06-26", 3, 10),
       "2026-06-27": makeDia("2026-06-27", 0, 0),
     };
 
     const summaries = getRecentDaySummaries(dias, todayDate);
     const byDate = Object.fromEntries(summaries.map((s) => [s.date, s]));
 
-    expect(byDate["2026-06-23"]?.tone).toBe("perfect");
-    expect(byDate["2026-06-24"]?.tone).toBe("strong");
-    expect(byDate["2026-06-25"]?.tone).toBe("partial");
-    expect(byDate["2026-06-26"]?.tone).toBe("weak");
+    expect(byDate["2026-06-23"]?.tone).toBe("complete");
+    expect(byDate["2026-06-24"]?.tone).toBe("complete");
+    expect(byDate["2026-06-25"]?.tone).toBe("warning");
+    expect(byDate["2026-06-26"]?.tone).toBe("leak");
     expect(byDate["2026-06-27"]?.tone).toBe("empty");
   });
 
@@ -193,7 +209,7 @@ describe("getCalendarDayTone", () => {
     expect(getCalendarDayTone(todayDate, todayDate, null)).toBe("today");
   });
 
-  it("returns perfect, strong, partial, and weak based on adherence", () => {
+  it("returns perfect, strong, partial, and weak based on adherence for legacy days", () => {
     expect(
       getCalendarDayTone("2026-06-23", todayDate, makeDia("2026-06-23", 10, 10))
     ).toBe("perfect");
@@ -206,6 +222,155 @@ describe("getCalendarDayTone", () => {
     expect(
       getCalendarDayTone("2026-06-26", todayDate, makeDia("2026-06-26", 4, 10))
     ).toBe("weak");
+  });
+
+  it("uses executionScore when closeout exists", () => {
+    expect(
+      getCalendarDayTone(
+        "2026-06-23",
+        todayDate,
+        makeDia("2026-06-23", 8, 10, [], {
+          executionScore: 82,
+          closeoutSavedAt: "2026-06-23T22:00:00.000Z",
+        }),
+      ),
+    ).toBe("strong");
+  });
+});
+
+describe("getWeeklyExecutionReview", () => {
+  const todayDate = "2026-06-27";
+
+  it("calcula averageScore usando apenas dias com executionScore", () => {
+    const dias: Record<string, HistoricoDia> = {
+      "2026-06-23": makeDia("2026-06-23", 8, 10, [], {
+        executionScore: 80,
+        closeoutSavedAt: "2026-06-23T22:00:00.000Z",
+      }),
+      "2026-06-24": makeDia("2026-06-24", 9, 10, [], {
+        executionScore: 90,
+        closeoutSavedAt: "2026-06-24T22:00:00.000Z",
+      }),
+      "2026-06-25": makeDia("2026-06-25", 7, 10),
+    };
+
+    const review = getWeeklyExecutionReview(dias, todayDate);
+
+    expect(review.averageScore).toBe(85);
+    expect(review.closedDays).toBe(2);
+    expect(review.bestDay?.score).toBe(90);
+  });
+});
+
+describe("getMainWeeklyLeak", () => {
+  const todayDate = "2026-06-27";
+
+  it("detecta mainLeak mais frequente nos últimos 7 dias", () => {
+    const dias: Record<string, HistoricoDia> = {
+      "2026-06-23": makeDia("2026-06-23", 8, 10, [], {
+        closeoutSavedAt: "2026-06-23T22:00:00.000Z",
+        closeoutLeaks: ["Cardio 65min abaixo"],
+      }),
+      "2026-06-24": makeDia("2026-06-24", 7, 10, [], {
+        closeoutSavedAt: "2026-06-24T22:00:00.000Z",
+        closeoutLeaks: ["Cardio 40min abaixo"],
+      }),
+      "2026-06-25": makeDia("2026-06-25", 9, 10, [], {
+        closeoutSavedAt: "2026-06-25T22:00:00.000Z",
+        closeoutLeaks: ["Cardio 20min abaixo"],
+      }),
+      "2026-06-26": makeDia("2026-06-26", 8, 10, [], {
+        closeoutSavedAt: "2026-06-26T22:00:00.000Z",
+        closeoutLeaks: ["Treino pendente"],
+      }),
+    };
+
+    const mainLeak = getMainWeeklyLeak(dias, todayDate);
+
+    expect(mainLeak?.type).toBe("cardio");
+    expect(mainLeak?.count).toBe(3);
+    expect(mainLeak?.title).toContain("Cardio incompleto");
+    expect(mainLeak?.evidence).toContain("3 fechamentos");
+  });
+});
+
+describe("getExecutionScoreTone", () => {
+  it("retorna execution tone correto por score", () => {
+    expect(getExecutionScoreTone(95)).toBe("complete");
+    expect(getExecutionScoreTone(82)).toBe("strong");
+    expect(getExecutionScoreTone(60)).toBe("warning");
+    expect(getExecutionScoreTone(40)).toBe("leak");
+    expect(getExecutionScoreTone(null)).toBe("empty");
+  });
+});
+
+describe("getDayLeakSummary", () => {
+  it("gera resumo de dia com vazamento principal e evidência", () => {
+    const summary = getDayLeakSummary(
+      makeDia("2026-06-23", 8, 10, [], {
+        executionScore: 72,
+        closeoutSavedAt: "2026-06-23T22:00:00.000Z",
+        closeoutEvidence: "Treino 12/18 sets · Água 3.1/4.0L",
+        closeoutLeaks: ["Cardio 65min abaixo", "Treino pendente"],
+      }),
+    );
+
+    expect(summary.hasCloseout).toBe(true);
+    expect(summary.executionScore).toBe(72);
+    expect(summary.primaryLeak).toBe("Cardio 65min abaixo");
+    expect(summary.evidenceShort).toContain("Treino 12/18 sets");
+    expect(summary.tone).toBe("warning");
+  });
+});
+
+describe("getRecentCloseoutDays", () => {
+  const todayDate = "2026-06-27";
+
+  it("retorna apenas dias com fechamento salvo", () => {
+    const dias: Record<string, HistoricoDia> = {
+      "2026-06-23": makeDia("2026-06-23", 8, 10, [], {
+        executionScore: 80,
+        closeoutSavedAt: "2026-06-23T22:00:00.000Z",
+      }),
+      "2026-06-24": makeDia("2026-06-24", 7, 10),
+    };
+
+    const days = getRecentCloseoutDays(dias, todayDate);
+
+    expect(days).toHaveLength(1);
+    expect(days[0]?.hasCloseout).toBe(true);
+    expect(days[0]?.executionScore).toBe(80);
+  });
+});
+
+describe("getCalendarDayExecutionState", () => {
+  const todayDate = "2026-06-27";
+
+  it("retorna empty quando não há closeout", () => {
+    const state = getCalendarDayExecutionState(
+      "2026-06-23",
+      todayDate,
+      makeDia("2026-06-23", 8, 10),
+    );
+
+    expect(state.hasCloseout).toBe(false);
+    expect(state.tone).toBe("empty");
+  });
+
+  it("retorna leaks quando closeout possui vazamentos", () => {
+    const state = getCalendarDayExecutionState(
+      "2026-06-23",
+      todayDate,
+      makeDia("2026-06-23", 8, 10, [], {
+        executionScore: 55,
+        closeoutSavedAt: "2026-06-23T22:00:00.000Z",
+        closeoutLeaks: ["Cardio 65min abaixo"],
+      }),
+    );
+
+    expect(state.hasCloseout).toBe(true);
+    expect(state.hasLeaks).toBe(true);
+    expect(state.tone).toBe("warning");
   });
 });
 
