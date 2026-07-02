@@ -80,15 +80,13 @@ O upload de arquivo real não roda no smoke runner web — validar manualmente n
 
 - [ ] Matar o app após o onboarding e reabrir: plano e perfil persistem (não volta para onboarding)
 - [ ] Matar o app após ações do checklist e reabrir: checks, água, cardio e fechamento persistem
-- [ ] Check-in com **câmera**: foto salva
-- [ ] Check-in com **galeria**: foto salva
-- [ ] Reabrir o app: URIs das fotos ainda carregam (persistência de foto)
-- [ ] Peso e nota do check-in salvos e exibidos
-- [ ] Comparar dois check-ins lado a lado (delta de peso e datas corretos)
-- [ ] Ângulo sem foto mostra empty state em PT-BR (não quebra)
+- [ ] **Evidências**: botão de check-in aparece desabilitado ("Check-in em breve"); tocar em qualquer ação de check-in mostra aviso "Em breve" — sem crash, sem navegar para tela quebrada
+- [ ] Acessar a rota de novo check-in diretamente (se possível via deep link) mostra a tela "Em breve", não o formulário
+
+> Check-in com câmera/galeria, peso, comparação e persistência de fotos são MVP 2 — itens de teste voltam quando a feature reativar.
 - [ ] Share sheet nativo funciona a partir do resumo/análise
 - [ ] Ativar modo demo com perfil real já completo: dados reais **não** são sobrescritos (apenas registros `demo-` adicionados); "Limpar dados demo" remove só eles
-- [ ] Modo avião: marcar refeição, água, cardio, fechar dia e criar check-in funcionam sem rede
+- [ ] Modo avião: marcar refeição, água, cardio e fechar dia funcionam sem rede
 
 ## E. Critérios de aceite
 

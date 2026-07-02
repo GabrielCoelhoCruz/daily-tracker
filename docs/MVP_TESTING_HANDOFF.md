@@ -11,9 +11,9 @@ ShapeIQ é um app de **execução de prep**. Ele ajuda o atleta a:
 3. Fechar o dia com evidência (score de execução)
 4. Identificar vazamentos de aderência
 5. Revisar a semana (Logs)
-6. Criar check-ins de físico com fotos e peso
-7. Comparar fotos entre check-ins
-8. Exportar um resumo semanal (para coach ou para si mesmo)
+6. Exportar um resumo semanal (para coach ou para si mesmo)
+
+> Check-ins de físico com fotos e comparação ficaram para o **MVP 2** — a UI mostra "em breve" e nada quebra ao tocar.
 
 ### O que o ShapeIQ **não** é
 
@@ -32,7 +32,7 @@ ShapeIQ é um app de **execução de prep**. Ele ajuda o atleta a:
 - Import de PDF com IA: extração de texto server-side, organização em schema estruturado, revisão obrigatória antes de ativar (a IA só organiza o plano que o usuário já recebeu — nunca cria dieta/treino). Itens sensíveis (medicação/hormônios/diuréticos/água-sódio) são separados e **não** viram checklist
 - Parser determinístico e offline do plano colado (WhatsApp/notas), com revisão antes de ativar — também usado como fallback quando a IA falha após a extração do texto
 - Plano-base manual: água, nº de refeições (com renomear), cardio, semana de treino (presets ABC/ABCD/ABCDE + edição por dia), refeição livre, horário de fechamento
-- Abas: **Hoje** (próxima ação + fechamento) · **Protocolo** (checklist do dia, água, cardio, pular com motivo, refeição livre) · **Treino** (treino do dia, conclusão, registro de sets opcional) · **Logs** (score semanal, principal vazamento, detalhe por dia, exportar resumo) · **Evidências** (check-ins, peso, validade, linha do tempo, comparação)
+- Abas: **Hoje** (próxima ação + fechamento) · **Protocolo** (checklist do dia, água, cardio, pular com motivo, refeição livre) · **Treino** (treino do dia, conclusão, registro de sets opcional) · **Logs** (score semanal, principal vazamento, detalhe por dia, exportar resumo) · **Evidências** (check-ins com fotos/peso/comparação: **em breve no MVP 2** — botões desabilitados com aviso)
 - Fechamento diário respeita o horário configurado: antes dele, pendências levam de volta à execução; depois, "Fechar mesmo assim" é permitido e vira vazamento
 - Dias fechados são snapshots históricos imutáveis (nota editável)
 - Resumo semanal em PT-BR copiável/compartilhável ("Resumo para coach" / "Resumo da semana"); dados ausentes aparecem como "não registrado"
@@ -104,21 +104,19 @@ Esperado: nenhum dado inventado no resumo; itens pulados/pendentes aparecem como
 
 Esperado: onboarding completo em menos de ~3 minutos, sem cadastrar alimentos.
 
-## Flow C — Persistência, check-ins, restart e comparação
+## Flow C — Persistência e restart
 
 1. Com plano ativo e itens marcados, **fechar o app completamente e reabrir**.
    - Esperado: plano, checks do dia, água, cardio, origem do plano e fechamento persistem.
-2. Em **Evidências**, criar um check-in: peso + 1–4 fotos + notas.
-3. Criar um segundo check-in (dia seguinte ou de teste) com peso diferente.
-4. Tocar **"Comparar"**: escolher os dois check-ins, alternar ângulos (Frontal/Lateral/Costas), conferir delta de peso e datas.
-   - Ângulo sem foto deve indicar indisponibilidade, não quebrar.
-5. Reiniciar o app de novo: check-ins, fotos e comparação continuam disponíveis.
-6. Verificar a validade do check-in ("Há N dias") — aviso após 7 dias sem check-in novo.
+2. Em **Evidências**, verificar que o botão de check-in aparece **desabilitado ("Check-in em breve")** e que tocar nas ações mostra o aviso "Em breve" — sem crash, sem navegação para tela quebrada.
+
+> Criação de check-in, fotos e comparação são MVP 2. O código existe atrás de um guard ("Em breve"); os passos de teste correspondentes voltam quando a feature for reativada.
 
 ## Itens conhecidos adiados
 
 - Meta de cardio semanal (o plano-base usa meta diária; semanal aparece só no resumo agregado)
 - Pausar/duplicar plano
+- Check-ins de físico (fotos, peso, comparação, análise por IA): **adiados para o MVP 2**. UI mostra "em breve"; preferências de dia/modo coletadas no onboarding ficam salvas para quando a feature ativar
 - Lembrete configurável de check-in (dia/modo são salvos; notificação dedicada não implementada)
 - Edição granular do plano importado pós-ativação (editar exige reimportar ou refazer onboarding)
 
@@ -128,7 +126,7 @@ Nota: não existe ação na UI para trocar para o plano de exemplo embutido. Ele
 
 - **Parser do plano colado é heurístico**: formatos muito fora do padrão (tabelas, emojis como bullets, tudo em uma linha) podem cair no aviso "nenhum período reconhecido" — o fluxo manual cobre, mas vale testar com planos reais de coaches.
 - **Horário de fechamento vs. dia lógico**: o dia lógico vira às 4h. Fechamentos entre 00:00 e 04:00 contam para o dia anterior. Testar fechamento tarde da noite.
-- **Fotos de check-in** são URIs locais; em alguns cenários de reinstalação/limpeza do sistema operacional as fotos podem ser removidas pelo SO enquanto o registro permanece.
+- **Fotos de check-in** (quando o MVP 2 ativar a feature) são URIs locais; em alguns cenários de reinstalação/limpeza do sistema operacional as fotos podem ser removidas pelo SO enquanto o registro permanece.
 - **Import de PDF exige conexão**: a organização com IA roda via backend (a chave do provedor fica só no servidor; nada de chave no app). O restante do app segue offline. Sem rede, o fluxo mostra aviso e oferece colar texto/manual.
 - **PDF escaneado sem texto selecionável** retorna erro amigável (OCR não incluído neste MVP+). PDFs com texto funcionam.
 - **A IA só organiza** o plano recebido: não cria dieta/treino, não infere valores ausentes (viram null/"não mapeado") e o usuário sempre revisa antes de ativar. Itens de medicação/hormônios/diuréticos/manipulação de água-sódio são exibidos em "Itens sensíveis" e nunca entram no checklist.
@@ -142,7 +140,7 @@ Todo o estado é local (AsyncStorage, stores Zustand com `persist`). Os stores t
 
 ## Mensagem sugerida para testadores (PT-BR)
 
-> "Estou testando um MVP do ShapeIQ, um app para organizar execução de prep/cutting: plano do dia, refeições, água, cardio, treino, fechamento diário, vazamentos de aderência e check-ins de evolução. A ideia não é substituir coach/nutricionista, e sim ajudar a seguir o que você decidiu executar e revisar a semana. Quero que você use por alguns dias e me diga onde ficou confuso, onde ajudou e onde você abandonaria."
+> "Estou testando um MVP do ShapeIQ, um app para organizar execução de prep/cutting: plano do dia, refeições, água, cardio, treino, fechamento diário e vazamentos de aderência. A ideia não é substituir coach/nutricionista, e sim ajudar a seguir o que você decidiu executar e revisar a semana. Quero que você use por alguns dias e me diga onde ficou confuso, onde ajudou e onde você abandonaria."
 
 ## Checklist de smoke test em dispositivo
 
@@ -159,9 +157,8 @@ Todo o estado é local (AsyncStorage, stores Zustand com `persist`). Os stores t
 - [ ] Depois do horário: "Fechar o dia" / "Fechar mesmo assim" funcionam; dia fica read-only
 - [ ] Logs mostra score semanal, principal vazamento e detalhe por dia
 - [ ] Resumo semanal compartilha texto correto (dados ausentes = "não registrado")
-- [ ] Check-in com câmera e com galeria; peso salvo
-- [ ] Comparação lado a lado com filtro de ângulo; ângulo faltante não quebra
-- [ ] Matar o app e reabrir: tudo persiste (plano, checks, água, cardio, check-ins, fechamentos)
+- [ ] Evidências: botão "Check-in em breve" desabilitado; tocar nas ações mostra aviso "Em breve" sem crash
+- [ ] Matar o app e reabrir: tudo persiste (plano, checks, água, cardio, fechamentos)
 - [ ] Rotação de dia (abrir após meia-noite/4h): dia anterior arquivado, novo dia gerado
 - [ ] Sem rede (modo avião): todas as ações principais funcionam
 - [ ] Notificações: permissão negada não quebra o app
