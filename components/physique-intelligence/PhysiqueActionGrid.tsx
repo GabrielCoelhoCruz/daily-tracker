@@ -31,12 +31,13 @@ export function PhysiqueActionGrid({
   const actions: ActionItem[] = [
     {
       key: "new-checkin",
-      label: "Novo Check-in",
+      label: "Check-in em breve",
       sf: "camera.viewfinder",
       mci: "camera-outline",
-      onPress: onNewCheckIn,
+      onPress: () => {},
       primary: true,
-      accessibilityLabel: "Novo check-in",
+      disabled: true,
+      accessibilityLabel: "Check-in com análise visual — disponível na próxima versão",
     },
     {
       key: "compare",

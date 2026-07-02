@@ -1,4 +1,5 @@
 ﻿import { ScrollView } from "react-native";
+import { Alert } from "react-native";
 
 import { router } from "expo-router";
 
@@ -91,25 +92,11 @@ export default function ProgressoScreen() {
 
 
   const handleEvidenceAction = () => {
-
-    if (
-
-      evidenceSnapshot.freshnessStatus === "overdue" ||
-
-      evidenceSnapshot.freshnessStatus === "due-soon" ||
-
-      !evidenceSnapshot.hasEvidence
-
-    ) {
-
-      router.push("./new-checkin" as never);
-
-      return;
-
-    }
-
-    handleOpenLatestResult();
-
+    Alert.alert(
+      "Em breve",
+      "O check-in com análise visual por IA estará disponível na próxima versão."
+    );
+    return;
   };
 
 
@@ -129,9 +116,10 @@ export default function ProgressoScreen() {
 
 
   const handleNewCheckIn = () => {
-
-    router.push("./new-checkin" as never);
-
+    Alert.alert(
+      "Em breve",
+      "O check-in com análise visual por IA estará disponível na próxima versão."
+    );
   };
 
 

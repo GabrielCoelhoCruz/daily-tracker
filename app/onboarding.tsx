@@ -1225,31 +1225,12 @@ export default function OnboardingScreen() {
             </Text>
             <Text style={theme.typography.body}>
               Plano ativo. A próxima ação será calculada em Hoje — sempre uma
-              só. Check-in e fechamento diário já estão configurados.
+              só. Fechamento diário já está configurado.
             </Text>
             <PrimaryButton label="Ir para Hoje" onPress={handleFinish} />
-            <Pressable
-              onPress={() => {
-                setOnboardingComplete(true);
-                router.replace("/(tabs)/(progresso)/new-checkin");
-              }}
-              accessibilityRole="button"
-              accessibilityLabel="Criar check-in inicial"
-              style={{
-                minHeight: 44,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Text
-                style={{
-                  ...theme.typography.callout,
-                  color: theme.colors.accent.DEFAULT,
-                }}
-              >
-                Criar check-in inicial
-              </Text>
-            </Pressable>
+            {/* MVP 2: restaurar CTA "Criar check-in inicial" →
+                router.replace("/(tabs)/(progresso)/new-checkin") quando o
+                fluxo de check-in sair do "Em breve". */}
           </View>
         )}
 

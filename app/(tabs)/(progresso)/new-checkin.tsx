@@ -15,6 +15,7 @@ import { usePhysiqueStore, PHOTO_LABELS } from "@/stores/usePhysiqueStore";
 import type { TargetCategory } from "@/stores/usePhysiqueStore";
 import { useAthleteStore } from "@/stores/useAthleteStore";
 import { PhotoSlots } from "@/components/physique/PhotoSlots";
+import { AppIcon } from "@/components/ui/AppIcon";
 import { analyzePhysique } from "@/services/physiqueAnalysis";
 
 const MALE_CATEGORY_PILLS: { key: TargetCategory; label: string }[] = [
@@ -46,6 +47,26 @@ const POSING_LABELS: Partial<Record<TargetCategory, string[]>> = {
 type PhotoSlot = { uri: string; label: string } | null;
 
 export default function NewCheckInScreen() {
+  // MVP 1: check-in with AI analysis is gated — redirect to the "coming soon" state
+  return (
+    <View className="flex-1 bg-primary items-center justify-center p-6" style={{ gap: 16 }}>
+      <AppIcon
+        sf="camera.viewfinder"
+        mci="camera-outline"
+        size={48}
+        color={theme.colors.onSurface.variant}
+      />
+      <Text style={[theme.typography.headline, { color: theme.colors.text.primary }]}>
+        Em breve
+      </Text>
+      <Text style={[theme.typography.body, { color: theme.colors.text.secondary, textAlign: "center" }]}>
+        O check-in com análise visual por IA estará disponível na próxima versão.
+      </Text>
+    </View>
+  );
+
+  /* MVP 2: restore the full check-in flow below */
+  // eslint-disable-next-line no-unreachable
   const checkIns = usePhysiqueStore((s) => s.checkIns);
   const addCheckIn = usePhysiqueStore((s) => s.addCheckIn);
   const updateAnalysis = usePhysiqueStore((s) => s.updateAnalysis);

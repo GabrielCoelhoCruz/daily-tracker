@@ -35,12 +35,12 @@ export function PhysiqueEmptyState({
           textAlign: "center",
         }}
       >
-        Evidência começa com a primeira foto. Crie seu primeiro check-in para
-        acompanhar a tendência do shape.
+        Evidência começa com a primeira foto. O check-in com análise visual
+        estará disponível na próxima versão.
       </Text>
 
       <Pressable
-        onPress={onNewCheckIn}
+        disabled
         style={{
           backgroundColor: theme.colors.primary.container,
           paddingHorizontal: 20,
@@ -49,12 +49,13 @@ export function PhysiqueEmptyState({
           marginTop: 8,
           minHeight: 44,
           justifyContent: "center",
+          opacity: 0.45,
         }}
         accessibilityRole="button"
-        accessibilityLabel="Novo check-in"
+        accessibilityLabel="Check-in com análise visual — disponível na próxima versão"
       >
         <Text style={{ color: "#000", fontWeight: "700", fontSize: 15 }}>
-          Novo Check-in
+          Check-in em breve
         </Text>
       </Pressable>
 
