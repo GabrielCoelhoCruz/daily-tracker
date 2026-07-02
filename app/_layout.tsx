@@ -137,6 +137,21 @@ export default function RootLayout() {
             }}
           />
           <Stack.Screen
+            name="import-pdf"
+            options={{
+              presentation: "formSheet",
+              sheetGrabberVisible: true,
+              sheetAllowedDetents: [0.9, 1.0],
+              headerShown: true,
+              headerTitle: "Importar PDF",
+              headerTransparent: true,
+              headerShadowVisible: false,
+              headerTintColor: theme.colors.text.primary,
+              contentStyle: { backgroundColor: "transparent" },
+              ...nativeHeaderGlass,
+            }}
+          />
+          <Stack.Screen
             name="config"
             options={{
               presentation: "formSheet",

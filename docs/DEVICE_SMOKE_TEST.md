@@ -17,7 +17,8 @@
 ## B. Flow A — "Tenho coach"
 
 - [ ] Escolher "Tenho coach" e preencher objetivo/perfil/check-in
-- [ ] Colar o plano de exemplo do handoff em "Colar plano":
+- [ ] A etapa **"Importar plano"** mostra as três opções: **Importar PDF** (destaque), **Colar texto** e **Cadastrar manualmente**, com o disclaimer no rodapé
+- [ ] Colar o plano de exemplo do handoff em **"Colar texto"**:
 
   ```
   Café da manhã:
@@ -38,6 +39,23 @@
 
 - [ ] Revisar a prévia (períodos/itens/metas detectados) e ativar
 - [ ] Cair em **Hoje** com próxima ação real
+
+### B.1 Importar PDF (requer rede + backend com chave do provedor de IA configurada)
+
+O upload de arquivo real não roda no smoke runner web — validar manualmente no dispositivo:
+
+- [ ] Gerar um PDF de texto com o mesmo plano de exemplo acima (ex.: exportar de um editor de texto; precisa ter texto selecionável, não escaneado)
+- [ ] Em "Importar plano" → **"Importar PDF"** → tela mostra nota de privacidade → **"Escolher PDF"**
+- [ ] Selecionar arquivo não-PDF → erro "Por enquanto, importe apenas arquivos PDF." (fluxo não trava)
+- [ ] Selecionar o PDF do plano → estados de processamento aparecem ("Lendo arquivo…" → … → "Preparando revisão…")
+- [ ] Revisão mostra: 3 períodos, 7 itens, Água 3000 ml, Cardio 40 min, Treino ABCDE, Fechamento 21:00
+- [ ] Treino/fechamento **não** aparecem como itens dentro de "Jantar"
+- [ ] Editar um item e uma meta (ex.: água) antes de ativar → valores editados valem
+- [ ] **"Ativar plano"** → volta ao onboarding com metas prefill (água/cardio/fechamento do PDF)
+- [ ] Cancelar no meio do processamento → volta sem corromper o onboarding
+- [ ] Modo avião → tentar importar → mensagem "Importação com IA precisa de conexão…" e fallback para colar texto
+- [ ] (Se disponível) PDF escaneado → mensagem de OCR indisponível com fallback claro
+- [ ] (Se plano contiver itens sensíveis) seção "Itens sensíveis" aparece e itens não entram no checklist
 - [ ] Executar: marcar refeição, registrar água (+250 ml), registrar cardio, concluir treino
 - [ ] Antes do horário configurado: fechamento com pendência leva de volta à execução (sem "Fechar mesmo assim")
 - [ ] Depois do horário configurado: fechar o dia funciona; dia fica read-only

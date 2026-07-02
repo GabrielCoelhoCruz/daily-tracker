@@ -834,20 +834,50 @@ export default function OnboardingScreen() {
 
         {step === "protocolo" && (
           <View style={{ gap: 16 }}>
-            <Text style={theme.typography.title3}>
-              Como quer cadastrar seu plano?
-            </Text>
+            <Text style={theme.typography.title3}>Importar plano</Text>
             <Text style={theme.typography.footnote}>
-              Você vai revisar tudo antes de ativar.
+              Envie o plano do coach ou cole o texto. A IA organiza em um
+              protocolo editável para você revisar antes de ativar.
             </Text>
+            <Pressable
+              onPress={() => router.push("/import-pdf")}
+              accessibilityRole="button"
+              accessibilityLabel="Importar PDF do plano do coach"
+              testID="import-pdf-option"
+              style={{
+                backgroundColor: theme.colors.bg.card,
+                borderWidth: 1.5,
+                borderColor: theme.colors.accent.DEFAULT,
+                borderRadius: theme.radius.lg,
+                padding: 16,
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
+              <AppIcon
+                sf="doc.richtext"
+                mci="file-pdf-box"
+                size={22}
+                color={theme.colors.accent.DEFAULT}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={{ ...theme.typography.callout }}>
+                  Importar PDF
+                </Text>
+                <Text style={theme.typography.caption}>
+                  Use um arquivo PDF do plano do coach.
+                </Text>
+              </View>
+            </Pressable>
             <Pressable
               onPress={() => router.push("/import-protocol")}
               accessibilityRole="button"
-              accessibilityLabel="Colar plano do coach"
+              accessibilityLabel="Colar texto do plano do coach"
               style={{
                 backgroundColor: theme.colors.bg.card,
                 borderWidth: 1,
-                borderColor: theme.colors.accent.DEFAULT,
+                borderColor: theme.colors.border,
                 borderRadius: theme.radius.lg,
                 padding: 16,
                 flexDirection: "row",
@@ -859,26 +889,16 @@ export default function OnboardingScreen() {
                 sf="doc.on.clipboard"
                 mci="clipboard-text-outline"
                 size={22}
-                color={theme.colors.accent.DEFAULT}
+                color={theme.colors.text.secondary}
               />
               <View style={{ flex: 1 }}>
                 <Text style={{ ...theme.typography.callout }}>
-                  Colar plano
+                  Colar texto
                 </Text>
                 <Text style={theme.typography.caption}>
-                  {customPlano
-                    ? `Importado: ${customPlano.nome}`
-                    : "Cole texto do WhatsApp, PDF, Notas ou mensagem do coach."}
+                  Use se o plano veio por WhatsApp, Notas ou mensagem.
                 </Text>
               </View>
-              {customPlano ? (
-                <AppIcon
-                  sf="checkmark.circle.fill"
-                  mci="check-circle"
-                  size={20}
-                  color={theme.colors.semantic.success}
-                />
-              ) : null}
             </Pressable>
             <Pressable
               onPress={() => {
@@ -886,24 +906,52 @@ export default function OnboardingScreen() {
                 next();
               }}
               accessibilityRole="button"
-              accessibilityLabel="Começar simples"
+              accessibilityLabel="Cadastrar plano manualmente"
               style={{
                 backgroundColor: theme.colors.bg.card,
                 borderWidth: 1,
                 borderColor: theme.colors.border,
                 borderRadius: theme.radius.lg,
                 padding: 16,
-                gap: 4,
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 12,
               }}
             >
-              <Text style={{ ...theme.typography.callout }}>
-                Começar simples
-              </Text>
-              <Text style={theme.typography.caption}>
-                Crie só as metas principais agora e detalhe depois em
-                Configurações.
-              </Text>
+              <AppIcon
+                sf="square.and.pencil"
+                mci="pencil-outline"
+                size={22}
+                color={theme.colors.text.secondary}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={{ ...theme.typography.callout }}>
+                  Cadastrar manualmente
+                </Text>
+                <Text style={theme.typography.caption}>
+                  Monte o plano passo a passo.
+                </Text>
+              </View>
             </Pressable>
+            {customPlano ? (
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+              >
+                <AppIcon
+                  sf="checkmark.circle.fill"
+                  mci="check-circle"
+                  size={16}
+                  color={theme.colors.semantic.success}
+                />
+                <Text style={theme.typography.caption}>
+                  Importado: {customPlano.nome}
+                </Text>
+              </View>
+            ) : null}
+            <Text style={theme.typography.caption}>
+              O ShapeIQ organiza informações do plano. Ele não substitui
+              coach, nutricionista ou médico.
+            </Text>
             <PrimaryButton
               label={customPlano ? "Continuar" : "Continuar sem importar"}
               onPress={() => {

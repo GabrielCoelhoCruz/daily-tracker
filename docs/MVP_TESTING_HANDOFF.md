@@ -28,7 +28,9 @@ ShapeIQ é um app de **execução de prep**. Ele ajuda o atleta a:
 ## Incluído neste MVP
 
 - Onboarding com dois caminhos: **"Tenho coach"** (importar/colar plano) e **"Estou sem coach"** (montar plano-base em poucos minutos)
-- Parser determinístico e offline do plano colado (WhatsApp/notas), com revisão antes de ativar
+- **Importar plano** (MVP+): hub com três opções no caminho do coach — **Importar PDF** (IA organiza o plano em protocolo editável), **Colar texto** (parser offline) e **Cadastrar manualmente**
+- Import de PDF com IA: extração de texto server-side, organização em schema estruturado, revisão obrigatória antes de ativar (a IA só organiza o plano que o usuário já recebeu — nunca cria dieta/treino). Itens sensíveis (medicação/hormônios/diuréticos/água-sódio) são separados e **não** viram checklist
+- Parser determinístico e offline do plano colado (WhatsApp/notas), com revisão antes de ativar — também usado como fallback quando a IA falha após a extração do texto
 - Plano-base manual: água, nº de refeições (com renomear), cardio, semana de treino (presets ABC/ABCD/ABCDE + edição por dia), refeição livre, horário de fechamento
 - Abas: **Hoje** (próxima ação + fechamento) · **Protocolo** (checklist do dia, água, cardio, pular com motivo, refeição livre) · **Treino** (treino do dia, conclusão, registro de sets opcional) · **Logs** (score semanal, principal vazamento, detalhe por dia, exportar resumo) · **Evidências** (check-ins, peso, validade, linha do tempo, comparação)
 - Fechamento diário respeita o horário configurado: antes dele, pendências levam de volta à execução; depois, "Fechar mesmo assim" é permitido e vira vazamento
@@ -46,7 +48,7 @@ ShapeIQ é um app de **execução de prep**. Ele ajuda o atleta a:
 - Construtor avançado de treino (o registro set-a-set existente foi mantido como opcional)
 - Portal do coach, feed social, gamificação (streaks/confetes/mascotes)
 - Peak week, manipulação de água/sódio/diuréticos
-- Upload/OCR de PDF no import (apenas colar texto)
+- OCR de PDF escaneado (PDFs com texto selecionável funcionam; escaneados falham com fallback claro para colar texto)
 
 ## Como resetar o estado para teste
 
@@ -62,7 +64,7 @@ Não há botão único de "reset total". Opções:
 2. Escolher **"Tenho coach"**.
 3. Preencher objetivo (ex.: Prep para campeonato + data), perfil básico e preferências de check-in.
 4. Preencher dados do coach (opcionais).
-5. Em "Como quer cadastrar seu plano?", tocar **"Colar plano"** e colar, por exemplo:
+5. Em **"Importar plano"**, escolher uma das opções: **"Importar PDF"** (envia um PDF do plano; a IA organiza e abre a revisão), **"Colar texto"** ou **"Cadastrar manualmente"**. Para o teste com texto, tocar **"Colar texto"** e colar, por exemplo:
    ```
    Café da manhã:
    - Ovos
@@ -79,7 +81,7 @@ Não há botão único de "reset total". Opções:
    Treino ABCDE
    Fechamento do dia 21:00
    ```
-6. Verificar a prévia (períodos/itens/metas detectados) e confirmar.
+6. Verificar a prévia (períodos/itens/metas detectados) e confirmar. No caminho PDF, a revisão mostra também confiança por seção, itens sensíveis separados e linhas não mapeadas — água/cardio/treino/fechamento são editáveis antes de ativar.
 7. Concluir onboarding → cair em **Hoje** com próxima ação real.
 8. Marcar itens no **Protocolo**, registrar água (+250 ml) e cardio.
 9. Concluir treino na aba **Treino** (ou marcar descanso).
@@ -127,6 +129,10 @@ Nota: não existe ação na UI para trocar para o plano de exemplo embutido. Ele
 - **Parser do plano colado é heurístico**: formatos muito fora do padrão (tabelas, emojis como bullets, tudo em uma linha) podem cair no aviso "nenhum período reconhecido" — o fluxo manual cobre, mas vale testar com planos reais de coaches.
 - **Horário de fechamento vs. dia lógico**: o dia lógico vira às 4h. Fechamentos entre 00:00 e 04:00 contam para o dia anterior. Testar fechamento tarde da noite.
 - **Fotos de check-in** são URIs locais; em alguns cenários de reinstalação/limpeza do sistema operacional as fotos podem ser removidas pelo SO enquanto o registro permanece.
+- **Import de PDF exige conexão**: a organização com IA roda via backend (a chave do provedor fica só no servidor; nada de chave no app). O restante do app segue offline. Sem rede, o fluxo mostra aviso e oferece colar texto/manual.
+- **PDF escaneado sem texto selecionável** retorna erro amigável (OCR não incluído neste MVP+). PDFs com texto funcionam.
+- **A IA só organiza** o plano recebido: não cria dieta/treino, não infere valores ausentes (viram null/"não mapeado") e o usuário sempre revisa antes de ativar. Itens de medicação/hormônios/diuréticos/manipulação de água-sódio são exibidos em "Itens sensíveis" e nunca entram no checklist.
+- **Privacidade do import**: o PDF é lido do cache temporário e enviado apenas para organização; texto completo e itens sensíveis não são logados (somente tamanho do texto para debug).
 - **Fuso/data**: datas usam o relógio local; mudança de fuso durante a semana pode deslocar o agrupamento semanal.
 - **Notificações** exigem permissão; sem permissão o app funciona, apenas sem lembretes.
 
