@@ -17,6 +17,7 @@ export default function HojeLayout() {
         name="index"
         options={{
           title: "Hoje",
+          headerBackVisible: false,
         }}
       />
       <Stack.Screen

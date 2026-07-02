@@ -59,6 +59,18 @@ export function formatPtBR(dateStr: string): string {
 }
 
 /**
+ * Formats a YYYY-MM-DD date string as a short pt-BR weekday abbreviation
+ * (e.g. "ter"), without the trailing period pt-BR adds. Uses noon to avoid
+ * TZ edge cases when parsing a date-only string.
+ */
+export function formatWeekdayShortPtBR(dateStr: string): string {
+  const d = new Date(dateStr + "T12:00:00");
+  return d
+    .toLocaleDateString("pt-BR", { weekday: "short" })
+    .replace(/\.$/, "");
+}
+
+/**
  * Returns the ISO week ID (e.g. "2026-W09") for a given date string (YYYY-MM-DD).
  * Uses ISO 8601 week numbering (Monday-based).
  */

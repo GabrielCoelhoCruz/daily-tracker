@@ -57,7 +57,7 @@ export function TrainingProgressRail({
             color: withAlpha(theme.colors.onSurface.variant, 0.85),
           }}
         >
-          Session Progress
+          Progresso da sessão
         </Text>
       </View>
 
@@ -68,7 +68,7 @@ export function TrainingProgressRail({
           marginBottom: 12,
         }}
       >
-        {progress.completedExercises} of {progress.totalExercises} exercises
+        {progress.completedExercises} de {progress.totalExercises} exercícios
       </Text>
 
       <View

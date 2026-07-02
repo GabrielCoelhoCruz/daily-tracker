@@ -21,7 +21,7 @@ export function TrainingSessionHeader({
           marginBottom: 6,
         }}
       >
-        {isViewingToday ? "Today" : dayName}
+        {isViewingToday ? "Hoje" : dayName}
       </Text>
 
       <Text
@@ -41,7 +41,7 @@ export function TrainingSessionHeader({
             color: withAlpha(theme.colors.onSurface.variant, 0.85),
           }}
         >
-          {summary.exerciseCount} exercises · {summary.muscleGroup} focus
+          {summary.exerciseCount} exercícios · foco em {summary.muscleGroup}
         </Text>
       )}
     </View>

@@ -69,7 +69,7 @@ export function CurrentSetCard({
               color: theme.colors.primary.DEFAULT,
             }}
           >
-            Training Session
+            Sessão de treino
           </Text>
         </View>
 

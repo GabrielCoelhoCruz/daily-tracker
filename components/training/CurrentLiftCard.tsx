@@ -65,7 +65,7 @@ export function CurrentLiftCard({
             color: theme.colors.primary.DEFAULT,
           }}
         >
-          Current Lift
+          Exercício atual
         </Text>
       </View>
 
@@ -97,7 +97,7 @@ export function CurrentLiftCard({
           marginBottom: 16,
         }}
       >
-        {currentExercise.index + 1} of {currentExercise.totalExercises} exercises
+        {currentExercise.index + 1} de {currentExercise.totalExercises} exercícios
       </Text>
 
       <View
@@ -114,7 +114,7 @@ export function CurrentLiftCard({
         {previousLoadKg != null ? (
           <>
             <Text style={{ ...theme.typography.body, fontWeight: "600" }}>
-              Last: {formatLoad(previousLoadKg)}
+              Última: {formatLoad(previousLoadKg)}
             </Text>
             {suggestedLoadKg != null && (
               <Text
@@ -124,14 +124,14 @@ export function CurrentLiftCard({
                   fontWeight: "600",
                 }}
               >
-                Suggested: {formatLoad(suggestedLoadKg)}
+                Sugestão: {formatLoad(suggestedLoadKg)}
               </Text>
             )}
           </>
         ) : (
           <>
             <Text style={{ ...theme.typography.body, fontWeight: "600" }}>
-              No previous load
+              Sem carga anterior
             </Text>
             <Text
               style={{
@@ -139,7 +139,7 @@ export function CurrentLiftCard({
                 color: theme.colors.onSurface.variant,
               }}
             >
-              Log today's baseline
+              Registre a base de hoje
             </Text>
           </>
         )}

@@ -45,7 +45,7 @@ import {
 
 const PROGRESSO_SUBTITLE =
 
-  "Meu shape está evoluindo com base em quais evidências?";
+  "Evidências do shape";
 
 
 

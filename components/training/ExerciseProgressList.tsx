@@ -178,7 +178,7 @@ export function ExerciseProgressList({
                     fontWeight: '600',
                   }}
                 >
-                  Best: {best.loadKg}kg x {best.repsCompleted}
+                  Melhor: {best.loadKg}kg x {best.repsCompleted}
                 </Text>
               )}
               {volume > 0 && (

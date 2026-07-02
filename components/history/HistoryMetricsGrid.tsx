@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 import { theme, withAlpha } from "@/constants/theme";
 import { AppIcon } from "@/components/ui/AppIcon";
 import type { WeeklyExecutionReview } from "@/utils/prepReviewUtils";
-import { formatPtBR } from "@/utils/dateUtils";
+import { formatWeekdayShortPtBR } from "@/utils/dateUtils";
 
 type HistoryMetricsGridProps = {
   review: WeeklyExecutionReview;
@@ -31,7 +31,7 @@ function buildMetrics(review: WeeklyExecutionReview): MetricItem[] {
           : theme.colors.onSurface.variant;
 
   const bestDayShort = review.bestDay
-    ? formatPtBR(review.bestDay.date).split(" ")[0] ?? "—"
+    ? formatWeekdayShortPtBR(review.bestDay.date)
     : null;
 
   return [

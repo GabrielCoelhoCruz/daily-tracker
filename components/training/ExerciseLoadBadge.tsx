@@ -46,7 +46,7 @@ export function ExerciseLoadBadge({ loadInfo }: ExerciseLoadBadgeProps) {
           color: withAlpha(theme.colors.onSurface.variant, 0.85),
         }}
       >
-        Last: {formatLoadKg(previousLoadKg)}
+        Última: {formatLoadKg(previousLoadKg)}
       </Text>
     );
   }

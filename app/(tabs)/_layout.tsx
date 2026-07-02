@@ -188,7 +188,11 @@ export default function TabLayout() {
 
         <Label>Protocolo</Label>
 
-        {badgeLabel ? <Badge>{badgeLabel}</Badge> : null}
+        {badgeLabel ? (
+          <Badge selectedBackgroundColor={theme.colors.accent.DEFAULT}>
+            {badgeLabel}
+          </Badge>
+        ) : null}
 
       </NativeTabs.Trigger>
 
