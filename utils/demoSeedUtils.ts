@@ -346,7 +346,9 @@ export function createDemoDayState(
   const checks: DayState["checks"] = {};
 
   itemIds.forEach((id, index) => {
-    if (index < Math.floor(itemIds.length * 0.82)) {
+    // Dia demo quase completo: primeira impressão mostra um dia sob controle
+    // com UMA próxima ação clara. Dias imperfeitos ficam no histórico (Logs).
+    if (index < Math.floor(itemIds.length * 0.9)) {
       checks[id] = { checked: true, timestamp: Date.now() - index * 1000 };
     }
   });

@@ -86,7 +86,9 @@ export function TrainingTodayCard({ briefing }: TrainingTodayCardProps) {
         </Text>
       </View>
 
-      {briefing.workoutLabel && (
+      {/* Em estados como "pendente" o subtitle repete o workoutLabel; mostrar
+          os dois imprime "Treino D · Ombros" duas vezes no mesmo card. */}
+      {briefing.workoutLabel && briefing.workoutLabel !== briefing.subtitle && (
         <Text
           style={{
             ...theme.typography.caption,

@@ -1,11 +1,17 @@
-import { Text, View } from 'react-native'
+import { useState } from 'react'
+import { Pressable, Text, View } from 'react-native'
 import { theme, withAlpha } from '@/constants/theme'
 import { AppIcon } from '@/components/ui/AppIcon'
+import { animateNext } from '@/utils/animationUtils'
 import type { DailyLeak } from '@/utils/dailyCloseoutUtils'
 
 type DailyLeakListProps = {
   leaks: DailyLeak[]
 }
+
+// Acima disso a lista colapsa: em dias ruins, uma parede de pendências no
+// dashboard vira punição visual em vez de orientação.
+const VISIBLE_LEAK_COUNT = 3
 
 function getSeverityColor(severity: DailyLeak['severity']): string {
   switch (severity) {
@@ -19,7 +25,13 @@ function getSeverityColor(severity: DailyLeak['severity']): string {
 }
 
 export function DailyLeakList({ leaks }: DailyLeakListProps) {
+  const [expanded, setExpanded] = useState(false)
+
   if (leaks.length === 0) return null
+
+  const hiddenCount = leaks.length - VISIBLE_LEAK_COUNT
+  const visibleLeaks =
+    expanded || hiddenCount <= 0 ? leaks : leaks.slice(0, VISIBLE_LEAK_COUNT)
 
   return (
     <View style={{ gap: 10 }}>
@@ -31,7 +43,7 @@ export function DailyLeakList({ leaks }: DailyLeakListProps) {
         Pendências
       </Text>
 
-      {leaks.map((leak) => (
+      {visibleLeaks.map((leak) => (
         <View
           key={`${leak.type}-${leak.title}`}
           style={{
@@ -67,6 +79,39 @@ export function DailyLeakList({ leaks }: DailyLeakListProps) {
           </View>
         </View>
       ))}
+
+      {hiddenCount > 0 && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={
+            expanded
+              ? 'Mostrar menos pendências'
+              : `Mostrar mais ${hiddenCount} pendências`
+          }
+          testID="leak-list-toggle"
+          onPress={() => {
+            animateNext()
+            setExpanded((prev) => !prev)
+          }}
+          style={{
+            minHeight: 40,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text
+            style={{
+              ...theme.typography.footnote,
+              color: theme.colors.onSurface.variant,
+              fontWeight: '600',
+            }}
+          >
+            {expanded
+              ? 'Mostrar menos'
+              : `+${hiddenCount} ${hiddenCount === 1 ? 'pendência' : 'pendências'}`}
+          </Text>
+        </Pressable>
+      )}
     </View>
   )
 }
