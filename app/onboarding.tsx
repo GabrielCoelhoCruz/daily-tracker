@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -153,10 +153,12 @@ function PrimaryButton({
   label,
   onPress,
   disabled,
+  testID,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
+  testID?: string;
 }) {
   return (
     <Pressable
@@ -164,6 +166,7 @@ function PrimaryButton({
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
+      testID={testID}
       style={{
         backgroundColor: disabled
           ? theme.colors.bg.elevated
@@ -358,6 +361,7 @@ export default function OnboardingScreen() {
   const setPlanPrefs = useProtocolStore((s) => s.setPlanPrefs);
   const setMetas = useProtocolStore((s) => s.setMetas);
   const customPlano = useProtocolStore((s) => s.customPlano);
+  const storeCloseoutTime = useProtocolStore((s) => s.closeoutTime);
   const setWeekDaySlot = useSplitStore((s) => s.setWeekDaySlot);
   const splitWeekPlan = useSplitStore((s) => s.splitWeekPlan);
 
@@ -403,6 +407,16 @@ export default function OnboardingScreen() {
   const [coachNotes, setCoachNotes] = useState(athlete.coachNotes);
   const [aguaMl, setAguaMl] = useState("3000");
   const [cardioMin, setCardioMin] = useState("30");
+
+  // Plano importado já traz metas detectadas pelo parser — prefil para o
+  // usuário só revisar em vez de redigitar (água/cardio do plano; fechamento
+  // já persistido em planPrefs pela tela de import).
+  useEffect(() => {
+    if (!customPlano) return;
+    setAguaMl(String(customPlano.metaHidratacao.aguaMl));
+    setCardioMin(String(customPlano.metaCardioMin));
+    setCloseoutTime(storeCloseoutTime || "21:00");
+  }, [customPlano, storeCloseoutTime]);
 
   // Caminho manual
   const [baseAguaMl, setBaseAguaMl] = useState("3000");
@@ -906,7 +920,9 @@ export default function OnboardingScreen() {
           <View style={{ gap: 16 }}>
             <Text style={theme.typography.title3}>Metas diárias</Text>
             <Text style={theme.typography.footnote}>
-              Você define as metas. O ShapeIQ só organiza a execução.
+              {customPlano
+                ? "Detectamos estas metas no plano importado. Revise e ajuste se precisar."
+                : "Você define as metas. O ShapeIQ só organiza a execução."}
             </Text>
             <Field
               label="ÁGUA (ML)"
@@ -927,7 +943,11 @@ export default function OnboardingScreen() {
               keyboardType="numeric"
               placeholder="21:00"
             />
-            <PrimaryButton label="Ativar plano" onPress={handleMetasNext} />
+            <PrimaryButton
+              label="Ativar plano"
+              onPress={handleMetasNext}
+              testID="activate-plan-cta"
+            />
           </View>
         )}
 
@@ -1139,6 +1159,7 @@ export default function OnboardingScreen() {
             <PrimaryButton
               label="Ativar plano-base"
               onPress={handleActivateBasePlan}
+              testID="activate-plan-cta"
             />
           </View>
         )}

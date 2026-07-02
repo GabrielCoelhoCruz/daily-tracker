@@ -19,6 +19,7 @@ type Step = "paste" | "preview";
 
 export default function ImportProtocolScreen() {
   const setCustomPlano = useProtocolStore((s) => s.setCustomPlano);
+  const setPlanPrefs = useProtocolStore((s) => s.setPlanPrefs);
   const [step, setStep] = useState<Step>("paste");
   const [rawText, setRawText] = useState("");
   const [planName, setPlanName] = useState("");
@@ -42,6 +43,11 @@ export default function ImportProtocolScreen() {
   function handleConfirm() {
     if (!parsed || parsed.plano.periodos.length === 0) return;
     setCustomPlano(parsed.plano, "coach_import");
+    // Fechamento detectado no texto já vale como preferência do plano; a
+    // etapa de metas do onboarding só confirma (sem redigitar).
+    if (parsed.closeoutTime) {
+      setPlanPrefs({ closeoutTime: parsed.closeoutTime });
+    }
     // Alert.alert com botões é no-op no react-native-web; sem este fallback o
     // fluxo de importação trava na web (o plano salva mas a tela não volta).
     if (Platform.OS === "web") {
@@ -171,6 +177,10 @@ export default function ImportProtocolScreen() {
                 {parsed?.plano.periodos.length ?? 0} períodos · {totalItens}{" "}
                 itens · Água {parsed?.plano.metaHidratacao.aguaMl ?? 0} ml ·
                 Cardio {parsed?.plano.metaCardioMin ?? 0} min
+                {parsed?.treinoSplit ? ` · Treino ${parsed.treinoSplit}` : ""}
+                {parsed?.closeoutTime
+                  ? ` · Fechamento ${parsed.closeoutTime}`
+                  : ""}
               </Text>
             </View>
           </Card>
@@ -207,6 +217,7 @@ export default function ImportProtocolScreen() {
             disabled={!parsed || parsed.plano.periodos.length === 0}
             accessibilityRole="button"
             accessibilityLabel="Confirmar e usar este protocolo"
+            testID="import-plan-cta"
             style={{
               backgroundColor:
                 parsed && parsed.plano.periodos.length > 0
