@@ -61,6 +61,7 @@ export function WeeklySummaryExportCard() {
           onPress={handleShare}
           accessibilityRole="button"
           accessibilityLabel={title}
+          testID="summary-export-cta"
           style={{
             minHeight: 48,
             borderRadius: theme.radius.md,

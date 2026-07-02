@@ -84,6 +84,7 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
       onLongPress={handleLongPress}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: isChecked }}
+      testID={`meal-checkbox-${item.id}`}
       accessibilityLabel={
         isSkipped
           ? `${item.nome}, pulado: ${check?.skipReason}`

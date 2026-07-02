@@ -80,6 +80,7 @@ export function TodayBriefingCard({
         onPress={onOpenChecklist}
         accessibilityRole="button"
         accessibilityLabel={nextAction.cta}
+        testID="next-action-cta"
         style={({ pressed }) => ({
           minHeight: 50,
           marginTop: 18,

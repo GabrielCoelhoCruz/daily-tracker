@@ -235,6 +235,7 @@ export function DailyCloseoutCard({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={summary.primaryActionLabel}
+            testID="closeout-primary-cta"
             onPress={handlePrimaryAction}
             style={({ pressed }) => ({
               minHeight: 48,

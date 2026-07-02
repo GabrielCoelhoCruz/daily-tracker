@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Text, View, useWindowDimensions } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme, withAlpha } from "@/constants/theme";
@@ -164,7 +164,9 @@ function WaterCard() {
         <View style={{ flexDirection: "row", gap: 8, marginTop: 16 }}>
           <Pressable
             onPress={() => animateWithHaptic(() => removeAgua(250))}
+            accessibilityRole="button"
             accessibilityLabel="Remover 250ml de água"
+            testID="water-remove-250"
             style={{
               flex: 1,
               paddingVertical: 12,
@@ -183,7 +185,9 @@ function WaterCard() {
           </Pressable>
           <Pressable
             onPress={() => animateWithHaptic(() => addAgua(250))}
+            accessibilityRole="button"
             accessibilityLabel="Adicionar 250ml de água"
+            testID="water-add-250"
             style={{
               flex: 1,
               paddingVertical: 12,
@@ -331,7 +335,9 @@ function TeaCard() {
         <View style={{ flexDirection: "row", gap: 8, marginTop: 16 }}>
           <Pressable
             onPress={() => animateWithHaptic(() => removeCha(250))}
+            accessibilityRole="button"
             accessibilityLabel="Remover 250ml de chá"
+            testID="tea-remove-250"
             style={{
               flex: 1,
               paddingVertical: 12,
@@ -350,7 +356,9 @@ function TeaCard() {
           </Pressable>
           <Pressable
             onPress={() => animateWithHaptic(() => addCha(250))}
+            accessibilityRole="button"
             accessibilityLabel="Adicionar 250ml de chá"
+            testID="tea-add-250"
             style={{
               flex: 1,
               paddingVertical: 12,
@@ -377,12 +385,17 @@ function TeaCard() {
 // ─── Grid Export ──────────────────────────────────────────────────────
 
 export function HidratacaoCard() {
+  // Lado a lado só quando há largura de sobra; em telas estreitas (~390px)
+  // os dois cards ficam apertados e os botões ±250ml perdem área de toque.
+  const { width } = useWindowDimensions();
+  const stacked = width < 420;
+
   return (
-    <View style={{ flexDirection: "row", gap: 16 }}>
-      <View style={{ flex: 1 }}>
+    <View style={{ flexDirection: stacked ? "column" : "row", gap: 16 }}>
+      <View style={{ flex: stacked ? undefined : 1 }}>
         <WaterCard />
       </View>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: stacked ? undefined : 1 }}>
         <TeaCard />
       </View>
     </View>
