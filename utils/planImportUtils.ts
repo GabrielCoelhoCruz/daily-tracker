@@ -100,6 +100,10 @@ function parseItem(line: string, periodoId: string, index: number): ItemDoPlano 
 export type ParsedPlanResult = {
   plano: Plano;
   warnings: string[];
+  /** Split de treino detectado no texto (ex.: "ABCDE"). */
+  treinoSplit?: string;
+  /** Horário de fechamento detectado, normalizado em HH:MM (ex.: "21:00"). */
+  closeoutTime?: string;
 };
 
 export function parseCoachPlan(rawText: string, planName?: string): ParsedPlanResult {
@@ -111,6 +115,8 @@ export function parseCoachPlan(rawText: string, planName?: string): ParsedPlanRe
   let aguaMl: number | undefined;
   let chaMl: number | undefined;
   let cardioMin: number | undefined;
+  let treinoSplit: string | undefined;
+  let closeoutTime: string | undefined;
 
   for (const raw of lines) {
     const line = raw.trim();
@@ -142,8 +148,30 @@ export function parseCoachPlan(rawText: string, planName?: string): ParsedPlanRe
       continue;
     }
 
-    // Linhas de treino/fechamento não são refeições — o split de treino e o
-    // horário de fechamento são configurados em etapas próprias do onboarding.
+    // Linhas de treino/fechamento não são refeições — viram metadados do
+    // plano ("Treino ABCDE", "Divisão ABCDE", "Fechamento do dia 21:00",
+    // "Fechamento 21h", "Fechar dia 22:00"), com ou sem ":" após a palavra.
+    const treino =
+      !isBullet &&
+      line.match(/^(?:treino|divis[aã]o|semana)\s*[:\-]?\s*([A-Ea-e]{2,7})\b/i);
+    if (treino) {
+      treinoSplit = treino[1].toUpperCase();
+      continue;
+    }
+    const fechamento =
+      !isBullet &&
+      line.match(
+        /^fecha(?:mento|r)(?:\s+d?o?\s*dia)?\s*[:\-]?\s*(\d{1,2})(?:[:h](\d{2})?)?/i
+      );
+    if (fechamento) {
+      const hour = Number(fechamento[1]);
+      if (hour >= 0 && hour <= 23) {
+        closeoutTime = `${String(hour).padStart(2, "0")}:${fechamento[2] ?? "00"}`;
+      }
+      continue;
+    }
+    // Demais variações de treino/fechamento com ":" seguem ignoradas
+    // (ex.: "Treino: pernas pesado") em vez de virarem itens de refeição.
     if (!isBullet && /^(treino|fechamento(\s+do\s+dia)?)\s*[:\-]/i.test(line)) {
       continue;
     }
@@ -212,5 +240,7 @@ export function parseCoachPlan(rawText: string, planName?: string): ParsedPlanRe
       metaCardioMin: cardioMin ?? 0,
     },
     warnings,
+    treinoSplit,
+    closeoutTime,
   };
 }

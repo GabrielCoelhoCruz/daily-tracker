@@ -132,4 +132,64 @@ describe("parseCoachPlan", () => {
     const allItems = plano.periodos.flatMap((p) => p.itens.map((i) => i.nome));
     expect(allItems.some((n) => /treino|fechamento/i.test(n))).toBe(false);
   });
+
+  it("classifica treino e fechamento sem ':' como metadados, não itens", () => {
+    const SAMPLE_META = [
+      "Café da manhã:",
+      "- Ovos",
+      "- Aveia",
+      "",
+      "Almoço:",
+      "- Arroz",
+      "- Frango",
+      "- Legumes",
+      "",
+      "Jantar:",
+      "- Carne",
+      "- Salada",
+      "",
+      "Água 3000 ml",
+      "Cardio 40 min",
+      "Treino ABCDE",
+      "Fechamento do dia 21:00",
+    ].join("\n");
+    const result = parseCoachPlan(SAMPLE_META);
+    const { plano } = result;
+
+    expect(plano.periodos.map((p) => p.nome)).toEqual([
+      "Café da manhã",
+      "Almoço",
+      "Jantar",
+    ]);
+    expect(plano.metaHidratacao.aguaMl).toBe(3000);
+    expect(plano.metaCardioMin).toBe(40);
+    expect(result.treinoSplit).toBe("ABCDE");
+    expect(result.closeoutTime).toBe("21:00");
+
+    const jantar = plano.periodos.find((p) => p.nome === "Jantar")!;
+    expect(jantar.itens.map((i) => i.nome)).toEqual(["Carne", "Salada"]);
+    const allItems = plano.periodos.flatMap((p) => p.itens.map((i) => i.nome));
+    expect(allItems.some((n) => /treino|fechamento/i.test(n))).toBe(false);
+  });
+
+  it("reconhece variações de treino e fechamento", () => {
+    const cases: [string, { split?: string; closeout?: string }][] = [
+      ["Treino ABC", { split: "ABC" }],
+      ["Treino: ABCDE", { split: "ABCDE" }],
+      ["Divisão ABCDE", { split: "ABCDE" }],
+      ["Semana ABCD", { split: "ABCD" }],
+      ["Fechamento 21h", { closeout: "21:00" }],
+      ["Fechar dia 22:00", { closeout: "22:00" }],
+      ["Fechamento do dia 9:30", { closeout: "09:30" }],
+    ];
+    for (const [line, expected] of cases) {
+      const result = parseCoachPlan(`Almoço:\n- Frango 150g\n${line}`);
+      if (expected.split) expect(result.treinoSplit).toBe(expected.split);
+      if (expected.closeout) expect(result.closeoutTime).toBe(expected.closeout);
+      const allItems = result.plano.periodos.flatMap((p) =>
+        p.itens.map((i) => i.nome)
+      );
+      expect(allItems).toEqual(["Frango"]);
+    }
+  });
 });
