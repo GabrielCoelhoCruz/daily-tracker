@@ -273,22 +273,23 @@ export function CardioCard() {
         testID="cardio-finalize"
         style={{
           marginTop: 16,
+          minHeight: 52,
           paddingVertical: 16,
-          backgroundColor: withAlpha(theme.colors.primary.DEFAULT, 0.1),
-          borderWidth: 1,
-          borderColor: withAlpha(theme.colors.primary.DEFAULT, 0.3),
-          borderRadius: 12,
+          backgroundColor: theme.colors.accent.DEFAULT,
+          borderRadius: theme.radius.lg,
           alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <Text
           style={{
-            ...theme.typography.overline,
-            color: theme.colors.primary.DEFAULT,
-            letterSpacing: 3,
+            ...theme.typography.callout,
+            fontWeight: "700",
+            color: theme.colors.primary.onContainer,
+            letterSpacing: 0.5,
           }}
         >
-          FINALIZAR ATIVIDADE
+          Finalizar atividade
         </Text>
       </Pressable>
     </LinearGradient>

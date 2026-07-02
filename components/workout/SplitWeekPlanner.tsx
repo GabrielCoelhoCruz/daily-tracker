@@ -232,7 +232,7 @@ export function SplitWeekPlanner({
                     borderColor: isSelected
                       ? withAlpha(theme.colors.primary.DEFAULT, 0.45)
                       : isToday
-                        ? withAlpha(theme.colors.tertiary, 0.25)
+                        ? withAlpha(theme.colors.primary.DEFAULT, 0.25)
                         : withAlpha(theme.colors.onSurface.DEFAULT, 0.06),
                   })}
                 >
@@ -286,7 +286,7 @@ export function SplitWeekPlanner({
                               ? withAlpha(theme.colors.semantic.error, 0.15)
                               : isSwappedToday
                                 ? withAlpha(theme.colors.primary.container, 0.18)
-                                : withAlpha(theme.colors.tertiary, 0.15),
+                                : withAlpha(theme.colors.primary.DEFAULT, 0.15),
                           }}
                         >
                           <Text
@@ -297,7 +297,7 @@ export function SplitWeekPlanner({
                                 ? theme.colors.semantic.error
                                 : isSwappedToday
                                   ? theme.colors.primary.DEFAULT
-                                  : theme.colors.tertiary,
+                                  : theme.colors.primary.DEFAULT,
                             }}
                           >
                             {isTodayChipOff

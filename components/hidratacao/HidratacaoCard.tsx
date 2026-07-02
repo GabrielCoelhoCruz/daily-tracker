@@ -142,22 +142,26 @@ function WaterCard() {
       {isComplete ? (
         <View
           style={{
+            alignSelf: "flex-start",
             marginTop: 16,
-            paddingVertical: 12,
-            backgroundColor: withAlpha(theme.colors.tertiary, 0.1),
-            borderRadius: 12,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            backgroundColor: withAlpha(theme.colors.tertiary, 0.12),
+            borderRadius: 999,
             borderWidth: 1,
-            borderColor: withAlpha(theme.colors.tertiary, 0.2),
-            alignItems: "center",
+            borderColor: withAlpha(theme.colors.tertiary, 0.25),
           }}
         >
           <Text
             style={{
-              ...theme.typography.overline,
+              ...theme.typography.caption,
+              fontSize: 10,
+              fontWeight: "700",
+              letterSpacing: 0.5,
               color: theme.colors.tertiary,
             }}
           >
-            META BATIDA
+            Meta batida
           </Text>
         </View>
       ) : (
@@ -299,12 +303,24 @@ function TeaCard() {
           overflow: "hidden",
         }}
       >
-        <View
+        <LinearGradient
+          colors={
+            isComplete
+              ? [
+                  withAlpha(theme.colors.tertiary, 0.8),
+                  theme.colors.tertiary,
+                ]
+              : [
+                  withAlpha(theme.colors.primary.DEFAULT, 0.8),
+                  theme.colors.primary.DEFAULT,
+                ]
+          }
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
           style={{
             height: "100%",
             width: `${percentage}%`,
             borderRadius: 3,
-            backgroundColor: theme.colors.tertiary,
           }}
         />
       </View>
@@ -313,22 +329,26 @@ function TeaCard() {
       {isComplete ? (
         <View
           style={{
+            alignSelf: "flex-start",
             marginTop: 16,
-            paddingVertical: 12,
-            backgroundColor: withAlpha(theme.colors.tertiary, 0.1),
-            borderRadius: 12,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            backgroundColor: withAlpha(theme.colors.tertiary, 0.12),
+            borderRadius: 999,
             borderWidth: 1,
-            borderColor: withAlpha(theme.colors.tertiary, 0.2),
-            alignItems: "center",
+            borderColor: withAlpha(theme.colors.tertiary, 0.25),
           }}
         >
           <Text
             style={{
-              ...theme.typography.overline,
+              ...theme.typography.caption,
+              fontSize: 10,
+              fontWeight: "700",
+              letterSpacing: 0.5,
               color: theme.colors.tertiary,
             }}
           >
-            META BATIDA
+            Meta batida
           </Text>
         </View>
       ) : (
