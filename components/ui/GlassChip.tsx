@@ -83,8 +83,9 @@ function ChipContent({
       <RNText
         style={{
           color: colors.text,
+          fontFamily: uppercase ? theme.fonts.mono : undefined,
           fontSize: uppercase ? 9 : 13,
-          fontWeight: uppercase ? "800" : "600",
+          fontWeight: uppercase ? "400" : "600",
           letterSpacing: uppercase ? 1 : 0,
           textTransform: uppercase ? "uppercase" : "none",
         }}

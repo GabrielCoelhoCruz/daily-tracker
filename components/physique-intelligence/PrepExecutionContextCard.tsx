@@ -34,10 +34,7 @@ export function PrepExecutionContextCard({
         />
         <Text
           style={{
-            ...theme.typography.caption,
-            fontWeight: "700",
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
+            ...theme.typography.overline,
             color: accent,
           }}
         >

@@ -30,11 +30,7 @@ export function MainLeakCard({ mainLeak, closedDays }: MainLeakCardProps) {
           />
           <Text
             style={{
-              ...theme.typography.caption,
-              fontWeight: "700",
-              letterSpacing: 0.5,
-              textTransform: "uppercase",
-              color: theme.colors.onSurface.variant,
+              ...theme.typography.overline,
             }}
           >
             Padrão
@@ -72,10 +68,7 @@ export function MainLeakCard({ mainLeak, closedDays }: MainLeakCardProps) {
           />
           <Text
             style={{
-              ...theme.typography.caption,
-              fontWeight: "700",
-              letterSpacing: 0.5,
-              textTransform: "uppercase",
+              ...theme.typography.overline,
               color: theme.colors.semantic.success,
             }}
           >
@@ -111,18 +104,18 @@ export function MainLeakCard({ mainLeak, closedDays }: MainLeakCardProps) {
           size={16}
           color={theme.colors.semantic.warning}
         />
-        <Text
-          style={{
-            ...theme.typography.caption,
-            fontWeight: "700",
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
-            color: theme.colors.semantic.warning,
-          }}
-        >
-          Principal vazamento
-        </Text>
+          <Text
+            style={{
+              ...theme.typography.overline,
+              color: theme.colors.semantic.warning,
+            }}
+          >
+            Principal vazamento
+          </Text>
       </View>
+      <Text style={{ ...theme.typography.caption }}>
+        Onde sua execução escapou esta semana
+      </Text>
       <Text style={{ ...theme.typography.callout, fontWeight: "600" }}>
         {mainLeak.title}
       </Text>

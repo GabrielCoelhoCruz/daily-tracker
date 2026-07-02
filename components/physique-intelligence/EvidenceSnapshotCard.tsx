@@ -47,10 +47,7 @@ export function EvidenceSnapshotCard({
         />
         <Text
           style={{
-            ...theme.typography.caption,
-            fontWeight: "700",
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
+            ...theme.typography.overline,
             color: accent,
           }}
         >
@@ -98,11 +95,9 @@ export function EvidenceSnapshotCard({
               Status
             </Text>
             <Text style={{ ...theme.typography.footnote }}>
-              {snapshot.hasAnalysis
-                ? "Análise IA disponível"
-                : snapshot.hasScores
-                  ? "Scores disponíveis · análise pendente"
-                  : "Check-in registrado · análise pendente"}
+              {snapshot.hasAnalysis || snapshot.hasScores
+                ? "Check-in registrado · notas disponíveis"
+                : "Check-in registrado"}
             </Text>
           </View>
         </>

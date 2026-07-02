@@ -39,16 +39,7 @@ export function WeeklyReviewCard({ review }: WeeklyReviewCardProps) {
           size={16}
           color={theme.colors.onSurface.variant}
         />
-        <Text
-          style={{
-            ...theme.typography.caption,
-            fontWeight: "700",
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
-          }}
-        >
-          Esta Semana
-        </Text>
+        <Text style={{ ...theme.typography.overline }}>Esta Semana</Text>
       </View>
 
       {hasCloseoutData && review.averageScore != null ? (
@@ -56,8 +47,9 @@ export function WeeklyReviewCard({ review }: WeeklyReviewCardProps) {
           <Text
             style={{
               ...theme.typography.title3,
-              fontSize: 28,
-              fontWeight: "700",
+              fontSize: 30,
+              fontWeight: "800",
+              letterSpacing: -1,
               fontVariant: ["tabular-nums"],
               color: scoreColor,
             }}

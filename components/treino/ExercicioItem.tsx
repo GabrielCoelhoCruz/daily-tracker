@@ -76,11 +76,10 @@ export function FocalExercicioCard({ exercicio }: ExercicioItemProps) {
             >
               <Text
                 style={{
+                  ...theme.typography.overline,
                   fontSize: 11,
-                  fontWeight: "900",
-                  color: theme.colors.background,
                   letterSpacing: -0.5,
-                  textTransform: "uppercase",
+                  color: theme.colors.background,
                 }}
               >
                 {totalSets} Sets
@@ -183,11 +182,7 @@ export function FocalExercicioCard({ exercicio }: ExercicioItemProps) {
                 </Text>
                 <Text
                   style={{
-                    fontSize: 10,
-                    fontWeight: "700",
-                    color: theme.colors.onSurface.variant,
-                    letterSpacing: 1,
-                    textTransform: "uppercase",
+                    ...theme.typography.overline,
                   }}
                 >
                   {SERIE_LABELS[serie.tipo]}
@@ -277,17 +272,14 @@ export function ExercicioItem({ exercicio, index }: ExercicioItemProps) {
           </Text>
 
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <Text
-              style={{
-                fontSize: 10,
-                fontWeight: "900",
-                color: theme.colors.primary.DEFAULT,
-                letterSpacing: 1,
-                textTransform: "uppercase",
-              }}
-            >
-              {totalSets} Sets
-            </Text>
+              <Text
+                style={{
+                  ...theme.typography.overline,
+                  color: theme.colors.primary.DEFAULT,
+                }}
+              >
+                {totalSets} Sets
+              </Text>
 
             {primaryReps != null && (
               <>
@@ -301,11 +293,7 @@ export function ExercicioItem({ exercicio, index }: ExercicioItemProps) {
                 />
                 <Text
                   style={{
-                    fontSize: 10,
-                    fontWeight: "700",
-                    color: theme.colors.onSurface.variant,
-                    letterSpacing: 1,
-                    textTransform: "uppercase",
+                    ...theme.typography.overline,
                   }}
                 >
                   {primaryReps} Reps

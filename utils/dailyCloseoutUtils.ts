@@ -20,10 +20,23 @@ export type DailyLeak = {
   severity: 'low' | 'medium' | 'high'
 }
 
+export type CloseoutPhase = 'before-closeout' | 'after-closeout'
+
+export type CloseoutPrimaryAction =
+  | 'close'
+  | 'close-anyway'
+  | 'go-execute'
+  | 'none'
+
 export type DailyCloseoutSummary = {
   date: string
   executionScore: number
   isReadyToClose: boolean
+  /** Fase relativa ao closeoutTime do plano ativo. */
+  phase: CloseoutPhase
+  /** Fechamento só é permitido depois do closeoutTime. */
+  canClose: boolean
+  primaryAction: CloseoutPrimaryAction
   title: string
   subtitle: string
   evidence: string
@@ -35,6 +48,8 @@ export type DailyCloseoutSummary = {
 type CheckState = {
   checked: boolean
   timestamp: number
+  partial?: boolean
+  skipped?: boolean
 }
 
 export type DailyCloseoutInput = {
@@ -50,6 +65,42 @@ export type DailyCloseoutInput = {
   isTrainingDay: boolean
   diaOffManual: boolean
   trainingBriefing: TodayTrainingBriefing
+  /**
+   * Horário de fechamento do plano ativo (HH:MM). Quando ausente,
+   * o dia é tratado como após o fechamento (comportamento legado).
+   */
+  closeoutTime?: string
+  /** Hora local do dispositivo — injetável em testes. */
+  now?: Date
+}
+
+const DEFAULT_CLOSEOUT_TIME = '21:00'
+/** Corte do dia lógico (4h) — depois da meia-noite ainda é "após o fechamento" de ontem. */
+const LOGICAL_DAY_CUTOFF_HOUR = 4
+
+export function parseCloseoutTime(value: string | undefined): number {
+  const match = /^(\d{1,2}):(\d{2})$/.exec(value?.trim() ?? '')
+  if (!match) return parseCloseoutTime(DEFAULT_CLOSEOUT_TIME)
+  const hours = Number(match[1])
+  const minutes = Number(match[2])
+  if (hours > 23 || minutes > 59) {
+    return parseCloseoutTime(DEFAULT_CLOSEOUT_TIME)
+  }
+  return hours * 60 + minutes
+}
+
+export function isAfterCloseoutTime(
+  closeoutTime: string | undefined,
+  now: Date,
+): boolean {
+  const closeoutMinutes = parseCloseoutTime(closeoutTime)
+  const nowMinutes = now.getHours() * 60 + now.getMinutes()
+
+  // Entre 00:00 e o corte lógico (4h) o dia lógico ainda é o anterior,
+  // portanto já passamos do fechamento daquele dia.
+  if (now.getHours() < LOGICAL_DAY_CUTOFF_HOUR) return true
+
+  return nowMinutes >= closeoutMinutes
 }
 
 const SCORE_WEIGHTS_TRAINING = {
@@ -84,24 +135,76 @@ function targetScore(current: number, target: number): number {
   return clampPercent((current / target) * 100)
 }
 
+/** Crédito de refeição parcial (Parcial = metade do crédito de Feito). */
+const PARTIAL_MEAL_CREDIT = 0.5
+
+function isPeriodPartial(
+  periodo: Periodo,
+  checks: Record<string, CheckState>,
+  refeicaoLivreUsada: boolean,
+  refeicaoLivrePeriodoId: string | null,
+): boolean {
+  if (refeicaoLivreUsada && refeicaoLivrePeriodoId === periodo.id) {
+    return false
+  }
+  const hasPartial = (id: string) =>
+    Boolean(checks[id]?.checked && checks[id]?.partial)
+
+  for (const item of periodo.itens) {
+    if (item.subItens && item.subItens.length > 0) {
+      if (item.subItens.some((sub) => hasPartial(sub.id))) return true
+    } else if (hasPartial(item.id)) {
+      return true
+    }
+  }
+  return false
+}
+
 export function getMealProgress(input: Pick<
   DailyCloseoutInput,
   'periodos' | 'checks' | 'refeicaoLivreUsada' | 'refeicaoLivrePeriodoId'
->): { completed: number; total: number; score: number } {
+>): { completed: number; partial: number; total: number; score: number } {
   const mealPeriods = input.periodos.filter(isMealPeriod)
-  const completed = mealPeriods.filter((periodo) =>
-    isPeriodComplete(
+
+  let completed = 0
+  let partial = 0
+
+  for (const periodo of mealPeriods) {
+    const resolved = isPeriodComplete(
       periodo,
       input.checks,
       input.refeicaoLivreUsada,
       input.refeicaoLivrePeriodoId,
-    ),
-  ).length
+    )
+    if (!resolved) continue
+
+    if (
+      isPeriodPartial(
+        periodo,
+        input.checks,
+        input.refeicaoLivreUsada,
+        input.refeicaoLivrePeriodoId,
+      )
+    ) {
+      partial++
+    } else {
+      completed++
+    }
+  }
+
+  const creditScore =
+    mealPeriods.length > 0
+      ? clampPercent(
+          ((completed + partial * PARTIAL_MEAL_CREDIT) / mealPeriods.length) *
+            100,
+        )
+      : 100
 
   return {
     completed,
+    partial,
     total: mealPeriods.length,
-    score: ratioScore(completed, mealPeriods.length),
+    score: creditScore,
   }
 }
 
@@ -168,9 +271,10 @@ function formatGoalLiters(ml: number): string {
 export function getDailyLeaks(input: DailyCloseoutInput): DailyLeak[] {
   const leaks: DailyLeak[] = []
   const meals = getMealProgress(input)
+  const resolvedMeals = meals.completed + meals.partial
 
-  if (meals.total > 0 && meals.completed < meals.total) {
-    const pending = meals.total - meals.completed
+  if (meals.total > 0 && resolvedMeals < meals.total) {
+    const pending = meals.total - resolvedMeals
     leaks.push({
       type: 'meal',
       title:
@@ -179,6 +283,18 @@ export function getDailyLeaks(input: DailyCloseoutInput): DailyLeak[] {
           : `${pending} refeições incompletas`,
       evidence: `Refeições ${meals.completed}/${meals.total}`,
       severity: pending >= 2 ? 'high' : 'medium',
+    })
+  }
+
+  if (meals.partial > 0) {
+    leaks.push({
+      type: 'meal',
+      title:
+        meals.partial === 1
+          ? '1 refeição parcial'
+          : `${meals.partial} refeições parciais`,
+      evidence: `${meals.partial} refeição${meals.partial === 1 ? '' : 'es'} marcada${meals.partial === 1 ? '' : 's'} como parcial`,
+      severity: 'low',
     })
   }
 
@@ -274,7 +390,11 @@ export function formatCloseoutEvidence(input: DailyCloseoutInput): string {
   }
 
   if (meals.total > 0) {
-    parts.push(`Refeições ${meals.completed}/${meals.total}`)
+    const partialSuffix =
+      meals.partial > 0
+        ? ` (${meals.partial} parcial${meals.partial === 1 ? '' : 'is'})`
+        : ''
+    parts.push(`Refeições ${meals.completed}/${meals.total}${partialSuffix}`)
   }
 
   if (input.metaCardioMin > 0) {
@@ -324,31 +444,67 @@ export function getDailyCloseoutSummary(
   const evidence = formatCloseoutEvidence(input)
   const primaryLeak = leaks[0] ?? null
 
+  const afterCloseout =
+    input.closeoutTime === undefined ||
+    isAfterCloseoutTime(input.closeoutTime, input.now ?? new Date())
+  const phase: CloseoutPhase = afterCloseout
+    ? 'after-closeout'
+    : 'before-closeout'
+
+  const base = {
+    date: input.date,
+    executionScore,
+    isReadyToClose,
+    phase,
+    evidence,
+    leaks,
+    primaryLeak: isReadyToClose ? null : primaryLeak,
+  }
+
+  // Antes do closeoutTime não é possível fechar o dia:
+  // pendências mandam o atleta de volta à execução, dia completo vira "Tudo em dia".
+  if (!afterCloseout) {
+    if (isReadyToClose) {
+      return {
+        ...base,
+        canClose: false,
+        primaryAction: 'none',
+        title: 'Tudo em dia',
+        subtitle: buildReadySubtitle(input),
+        primaryActionLabel: 'Tudo em dia',
+      }
+    }
+    return {
+      ...base,
+      canClose: false,
+      primaryAction: 'go-execute',
+      title: 'Dia em execução',
+      subtitle: primaryLeak
+        ? `Pendente: ${primaryLeak.title}`
+        : 'Execução incompleta',
+      primaryActionLabel: 'Voltar para executar',
+    }
+  }
+
   if (isReadyToClose) {
     return {
-      date: input.date,
-      executionScore,
-      isReadyToClose: true,
+      ...base,
+      canClose: true,
+      primaryAction: 'close',
       title: 'Dia pronto para fechar',
       subtitle: buildReadySubtitle(input),
-      evidence,
-      leaks,
-      primaryLeak: null,
-      primaryActionLabel: 'Salvar fechamento',
+      primaryActionLabel: 'Fechar o dia',
     }
   }
 
   return {
-    date: input.date,
-    executionScore,
-    isReadyToClose: false,
+    ...base,
+    canClose: true,
+    primaryAction: 'close-anyway',
     title: 'Fechamento com vazamentos',
     subtitle: primaryLeak
       ? `Principal vazamento: ${primaryLeak.title}`
       : 'Execução incompleta',
-    evidence,
-    leaks,
-    primaryLeak,
     primaryActionLabel: 'Fechar mesmo assim',
   }
 }
@@ -365,17 +521,25 @@ export function buildHistoricoFromCloseout(
     input.refeicaoLivreUsada,
     input.refeicaoLivrePeriodoId,
   )
+  const meals = getMealProgress(input)
 
   return {
     data: input.date,
     completados: progress.completed,
     total: progress.total,
     itensPerdidos,
+    refeicoesParciais: meals.partial > 0 ? meals.partial : undefined,
     executionScore: summary.executionScore,
     closeoutSavedAt: new Date().toISOString(),
     closeoutEvidence: summary.evidence,
     closeoutLeaks: summary.leaks.map((leak) => leak.title),
     dayNote: dayNote?.trim() || undefined,
+    aguaMl: input.aguaMl,
+    metaAguaMl: input.metaAguaMl,
+    cardioMin: input.cardioMinutos,
+    metaCardioMin: input.metaCardioMin,
+    treinoAgendado: input.isTrainingDay && !input.diaOffManual,
+    treinoConcluido: input.trainingBriefing.status === 'complete',
   }
 }
 

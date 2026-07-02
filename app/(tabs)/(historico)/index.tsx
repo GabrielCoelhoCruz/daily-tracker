@@ -8,6 +8,7 @@ import { MainLeakCard } from "@/components/history/MainLeakCard";
 import { HistoryMetricsGrid } from "@/components/history/HistoryMetricsGrid";
 import { RecentDaysList } from "@/components/history/RecentDaysList";
 import { HistoryEmptyState } from "@/components/history/HistoryEmptyState";
+import { WeeklySummaryExportCard } from "@/components/history/WeeklySummaryExportCard";
 import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { getLogicalDate } from "@/utils/dateUtils";
@@ -63,6 +64,7 @@ export default function HistoricoScreen() {
             closedDays={weeklyReview.closedDays}
           />
           <HistoryMetricsGrid review={weeklyReview} />
+          {weeklyReview.closedDays > 0 && <WeeklySummaryExportCard />}
           <Calendario onDayPress={handleDayPress} />
           <RecentDaysList days={recentDays} onDayPress={handleDayPress} />
         </>

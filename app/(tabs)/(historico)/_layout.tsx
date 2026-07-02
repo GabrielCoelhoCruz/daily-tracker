@@ -17,7 +17,7 @@ export default function HistoricoLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Prep Review",
+          title: "Revisão do prep",
         }}
       />
       <Stack.Screen

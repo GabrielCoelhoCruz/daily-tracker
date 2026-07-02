@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { plano } from "@/data/plano";
+import { useActivePlano } from "@/stores/useProtocolStore";
 import { useDayStore } from "@/stores/useDayStore";
 import {
   contarItens,
@@ -37,6 +37,7 @@ function countCheckedNonOptional(
 
 /** Unchecked non-optional items for today's filtered plan — used for NativeTabs badge. */
 export function usePendingDashCount(): number {
+  const plano = useActivePlano();
   const checks = useDayStore((s) => s.checks);
   const diaOffManual = useDayStore((s) => s.diaOffManual);
   const refeicaoLivreUsada = useDayStore((s) => s.refeicaoLivreUsada);
@@ -57,6 +58,7 @@ export function usePendingDashCount(): number {
     );
     return Math.max(0, total - completados);
   }, [
+    plano,
     checks,
     diaOffManual,
     refeicaoLivreUsada,

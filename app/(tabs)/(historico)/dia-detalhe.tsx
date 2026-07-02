@@ -89,15 +89,7 @@ export default function DiaDetalheScreen() {
       {historico && (
         <>
           <View style={{ gap: 8 }}>
-            <Text
-              style={{
-                ...theme.typography.caption,
-                fontWeight: "700",
-                letterSpacing: 0.5,
-                textTransform: "uppercase",
-                color: theme.colors.onSurface.variant,
-              }}
-            >
+            <Text style={{ ...theme.typography.overline }}>
               Protocolo legado
             </Text>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>

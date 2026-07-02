@@ -27,17 +27,7 @@ function CloseoutNoteInput({
 
   return (
     <View style={{ gap: 8 }}>
-      <Text
-        style={{
-          ...theme.typography.caption,
-          fontWeight: '700',
-          letterSpacing: 0.5,
-          textTransform: 'uppercase',
-          color: theme.colors.onSurface.variant,
-        }}
-      >
-        Nota do dia
-      </Text>
+      <Text style={{ ...theme.typography.overline }}>Nota do dia</Text>
       <TextInput
         accessibilityLabel="Nota do dia para o fechamento"
         editable={!disabled}
@@ -75,9 +65,19 @@ export function DailyCloseoutCard({
   const [noteDraft, setNoteDraft] = useState(savedNote)
   const accent = summary.isReadyToClose
     ? theme.colors.semantic.success
-    : theme.colors.semantic.error
+    : summary.canClose
+      ? theme.colors.semantic.error
+      : theme.colors.semantic.warning
 
-  const handleCloseDay = async () => {
+  const handlePrimaryAction = async () => {
+    // Antes do closeoutTime com pendências, a ação primária leva de volta
+    // à execução — fechar com vazamentos só é permitido após o horário.
+    if (summary.primaryAction === 'go-execute') {
+      onGoExecute()
+      return
+    }
+    // "Tudo em dia" antes do fechamento — nada a fazer ainda.
+    if (summary.primaryAction === 'none') return
     if (summary.isReadyToClose) {
       await Haptics.notificationAsync(
         Haptics.NotificationFeedbackType.Success,
@@ -156,15 +156,7 @@ export function DailyCloseoutCard({
           size={18}
           color={accent}
         />
-        <Text
-          style={{
-            ...theme.typography.caption,
-            fontWeight: '700',
-            letterSpacing: 0.5,
-            textTransform: 'uppercase',
-            color: accent,
-          }}
-        >
+        <Text style={{ ...theme.typography.overline, color: accent }}>
           Fechamento do dia
         </Text>
       </View>
@@ -178,9 +170,29 @@ export function DailyCloseoutCard({
         >
           Execução de hoje
         </Text>
-        <Text style={{ ...theme.typography.headline, fontSize: 32 }}>
-          {summary.executionScore}%
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+          <Text
+            style={{
+              fontSize: 40,
+              fontWeight: '900',
+              letterSpacing: -2,
+              color: theme.colors.onSurface.DEFAULT,
+              fontVariant: ['tabular-nums'],
+            }}
+          >
+            {summary.executionScore}
+          </Text>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: '700',
+              color: accent,
+              marginLeft: 2,
+            }}
+          >
+            %
+          </Text>
+        </View>
       </View>
 
       <View style={{ gap: 4 }}>
@@ -201,17 +213,7 @@ export function DailyCloseoutCard({
             borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.05),
           }}
         >
-          <Text
-            style={{
-              ...theme.typography.caption,
-              fontWeight: '700',
-              letterSpacing: 0.5,
-              textTransform: 'uppercase',
-              color: theme.colors.onSurface.variant,
-            }}
-          >
-            Evidência
-          </Text>
+          <Text style={{ ...theme.typography.overline }}>Evidência</Text>
           <Text style={{ ...theme.typography.body, fontWeight: '600' }}>
             {summary.evidence}
           </Text>
@@ -220,38 +222,42 @@ export function DailyCloseoutCard({
 
       <DailyLeakList leaks={summary.leaks} />
 
-      <CloseoutNoteInput
-        initialNote={savedNote}
-        disabled={false}
-        onSaveNote={setNoteDraft}
-      />
+      {summary.canClose && (
+        <CloseoutNoteInput
+          initialNote={savedNote}
+          disabled={false}
+          onSaveNote={setNoteDraft}
+        />
+      )}
 
       <View style={{ gap: 10 }}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={summary.primaryActionLabel}
-          onPress={handleCloseDay}
-          style={({ pressed }) => ({
-            minHeight: 48,
-            borderRadius: theme.radius.lg,
-            backgroundColor: accent,
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: pressed ? 0.85 : 1,
-          })}
-        >
-          <Text
-            style={{
-              ...theme.typography.body,
-              fontWeight: '700',
-              color: theme.colors.background,
-            }}
+        {summary.primaryAction !== 'none' && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={summary.primaryActionLabel}
+            onPress={handlePrimaryAction}
+            style={({ pressed }) => ({
+              minHeight: 48,
+              borderRadius: theme.radius.lg,
+              backgroundColor: accent,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: pressed ? 0.85 : 1,
+            })}
           >
-            {summary.primaryActionLabel}
-          </Text>
-        </Pressable>
+            <Text
+              style={{
+                ...theme.typography.body,
+                fontWeight: '700',
+                color: theme.colors.background,
+              }}
+            >
+              {summary.primaryActionLabel}
+            </Text>
+          </Pressable>
+        )}
 
-        {!summary.isReadyToClose && (
+        {!summary.isReadyToClose && summary.primaryAction !== 'go-execute' && (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Voltar para executar pendências"

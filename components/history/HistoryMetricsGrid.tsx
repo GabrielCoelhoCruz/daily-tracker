@@ -93,7 +93,9 @@ function MetricCell({ metric }: { metric: MetricItem }) {
       <Text
         style={{
           ...theme.typography.title3,
-          fontSize: 20,
+          fontSize: 22,
+          fontWeight: "800",
+          letterSpacing: -0.5,
           fontVariant: ["tabular-nums"],
           color: metric.color,
         }}
@@ -102,7 +104,9 @@ function MetricCell({ metric }: { metric: MetricItem }) {
       </Text>
       <Text
         style={{
-          ...theme.typography.caption,
+          ...theme.typography.labelMono,
+          fontSize: 9,
+          letterSpacing: 0.8,
           textAlign: "center",
         }}
       >

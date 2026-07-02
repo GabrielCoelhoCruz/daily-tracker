@@ -1,4 +1,4 @@
-﻿import { ScrollView, View } from "react-native";
+﻿import { ScrollView } from "react-native";
 
 import { router } from "expo-router";
 
@@ -12,15 +12,9 @@ import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
 
 import { getLogicalDate } from "@/utils/dateUtils";
 
-import { EvolutionChart } from "@/components/physique/EvolutionChart";
-
 import { ScreenSubtitle } from "@/components/ui/ScreenSubtitle";
 
-import { StageReadinessHero } from "@/components/physique-intelligence/StageReadinessHero";
-
 import { EvidenceSnapshotCard } from "@/components/physique-intelligence/EvidenceSnapshotCard";
-
-import { LatestAISignalCard } from "@/components/physique-intelligence/LatestAISignalCard";
 
 import { PrepExecutionContextCard } from "@/components/physique-intelligence/PrepExecutionContextCard";
 
@@ -38,11 +32,7 @@ import {
 
   getCheckInTimelineItems,
 
-  getEvidenceAISignal,
-
   getEvidenceSnapshot,
-
-  getLatestAISignal,
 
   getPhysiqueIntelligenceSummary,
 
@@ -75,16 +65,6 @@ export default function ProgressoScreen() {
 
 
   const summary = getPhysiqueIntelligenceSummary(checkIns, { lastCategory });
-
-  const aiSignal = getLatestAISignal(summary.latestCheckIn, summary.checkInCount);
-
-  const evidenceSignal = getEvidenceAISignal(
-
-    summary.latestCheckIn,
-
-    summary.checkInCount,
-
-  );
 
   const evidenceSnapshot = getEvidenceSnapshot(checkIns, todayDate);
 
@@ -159,14 +139,6 @@ export default function ProgressoScreen() {
   const handleCompare = () => {
 
     router.push("./compare" as never);
-
-  };
-
-
-
-  const handleCategoryFinder = () => {
-
-    router.push("./categories" as never);
 
   };
 
@@ -252,13 +224,9 @@ export default function ProgressoScreen() {
 
           checkInCount={0}
 
-          profileComplete={profileComplete}
-
           onNewCheckIn={handleNewCheckIn}
 
           onCompare={handleCompare}
-
-          onCategoryFinder={handleCategoryFinder}
 
           onProfile={handleProfile}
 
@@ -284,16 +252,6 @@ export default function ProgressoScreen() {
 
       <ScreenSubtitle text={PROGRESSO_SUBTITLE} />
 
-      <StageReadinessHero
-
-        summary={summary}
-
-
-
-        onPress={handleOpenLatestResult}
-
-      />
-
       <EvidenceSnapshotCard
 
         snapshot={evidenceSnapshot}
@@ -301,8 +259,6 @@ export default function ProgressoScreen() {
         onActionPress={handleEvidenceAction}
 
       />
-
-      <LatestAISignalCard signal={evidenceSignal} />
 
       <PrepExecutionContextCard context={prepContext} />
 
@@ -312,13 +268,9 @@ export default function ProgressoScreen() {
 
         checkInCount={summary.checkInCount}
 
-        profileComplete={profileComplete}
-
         onNewCheckIn={handleNewCheckIn}
 
         onCompare={handleCompare}
-
-        onCategoryFinder={handleCategoryFinder}
 
         onProfile={handleProfile}
 
@@ -331,12 +283,6 @@ export default function ProgressoScreen() {
         onItemPress={handleTimelineItemPress}
 
       />
-
-      <View style={{ gap: 8 }}>
-
-        <EvolutionChart />
-
-      </View>
 
     </ScrollView>
 

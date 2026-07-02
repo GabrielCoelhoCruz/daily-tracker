@@ -24,31 +24,41 @@ export function ProgressBar({
     }
   }, [percentage]);
 
+  const barColor =
+    percentage === 100
+      ? theme.colors.semantic.success
+      : theme.colors.accent.DEFAULT;
+
   return (
     <View className={`gap-1.5 ${className}`}>
       <View className="flex-row items-center justify-between">
         <Text
           selectable
-          className="text-sm font-medium text-txt-primary"
-          style={{ fontVariant: ["tabular-nums"] }}
+          style={{
+            ...theme.typography.dataMono,
+            fontSize: 13,
+          }}
         >
           {completados}/{total}
         </Text>
         <Text
           selectable
-          className="text-sm font-semibold"
           style={{
-            fontVariant: ["tabular-nums"],
-            color: percentage === 100 ? theme.colors.semantic.success : theme.colors.accent.DEFAULT,
+            ...theme.typography.dataMono,
+            fontSize: 13,
+            color: barColor,
           }}
         >
           {percentage}%
         </Text>
       </View>
-      <View className="overflow-hidden rounded-full bg-bg-elevated" style={{ height: 12 }}>
+      <View
+        className="overflow-hidden rounded-full bg-bg-elevated"
+        style={{ height: 8 }}
+      >
         <View
-          className="h-full rounded-full bg-accent"
-          style={{ width: `${percentage}%` }}
+          className="h-full rounded-full"
+          style={{ width: `${percentage}%`, backgroundColor: barColor }}
         />
       </View>
     </View>

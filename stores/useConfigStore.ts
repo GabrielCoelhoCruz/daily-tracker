@@ -84,6 +84,10 @@ export const useConfigStore = create<ConfigState & ConfigActions>()(
     {
       name: "config-store",
       storage: createJSONStorage(() => AsyncStorage),
+      version: 1,
+      // v0 → v1: sem mudança de schema (migração identidade).
+      migrate: (persistedState) =>
+        persistedState as ConfigState & ConfigActions,
     }
   )
 );

@@ -13,37 +13,42 @@ export function HomeMetricCard({ metric }: HomeMetricCardProps) {
     <View
       style={{
         flex: 1,
-        minHeight: 96,
+        minHeight: 100,
         borderRadius: theme.radius.xl,
-        backgroundColor: theme.colors.surface.container,
+        borderCurve: "continuous",
+        backgroundColor: withAlpha(theme.colors.surface.containerLow, 0.85),
         borderWidth: 1,
-        borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.06),
+        borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.05),
         padding: 16,
         gap: 8,
       }}
     >
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-        <AppIcon
-          sf={metric.sf as never}
-          mci={metric.mci as keyof typeof MaterialCommunityIcons.glyphMap}
-          size={16}
-          color={theme.colors.onSurface.variant}
-        />
-        <Text
+        <View
           style={{
-            ...theme.typography.caption,
-            fontWeight: "700",
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
+            width: 26,
+            height: 26,
+            borderRadius: 8,
+            backgroundColor: withAlpha(theme.colors.primary.DEFAULT, 0.1),
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          {metric.label}
-        </Text>
+          <AppIcon
+            sf={metric.sf as never}
+            mci={metric.mci as keyof typeof MaterialCommunityIcons.glyphMap}
+            size={14}
+            color={theme.colors.primary.DEFAULT}
+          />
+        </View>
+        <Text style={{ ...theme.typography.overline }}>{metric.label}</Text>
       </View>
       <Text
         style={{
           ...theme.typography.callout,
-          fontSize: 15,
+          fontSize: 16,
+          fontWeight: "700",
+          letterSpacing: -0.2,
         }}
         numberOfLines={1}
       >
@@ -51,8 +56,9 @@ export function HomeMetricCard({ metric }: HomeMetricCardProps) {
       </Text>
       <Text
         style={{
-          ...theme.typography.caption,
+          ...theme.typography.dataMono,
           fontSize: 11,
+          color: theme.colors.onSurface.variant,
         }}
         numberOfLines={1}
       >

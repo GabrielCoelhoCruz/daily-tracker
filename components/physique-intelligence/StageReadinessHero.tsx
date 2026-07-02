@@ -1,3 +1,4 @@
+// Legacy/demo analysis output, intentionally hidden from MVP UI (not rendered by any routed screen).
 import { Pressable, Text, View } from "react-native";
 import { theme, withAlpha } from "@/constants/theme";
 import { AppIcon } from "@/components/ui/AppIcon";
@@ -79,10 +80,7 @@ export function StageReadinessHero({
           />
           <Text
             style={{
-              ...theme.typography.caption,
-              fontWeight: "700",
-              letterSpacing: 0.5,
-              textTransform: "uppercase",
+              ...theme.typography.overline,
             }}
           >
             Prontidão para o Palco

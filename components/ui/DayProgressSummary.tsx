@@ -19,8 +19,7 @@ export function DayProgressSummary({
     <View style={{ alignItems: "center", gap: 12, marginBottom: 8 }}>
       <Text
         style={{
-          ...theme.typography.footnote,
-          color: theme.colors.onSurface.variant,
+          ...theme.typography.overline,
           textAlign: "center",
         }}
       >
@@ -58,10 +57,9 @@ export function DayProgressSummary({
           </Text>
           <Text
             style={{
+              ...theme.typography.dataMono,
               fontSize: 12,
-              fontWeight: "700",
               color: theme.colors.primary.DEFAULT,
-              fontVariant: ["tabular-nums"],
             }}
           >
             {remaining} restantes

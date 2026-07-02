@@ -1,3 +1,4 @@
+// Legacy/demo analysis output, intentionally hidden from MVP UI (not rendered by any routed screen).
 import { View, Text, useWindowDimensions } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { useMemo } from "react";

@@ -15,19 +15,15 @@ type ActionItem = {
 
 type PhysiqueActionGridProps = {
   checkInCount: number;
-  profileComplete: boolean;
   onNewCheckIn: () => void;
   onCompare: () => void;
-  onCategoryFinder: () => void;
   onProfile: () => void;
 };
 
 export function PhysiqueActionGrid({
   checkInCount,
-  profileComplete,
   onNewCheckIn,
   onCompare,
-  onCategoryFinder,
   onProfile,
 }: PhysiqueActionGridProps) {
   const compareDisabled = checkInCount < 2;
@@ -54,15 +50,6 @@ export function PhysiqueActionGrid({
         : "Comparar check-ins",
     },
     {
-      key: "categories",
-      label: "Categorias",
-      sf: "magnifyingglass",
-      mci: "magnify",
-      onPress: onCategoryFinder,
-      disabled: !profileComplete,
-      accessibilityLabel: "Buscar categoria",
-    },
-    {
       key: "profile",
       label: "Perfil",
       sf: "person.crop.circle",
@@ -76,10 +63,7 @@ export function PhysiqueActionGrid({
     <View style={{ gap: 10 }}>
       <Text
         style={{
-          ...theme.typography.caption,
-          fontWeight: "700",
-          letterSpacing: 0.5,
-          textTransform: "uppercase",
+          ...theme.typography.overline,
           paddingHorizontal: 4,
         }}
       >

@@ -58,13 +58,19 @@ export function getProtocolMealsSummary(
     refeicaoLivrePeriodoId: input.refeicaoLivrePeriodoId,
   })
 
+  const resolved = meals.completed + meals.partial
+  const partialSuffix =
+    meals.partial > 0
+      ? ` · ${meals.partial} parcial${meals.partial === 1 ? '' : 'is'}`
+      : ''
+
   return {
-    completed: meals.completed,
+    completed: resolved,
     total: meals.total,
     label:
       meals.total === 0
         ? 'Sem refeições hoje'
-        : `${meals.completed}/${meals.total} completas`,
+        : `${resolved}/${meals.total} resolvidas${partialSuffix}`,
   }
 }
 
@@ -122,7 +128,8 @@ export function isProtocolComplete(input: DailyProtocolSummaryInput): boolean {
     refeicaoLivrePeriodoId: input.refeicaoLivrePeriodoId,
   })
 
-  const mealsDone = meals.total === 0 || meals.completed >= meals.total
+  const mealsDone =
+    meals.total === 0 || meals.completed + meals.partial >= meals.total
   const waterDone = input.metaAguaMl <= 0 || input.aguaMl >= input.metaAguaMl
   const cardioDone =
     input.metaCardioMin <= 0 || input.cardioMinutos >= input.metaCardioMin
@@ -166,7 +173,8 @@ function resolveProtocolStatus(
     refeicaoLivrePeriodoId: input.refeicaoLivrePeriodoId,
   })
 
-  const hasMealGap = meals.total > 0 && meals.completed < meals.total
+  const hasMealGap =
+    meals.total > 0 && meals.completed + meals.partial < meals.total
   const hasWaterGap =
     input.metaAguaMl > 0 && input.aguaMl < input.metaAguaMl * 0.5
   const hasCardioGap =

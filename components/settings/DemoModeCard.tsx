@@ -27,7 +27,7 @@ export function DemoModeCard() {
     }
 
     Alert.alert(
-      "Ativar Demo Mode",
+      "Ativar modo demo",
       "Isso vai preencher o ShapeIQ com dados locais de demonstração (histórico, check-ins, treinos e perfil demo). Dados reais com IDs demo serão substituídos; outros dados permanecem.",
       [
         { text: "Cancelar", style: "cancel" },
@@ -77,14 +77,11 @@ export function DemoModeCard() {
         />
         <Text
           style={{
-            ...theme.typography.caption,
-            fontWeight: "700",
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
+            ...theme.typography.overline,
             color: theme.colors.primary.DEFAULT,
           }}
         >
-          Demo Mode
+          Modo demo
         </Text>
       </View>
 
@@ -95,7 +92,7 @@ export function DemoModeCard() {
 
       {isActive ? (
         <Text style={{ ...theme.typography.footnote }}>
-          Demo Mode ativo · {stats.historyDays} dias · {stats.checkIns} check-ins
+          Modo demo ativo · {stats.historyDays} dias · {stats.checkIns} check-ins
           · {stats.sessions} sessões
         </Text>
       ) : (
@@ -109,7 +106,7 @@ export function DemoModeCard() {
         <Pressable
           onPress={handleActivateDemo}
           accessibilityRole="button"
-          accessibilityLabel="Ativar Demo Mode"
+          accessibilityLabel="Ativar modo demo"
           style={{
             minHeight: 44,
             borderRadius: theme.radius.lg,
@@ -127,7 +124,7 @@ export function DemoModeCard() {
               color: theme.colors.primary.DEFAULT,
             }}
           >
-            Ativar Demo Mode
+            Ativar modo demo
           </Text>
         </Pressable>
 

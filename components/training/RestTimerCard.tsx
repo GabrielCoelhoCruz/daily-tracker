@@ -88,9 +88,12 @@ export function RestTimerCard({ setType, active, onComplete }: RestTimerCardProp
         <>
           <Text
             style={{
-              ...theme.typography.headline,
-              fontSize: 32,
+              fontFamily: theme.fonts.mono,
+              fontSize: 40,
+              letterSpacing: -1,
+              color: theme.colors.onSurface.DEFAULT,
               textAlign: 'center',
+              fontVariant: ['tabular-nums'],
             }}
           >
             {secondsLeft}s
@@ -107,7 +110,8 @@ export function RestTimerCard({ setType, active, onComplete }: RestTimerCardProp
               style={{
                 height: '100%',
                 width: `${Math.round(progress * 100)}%`,
-                backgroundColor: theme.colors.primary.container,
+                borderRadius: 2,
+                backgroundColor: theme.colors.primary.DEFAULT,
               }}
             />
           </View>

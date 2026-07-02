@@ -53,16 +53,7 @@ export function TrainingTodayCard({ briefing }: TrainingTodayCardProps) {
             size={18}
             color={theme.colors.onSurface.variant}
           />
-          <Text
-            style={{
-              ...theme.typography.caption,
-              fontWeight: "700",
-              letterSpacing: 0.5,
-              textTransform: "uppercase",
-            }}
-          >
-            Treino de hoje
-          </Text>
+          <Text style={{ ...theme.typography.overline }}>Treino de hoje</Text>
         </View>
         <Text style={{ ...theme.typography.title3, fontSize: 18 }}>
           {briefing.title}
@@ -90,15 +81,7 @@ export function TrainingTodayCard({ briefing }: TrainingTodayCardProps) {
           size={18}
           color={accent}
         />
-        <Text
-          style={{
-            ...theme.typography.caption,
-            fontWeight: "700",
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
-            color: accent,
-          }}
-        >
+        <Text style={{ ...theme.typography.overline, color: accent }}>
           Treino de hoje
         </Text>
       </View>
@@ -132,17 +115,7 @@ export function TrainingTodayCard({ briefing }: TrainingTodayCardProps) {
             borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.05),
           }}
         >
-          <Text
-            style={{
-              ...theme.typography.caption,
-              fontWeight: "700",
-              letterSpacing: 0.5,
-              textTransform: "uppercase",
-              color: theme.colors.onSurface.variant,
-            }}
-          >
-            Evidência
-          </Text>
+          <Text style={{ ...theme.typography.overline }}>Evidência</Text>
           <Text style={{ ...theme.typography.body, fontWeight: "600" }}>
             {evidence}
           </Text>
@@ -173,17 +146,7 @@ export function TrainingTodayCard({ briefing }: TrainingTodayCardProps) {
 
       {briefing.nextActionLabel && (
         <View style={{ gap: 8 }}>
-          <Text
-            style={{
-              ...theme.typography.caption,
-              fontWeight: "700",
-              letterSpacing: 0.5,
-              textTransform: "uppercase",
-              color: theme.colors.onSurface.variant,
-            }}
-          >
-            Próxima ação
-          </Text>
+          <Text style={{ ...theme.typography.overline }}>Próxima ação</Text>
           <Pressable
             onPress={handleTrainingAction}
             accessibilityRole="button"

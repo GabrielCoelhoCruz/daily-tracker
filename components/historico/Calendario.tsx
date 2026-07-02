@@ -153,8 +153,23 @@ export function Calendario({ onDayPress }: CalendarioProps) {
             color={theme.colors.text.primary}
           />
         </Pressable>
-        <Text style={theme.typography.callout}>
-          {MONTH_NAMES[viewMonth]} {viewYear}
+        <Text
+          style={{
+            ...theme.typography.callout,
+            fontWeight: "700",
+            letterSpacing: -0.2,
+          }}
+        >
+          {MONTH_NAMES[viewMonth]}{" "}
+          <Text
+            style={{
+              fontFamily: theme.fonts.mono,
+              fontWeight: "400",
+              color: theme.colors.onSurface.variant,
+            }}
+          >
+            {viewYear}
+          </Text>
         </Text>
         <Pressable
           onPress={goToNextMonth}
@@ -173,7 +188,15 @@ export function Calendario({ onDayPress }: CalendarioProps) {
       <View className="mb-2 flex-row">
         {WEEKDAY_LABELS.map((label) => (
           <View key={label} className="flex-1 items-center">
-            <Text style={theme.typography.caption}>{label}</Text>
+            <Text
+              style={{
+                ...theme.typography.labelMono,
+                fontSize: 9,
+                letterSpacing: 0.8,
+              }}
+            >
+              {label}
+            </Text>
           </View>
         ))}
       </View>

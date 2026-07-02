@@ -33,8 +33,8 @@ export function ProfileRequiredState({
           textAlign: "center",
         }}
       >
-        Isso habilita categorização, contexto de análise IA e acompanhamento de
-        prontidão para o palco.
+        Isso organiza seus check-ins, comparações e o acompanhamento de
+        tendência do shape.
       </Text>
 
       <Pressable

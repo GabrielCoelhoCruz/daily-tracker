@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 import { theme, withAlpha } from "@/constants/theme";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { useDayStore } from "@/stores/useDayStore";
@@ -10,10 +10,23 @@ type CheckItemProps = {
   indented?: boolean;
 };
 
+const SKIP_REASONS = [
+  "Sem tempo",
+  "Sem fome/apetite",
+  "Imprevisto",
+  "Escolha própria",
+] as const;
+
 export function CheckItem({ item, indented = false }: CheckItemProps) {
   const checks = useDayStore((s) => s.checks);
   const toggleCheck = useDayStore((s) => s.toggleCheck);
-  const isChecked = checks[item.id]?.checked ?? false;
+  const skipCheck = useDayStore((s) => s.skipCheck);
+  const partialCheck = useDayStore((s) => s.partialCheck);
+  const check = checks[item.id];
+  const isChecked = check?.checked ?? false;
+  const isSkipped = check?.skipped ?? false;
+  const isPartial = (check?.partial ?? false) && isChecked;
+  const isMeal = item.categoria === "refeicao";
 
   const hasSubItens = item.subItens && item.subItens.length > 0;
 
@@ -21,16 +34,38 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
     animateWithHaptic(() => toggleCheck(item.id));
   }
 
+  function handleLongPress() {
+    if (isChecked && !isPartial) return;
+    if (isMeal) {
+      Alert.alert("Como foi essa refeição?", item.nome, [
+        {
+          text: "Feito parcial",
+          onPress: () => animateWithHaptic(() => partialCheck(item.id)),
+        },
+        ...SKIP_REASONS.map((reason) => ({
+          text: `Fora do plano · ${reason}`,
+          onPress: () => animateWithHaptic(() => skipCheck(item.id, reason)),
+        })),
+        { text: "Cancelar", style: "cancel" as const },
+      ]);
+      return;
+    }
+    if (isChecked) return;
+    Alert.alert("Por que pulou?", item.nome, [
+      ...SKIP_REASONS.map((reason) => ({
+        text: reason,
+        onPress: () => animateWithHaptic(() => skipCheck(item.id, reason)),
+      })),
+      { text: "Cancelar", style: "cancel" as const },
+    ]);
+  }
+
   if (hasSubItens) {
     return (
       <View style={{ gap: 6 }}>
         <Text
           style={{
-            fontSize: 11,
-            fontWeight: "700",
-            color: theme.colors.onSurface.variant,
-            letterSpacing: 1,
-            textTransform: "uppercase",
+            ...theme.typography.overline,
             paddingLeft: indented ? 16 : 0,
           }}
         >
@@ -46,9 +81,17 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
   return (
     <Pressable
       onPress={handlePress}
+      onLongPress={handleLongPress}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: isChecked }}
-      accessibilityLabel={item.nome}
+      accessibilityLabel={
+        isSkipped
+          ? `${item.nome}, pulado: ${check?.skipReason}`
+          : isPartial
+            ? `${item.nome}, feito parcial`
+            : item.nome
+      }
+      accessibilityHint="Toque para marcar. Toque e segure para marcar parcial ou pular com motivo."
       style={{
         flexDirection: "row",
         alignItems: "center",
@@ -90,6 +133,15 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
             weight="bold"
           />
         )}
+        {isSkipped && !isChecked && (
+          <AppIcon
+            sf="minus"
+            mci="minus"
+            size={12}
+            color={theme.colors.semantic.warning}
+            weight="bold"
+          />
+        )}
       </View>
 
       {/* Label */}
@@ -98,14 +150,36 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
           style={{
             fontSize: 13,
             fontWeight: "500",
-            color: isChecked
-              ? withAlpha(theme.colors.onSurface.DEFAULT, 0.5)
-              : withAlpha(theme.colors.onSurface.DEFAULT, 0.9),
-            textDecorationLine: isChecked ? "line-through" : "none",
+            // Sem strikethrough — item feito escurece, não é "riscado" (§3 Motion).
+            color:
+              isChecked || isSkipped
+                ? withAlpha(theme.colors.onSurface.DEFAULT, 0.5)
+                : withAlpha(theme.colors.onSurface.DEFAULT, 0.9),
           }}
         >
           {item.nome}
         </Text>
+        {isSkipped && !isChecked && (
+          <Text
+            style={{
+              fontSize: 10,
+              color: theme.colors.semantic.warning,
+            }}
+          >
+            Pulado · {check?.skipReason}
+          </Text>
+        )}
+        {isPartial && (
+          <Text
+            style={{
+              fontSize: 10,
+              fontWeight: "600",
+              color: theme.colors.semantic.warning,
+            }}
+          >
+            Parcial
+          </Text>
+        )}
         {item.dosagem && (
           <Text
             style={{
@@ -129,11 +203,9 @@ export function CheckItem({ item, indented = false }: CheckItemProps) {
           >
             <Text
               style={{
+                ...theme.typography.overline,
                 fontSize: 8,
-                fontWeight: "800",
-                color: theme.colors.onSurface.variant,
                 letterSpacing: 1,
-                textTransform: "uppercase",
               }}
             >
               OPC

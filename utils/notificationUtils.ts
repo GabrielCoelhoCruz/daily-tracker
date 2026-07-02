@@ -1,7 +1,7 @@
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { useConfigStore } from "@/stores/useConfigStore";
-import { plano } from "@/data/plano";
+import { getActivePlano } from "@/stores/useProtocolStore";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -58,7 +58,7 @@ export async function scheduleNotificacoes(): Promise<void> {
   const { notificacoesPorPeriodo, hidratacaoLembrete } = config;
 
   // Schedule period notifications
-  for (const periodo of plano.periodos) {
+  for (const periodo of getActivePlano().periodos) {
     const periodoConfig = notificacoesPorPeriodo[periodo.id];
     if (!periodoConfig?.enabled) continue;
 

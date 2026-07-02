@@ -49,15 +49,7 @@ export function DailyProtocolSummaryCard({
           size={18}
           color={accent}
         />
-        <Text
-          style={{
-            ...theme.typography.caption,
-            fontWeight: '700',
-            letterSpacing: 0.5,
-            textTransform: 'uppercase',
-            color: accent,
-          }}
-        >
+        <Text style={{ ...theme.typography.overline, color: accent }}>
           Protocolo do Dia
         </Text>
       </View>

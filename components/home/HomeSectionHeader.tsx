@@ -1,5 +1,5 @@
 import { Text, View } from "react-native"
-import { theme } from "@/constants/theme"
+import { theme, withAlpha } from "@/constants/theme"
 
 type HomeSectionHeaderProps = {
   title: string
@@ -7,7 +7,15 @@ type HomeSectionHeaderProps = {
 
 export function HomeSectionHeader({ title }: HomeSectionHeaderProps) {
   return (
-    <View style={{ paddingHorizontal: 4, marginBottom: 12 }}>
+    <View
+      style={{
+        paddingHorizontal: 4,
+        marginBottom: 12,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+      }}
+    >
       <Text
         style={{
           ...theme.typography.labelMedium,
@@ -16,6 +24,13 @@ export function HomeSectionHeader({ title }: HomeSectionHeaderProps) {
       >
         {title}
       </Text>
+      <View
+        style={{
+          flex: 1,
+          height: 1,
+          backgroundColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.07),
+        }}
+      />
     </View>
   )
 }

@@ -1,4 +1,6 @@
 import { NativeTabs, Icon, Label, VectorIcon, Badge } from "expo-router/unstable-native-tabs";
+import { Redirect } from "expo-router";
+import { useEffect, useState } from "react";
 
 import { DynamicColorIOS, Platform } from "react-native";
 
@@ -8,6 +10,7 @@ import { theme } from "@/constants/theme";
 import { nativeTabBarGlass } from "@/constants/glassTheme";
 
 import { usePendingDashCount } from "@/hooks/usePendingDashCount";
+import { useProtocolStore } from "@/stores/useProtocolStore";
 
 
 
@@ -53,7 +56,33 @@ const tabLabelColor =
 
 export default function TabLayout() {
 
+  // Gate de onboarding: só entra nas tabs após concluir o onboarding
+  // (ou ativar o modo demo, que marca onboardingComplete).
+  const onboardingComplete = useProtocolStore((s) => s.onboardingComplete);
+
+  // A persistência (AsyncStorage) reidrata de forma assíncrona. Sem esperar a
+  // hidratação, o valor default (false) redirecionaria usuários já onboardados
+  // para o onboarding a cada reinício do app.
+  const [hydrated, setHydrated] = useState(() =>
+    useProtocolStore.persist.hasHydrated()
+  );
+  useEffect(() => {
+    if (hydrated) return;
+    const unsub = useProtocolStore.persist.onFinishHydration(() =>
+      setHydrated(true)
+    );
+    return unsub;
+  }, [hydrated]);
+
   const pendingDash = usePendingDashCount();
+
+  if (!hydrated) {
+    return null;
+  }
+
+  if (!onboardingComplete) {
+    return <Redirect href="/onboarding" />;
+  }
 
   const badgeLabel =
 
@@ -73,7 +102,7 @@ export default function TabLayout() {
 
         <Icon
 
-          sf={{ default: "checkmark.circle", selected: "checkmark.circle.fill" }}
+          sf={{ default: "sun.max", selected: "sun.max.fill" }}
 
           androidSrc={
 
@@ -87,7 +116,7 @@ export default function TabLayout() {
 
                       family={MaterialCommunityIcons}
 
-                      name="check-circle-outline"
+                      name="white-balance-sunny"
 
                     />
 
@@ -95,7 +124,7 @@ export default function TabLayout() {
 
                   selected: (
 
-                    <VectorIcon family={MaterialCommunityIcons} name="check-circle" />
+                    <VectorIcon family={MaterialCommunityIcons} name="white-balance-sunny" />
 
                   ),
 
@@ -108,6 +137,56 @@ export default function TabLayout() {
         />
 
         <Label>Hoje</Label>
+
+      </NativeTabs.Trigger>
+
+
+
+      <NativeTabs.Trigger name="(protocolo)">
+
+        <Icon
+
+          sf={{ default: "checklist", selected: "checklist" }}
+
+          androidSrc={
+
+            Platform.OS === "android"
+
+              ? {
+
+                  default: (
+
+                    <VectorIcon
+
+                      family={MaterialCommunityIcons}
+
+                      name="format-list-checks"
+
+                    />
+
+                  ),
+
+                  selected: (
+
+                    <VectorIcon
+
+                      family={MaterialCommunityIcons}
+
+                      name="format-list-checks"
+
+                    />
+
+                  ),
+
+                }
+
+              : undefined
+
+          }
+
+        />
+
+        <Label>Protocolo</Label>
 
         {badgeLabel ? <Badge>{badgeLabel}</Badge> : null}
 
@@ -149,7 +228,10 @@ export default function TabLayout() {
 
         <Icon
 
-          sf={{ default: "calendar", selected: "calendar" }}
+          sf={{
+            default: "chart.bar.doc.horizontal",
+            selected: "chart.bar.doc.horizontal.fill",
+          }}
 
           androidSrc={
 
@@ -193,7 +275,10 @@ export default function TabLayout() {
 
         <Icon
 
-          sf={{ default: "chart.bar", selected: "chart.bar.fill" }}
+          sf={{
+            default: "camera.metering.matrix",
+            selected: "camera.metering.matrix",
+          }}
 
           androidSrc={
 
@@ -201,9 +286,9 @@ export default function TabLayout() {
 
               ? {
 
-                  default: <VectorIcon family={MaterialCommunityIcons} name="chart-bar" />,
+                  default: <VectorIcon family={MaterialCommunityIcons} name="image-multiple-outline" />,
 
-                  selected: <VectorIcon family={MaterialCommunityIcons} name="chart-bar" />,
+                  selected: <VectorIcon family={MaterialCommunityIcons} name="image-multiple" />,
 
                 }
 
@@ -213,7 +298,7 @@ export default function TabLayout() {
 
         />
 
-        <Label>Stats</Label>
+        <Label>Evidências</Label>
 
       </NativeTabs.Trigger>
 

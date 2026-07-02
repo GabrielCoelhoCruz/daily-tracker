@@ -143,7 +143,7 @@ describe("getStageReadinessTrend", () => {
     expect(getStageReadinessTrend(checkIns)).toEqual({
       direction: "unknown",
       previousLabel: null,
-      currentLabel: "Progredindo",
+      currentLabel: "Evolução em andamento",
     });
   });
 
@@ -165,8 +165,8 @@ describe("getStageReadinessTrend", () => {
 
     expect(getStageReadinessTrend(checkIns)).toEqual({
       direction: "improving",
-      previousLabel: "Progredindo",
-      currentLabel: "Quase pronto",
+      previousLabel: "Evolução em andamento",
+      currentLabel: "Condição competitiva",
     });
   });
 
@@ -427,7 +427,7 @@ describe("getEvidenceSnapshot", () => {
     expect(snapshot.freshnessStatus).toBe("due-soon");
     expect(snapshot.hasAnalysis).toBe(true);
     expect(snapshot.photoCount).toBe(3);
-    expect(snapshot.evidenceLabel).toContain("Week 4");
+    expect(snapshot.evidenceLabel).toContain("Semana 4");
     expect(snapshot.evidenceLabel).toContain("83.2kg");
   });
 

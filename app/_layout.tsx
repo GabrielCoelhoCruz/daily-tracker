@@ -115,6 +115,28 @@ export default function RootLayout() {
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
+            name="onboarding"
+            options={{
+              headerShown: false,
+              gestureEnabled: false,
+            }}
+          />
+          <Stack.Screen
+            name="import-protocol"
+            options={{
+              presentation: "formSheet",
+              sheetGrabberVisible: true,
+              sheetAllowedDetents: [0.9, 1.0],
+              headerShown: true,
+              headerTitle: "Importar protocolo",
+              headerTransparent: true,
+              headerShadowVisible: false,
+              headerTintColor: theme.colors.text.primary,
+              contentStyle: { backgroundColor: "transparent" },
+              ...nativeHeaderGlass,
+            }}
+          />
+          <Stack.Screen
             name="config"
             options={{
               presentation: "formSheet",

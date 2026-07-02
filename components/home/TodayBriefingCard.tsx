@@ -1,6 +1,8 @@
 import { Pressable, Text, View } from "react-native"
 import { theme, withAlpha } from "@/constants/theme"
 import { AppIcon } from "@/components/ui/AppIcon"
+import { HeroGlow } from "@/components/ui/HeroGlow"
+import { HeroRing } from "@/components/ui/HeroRing"
 import type { HomeAction, ProtocolProgress } from "@/utils/homeUtils"
 
 type TodayBriefingCardProps = {
@@ -9,46 +11,43 @@ type TodayBriefingCardProps = {
   onOpenChecklist: () => void
 }
 
+/**
+ * Hoje hero — the day's instrument gauge. Floats on an atmospheric glow
+ * instead of sitting in a card; the ring is the screen's focal point.
+ */
 export function TodayBriefingCard({
   progress,
   nextAction,
   onOpenChecklist,
 }: TodayBriefingCardProps) {
-  const isComplete = nextAction.type === "complete"
+  const isComplete =
+    nextAction.type === "complete" || nextAction.type === "closeout"
 
   const actionAccent = isComplete
     ? theme.colors.semantic.success
     : theme.colors.primary.DEFAULT
 
   return (
-    <View
-      style={{
-        borderRadius: theme.radius["2xl"],
-        backgroundColor: theme.colors.surface.containerHigh,
-        borderWidth: 1,
-        borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.06),
-        padding: 22,
-        gap: 20,
-      }}
-    >
-      {/* ── Próxima Ação hero ── */}
-      <View style={{ gap: 6 }}>
+    <View style={{ paddingTop: 12, paddingBottom: 4 }}>
+      <HeroGlow color={actionAccent} />
+
+      <HeroRing
+        percentage={progress.percentage}
+        accent={actionAccent}
+        label="Protocolo"
+        caption={`${progress.completed} de ${progress.total} concluídos`}
+      />
+
+      {/* ── Próxima ação ── */}
+      <View style={{ alignItems: "center", gap: 6, marginTop: 26 }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           <AppIcon
             sf={isComplete ? "checkmark.circle.fill" : "bolt.fill"}
             mci={isComplete ? "check-circle" : "lightning-bolt"}
-            size={16}
+            size={14}
             color={actionAccent}
           />
-          <Text
-            style={{
-              ...theme.typography.caption,
-              fontWeight: "700",
-              letterSpacing: 0.5,
-              textTransform: "uppercase",
-              color: actionAccent,
-            }}
-          >
+          <Text style={{ ...theme.typography.overline, color: actionAccent }}>
             Próxima Ação
           </Text>
         </View>
@@ -56,8 +55,10 @@ export function TodayBriefingCard({
         <Text
           style={{
             ...theme.typography.title3,
-            fontSize: 22,
-            fontWeight: "700",
+            fontSize: 26,
+            fontWeight: "800",
+            letterSpacing: -0.8,
+            textAlign: "center",
             color: isComplete
               ? theme.colors.semantic.success
               : theme.colors.onSurface.DEFAULT,
@@ -65,67 +66,13 @@ export function TodayBriefingCard({
         >
           {nextAction.title}
         </Text>
-        <Text style={{ ...theme.typography.footnote }}>{nextAction.subtitle}</Text>
-      </View>
-
-      <View
-        style={{
-          height: 1,
-          backgroundColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.06),
-        }}
-      />
-
-      {/* ── Progresso do protocolo ── */}
-      <View style={{ gap: 10 }}>
-        <View
+        <Text
           style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
+            ...theme.typography.footnote,
+            textAlign: "center",
           }}
         >
-          <Text
-            style={{
-              ...theme.typography.caption,
-              fontWeight: "700",
-              letterSpacing: 0.5,
-              textTransform: "uppercase",
-            }}
-          >
-            Protocolo
-          </Text>
-          <Text
-            style={{
-              ...theme.typography.caption,
-              fontWeight: "700",
-              color: actionAccent,
-            }}
-          >
-            {progress.percentage}%
-          </Text>
-        </View>
-
-        {/* Barra de progresso */}
-        <View
-          style={{
-            height: 4,
-            borderRadius: 2,
-            backgroundColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.08),
-            overflow: "hidden",
-          }}
-        >
-          <View
-            style={{
-              height: 4,
-              borderRadius: 2,
-              backgroundColor: actionAccent,
-              width: `${progress.percentage}%`,
-            }}
-          />
-        </View>
-
-        <Text style={{ ...theme.typography.footnote }}>
-          {progress.completed} de {progress.total} concluídos
+          {nextAction.subtitle}
         </Text>
       </View>
 
@@ -133,21 +80,27 @@ export function TodayBriefingCard({
         onPress={onOpenChecklist}
         accessibilityRole="button"
         accessibilityLabel={nextAction.cta}
-        style={{
-          minHeight: 44,
-          borderRadius: theme.radius.lg,
-          backgroundColor: withAlpha(actionAccent, 0.12),
+        style={({ pressed }) => ({
+          minHeight: 50,
+          marginTop: 18,
+          borderRadius: 25,
+          backgroundColor: isComplete
+            ? withAlpha(actionAccent, 0.14)
+            : actionAccent,
           borderWidth: 1,
-          borderColor: withAlpha(actionAccent, 0.2),
+          borderColor: isComplete ? withAlpha(actionAccent, 0.3) : "transparent",
           alignItems: "center",
           justifyContent: "center",
-          paddingHorizontal: 16,
-        }}
+          paddingHorizontal: 24,
+          opacity: pressed ? 0.88 : 1,
+          transform: [{ scale: pressed ? 0.985 : 1 }],
+        })}
       >
         <Text
           style={{
             ...theme.typography.callout,
-            color: actionAccent,
+            fontWeight: "700",
+            color: isComplete ? actionAccent : "#1a1205",
           }}
         >
           {nextAction.cta}

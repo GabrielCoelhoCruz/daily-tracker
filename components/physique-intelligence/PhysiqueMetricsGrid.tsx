@@ -47,10 +47,7 @@ function MetricCard({
         />
         <Text
           style={{
-            ...theme.typography.caption,
-            fontWeight: "700",
-            letterSpacing: 0.5,
-            textTransform: "uppercase",
+            ...theme.typography.overline,
           }}
         >
           {label}
@@ -104,7 +101,7 @@ export function PhysiqueMetricsGrid({ summary }: PhysiqueMetricsGridProps) {
 
   const metrics: MetricCardProps[] = [
     {
-      label: "Weight",
+      label: "Peso",
       value: weightValue,
       sf: "scalemass.fill",
       mci: "scale-bathroom",
@@ -123,7 +120,7 @@ export function PhysiqueMetricsGrid({ summary }: PhysiqueMetricsGridProps) {
       mci: "camera-outline",
     },
     {
-      label: "Category",
+      label: "Categoria",
       value: summary.targetCategoryLabel ?? "—",
       sf: "magnifyingglass",
       mci: "magnify",

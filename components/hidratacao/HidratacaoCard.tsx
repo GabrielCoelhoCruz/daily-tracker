@@ -4,7 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { theme, withAlpha } from "@/constants/theme";
 import { useDayStore } from "@/stores/useDayStore";
 import { animateWithHaptic } from "@/utils/animationUtils";
-import { plano } from "@/data/plano";
+import { useActivePlano } from "@/stores/useProtocolStore";
 
 function formatLiters(ml: number): string {
   return (ml / 1000).toFixed(2);
@@ -40,6 +40,7 @@ function PremiumCard({ children }: { children: React.ReactNode }) {
 // ─── Water Card ──────────────────────────────────────────────────────
 
 function WaterCard() {
+  const plano = useActivePlano();
   const aguaMl = useDayStore((s) => s.aguaMl);
   const addAgua = useDayStore((s) => s.addAgua);
   const removeAgua = useDayStore((s) => s.removeAgua);
@@ -104,10 +105,8 @@ function WaterCard() {
         </Text>
         <Text
           style={{
+            ...theme.typography.overline,
             fontSize: 10,
-            fontWeight: "500",
-            color: theme.colors.onSurface.variant,
-            textTransform: "uppercase",
           }}
         >
           / {formatGoal(metaAgua)}
@@ -154,11 +153,8 @@ function WaterCard() {
         >
           <Text
             style={{
-              fontSize: 10,
-              fontWeight: "800",
+              ...theme.typography.overline,
               color: theme.colors.tertiary,
-              letterSpacing: 2,
-              textTransform: "uppercase",
             }}
           >
             META BATIDA
@@ -179,11 +175,7 @@ function WaterCard() {
           >
             <Text
               style={{
-                fontSize: 10,
-                fontWeight: "800",
-                color: theme.colors.onSurface.variant,
-                letterSpacing: 2,
-                textTransform: "uppercase",
+                ...theme.typography.overline,
               }}
             >
               − 250ML
@@ -202,11 +194,8 @@ function WaterCard() {
           >
             <Text
               style={{
-                fontSize: 10,
-                fontWeight: "800",
+                ...theme.typography.overline,
                 color: theme.colors.background,
-                letterSpacing: 2,
-                textTransform: "uppercase",
               }}
             >
               + 250ML
@@ -221,6 +210,7 @@ function WaterCard() {
 // ─── Tea Card ────────────────────────────────────────────────────────
 
 function TeaCard() {
+  const plano = useActivePlano();
   const chaMl = useDayStore((s) => s.chaMl);
   const addCha = useDayStore((s) => s.addCha);
   const removeCha = useDayStore((s) => s.removeCha);
@@ -287,10 +277,8 @@ function TeaCard() {
         </Text>
         <Text
           style={{
+            ...theme.typography.overline,
             fontSize: 10,
-            fontWeight: "500",
-            color: theme.colors.onSurface.variant,
-            textTransform: "uppercase",
           }}
         >
           / {formatGoal(metaCha)}
@@ -332,11 +320,8 @@ function TeaCard() {
         >
           <Text
             style={{
-              fontSize: 10,
-              fontWeight: "800",
+              ...theme.typography.overline,
               color: theme.colors.tertiary,
-              letterSpacing: 2,
-              textTransform: "uppercase",
             }}
           >
             META BATIDA
@@ -357,11 +342,7 @@ function TeaCard() {
           >
             <Text
               style={{
-                fontSize: 10,
-                fontWeight: "800",
-                color: theme.colors.onSurface.variant,
-                letterSpacing: 2,
-                textTransform: "uppercase",
+                ...theme.typography.overline,
               }}
             >
               − 250ML
@@ -380,11 +361,8 @@ function TeaCard() {
           >
             <Text
               style={{
-                fontSize: 10,
-                fontWeight: "800",
+                ...theme.typography.overline,
                 color: theme.colors.background,
-                letterSpacing: 2,
-                textTransform: "uppercase",
               }}
             >
               + 250ML

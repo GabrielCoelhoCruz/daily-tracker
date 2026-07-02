@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Platform, ScrollView, View } from "react-native";
-import { plano } from "@/data/plano";
+import { EnterStagger } from "@/components/ui/EnterStagger";
+import { useActivePlano, useProtocolStore } from "@/stores/useProtocolStore";
 import { TodayBriefingCard } from "@/components/home/TodayBriefingCard";
 import { TrainingTodayCard } from "@/components/home/TrainingTodayCard";
 import { DailyMetricsGrid } from "@/components/home/DailyMetricsGrid";
@@ -8,6 +9,7 @@ import { DailyProtocolSummaryCard } from "@/components/home/DailyProtocolSummary
 import { ScreenSubtitle } from "@/components/ui/ScreenSubtitle";
 import { useDayStore } from "@/stores/useDayStore";
 import { useSplitStore } from "@/stores/useSplitStore";
+import { useActiveGymSession } from "@/hooks/useGymSession";
 import { useGymStore } from "@/stores/useGymStore";
 import {
   isDiaDeTreino,
@@ -40,6 +42,8 @@ import { getTodayTrainingBriefing } from "@/utils/todayTrainingUtils";
 import { useRouter } from "expo-router";
 
 export default function HojeScreen() {
+  const plano = useActivePlano();
+  const closeoutTime = useProtocolStore((s) => s.closeoutTime);
   const router = useRouter();
   const checks = useDayStore((s) => s.checks);
   const bottomPadding = useTabContentBottomPadding();
@@ -51,6 +55,7 @@ export default function HojeScreen() {
   const aguaMl = useDayStore((s) => s.aguaMl);
   const sessoesCardio = useDayStore((s) => s.sessoesCardio);
   const prevAguaRef = useRef(aguaMl);
+  const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     checkAndReset();
@@ -81,7 +86,7 @@ export default function HojeScreen() {
 
   const periodosFiltrados = useMemo(
     () => filtrarItensDoDia(plano.periodos, dayOfWeek, diaOffManual),
-    [dayOfWeek, diaOffManual],
+    [plano, dayOfWeek, diaOffManual],
   );
 
   const cardioMinutos = useMemo(
@@ -89,9 +94,7 @@ export default function HojeScreen() {
     [sessoesCardio],
   );
 
-  const gymSession = useGymStore((s) =>
-    treino ? s.getActiveSessionForTreinoAndDate(treino.id, logicalDate) : undefined,
-  );
+  const gymSession = useActiveGymSession(treino?.id, logicalDate);
 
   const trainingBriefing = useMemo(
     () =>
@@ -120,6 +123,7 @@ export default function HojeScreen() {
       isTrainingDay,
       diaOffManual,
       trainingBriefing,
+      closeoutTime,
     }),
     [
       logicalDate,
@@ -132,6 +136,7 @@ export default function HojeScreen() {
       isTrainingDay,
       diaOffManual,
       trainingBriefing,
+      closeoutTime,
     ],
   );
 
@@ -192,6 +197,11 @@ export default function HojeScreen() {
         treino,
         workoutLogged: workoutComplete,
         trainingBriefing,
+        closeout: {
+          afterCloseoutTime: closeoutSummary.phase === "after-closeout",
+          isDayClosed: isCloseoutSaved,
+          isReadyToClose: closeoutSummary.isReadyToClose,
+        },
       }),
     [
       periodosFiltrados,
@@ -204,6 +214,9 @@ export default function HojeScreen() {
       treino,
       workoutComplete,
       trainingBriefing,
+      closeoutSummary.phase,
+      closeoutSummary.isReadyToClose,
+      isCloseoutSaved,
     ],
   );
 
@@ -257,6 +270,11 @@ export default function HojeScreen() {
       router.push("/(tabs)/(treino)");
       return;
     }
+    // "Fechar o dia" no hero leva ao card de fechamento no fim da tela.
+    if (nextAction.type === "closeout") {
+      scrollRef.current?.scrollToEnd({ animated: true });
+      return;
+    }
     handleOpenProtocol();
   }
 
@@ -270,6 +288,8 @@ export default function HojeScreen() {
   }
 
   function handleCloseDay(dayNote: string) {
+    // Fechamento só é permitido depois do closeoutTime do plano ativo.
+    if (!closeoutSummary.canClose) return;
     const historico = toCloseoutHistorico(closeoutInput, dayNote);
     salvarDia(historico);
 
@@ -284,6 +304,7 @@ export default function HojeScreen() {
 
   return (
     <ScrollView
+      ref={scrollRef}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={{
         paddingHorizontal: 20,
@@ -296,21 +317,31 @@ export default function HojeScreen() {
       />
 
       <View style={{ gap: 20, marginBottom: 28 }}>
-        <TodayBriefingCard
-          progress={progress}
-          nextAction={nextAction}
-          onOpenChecklist={handleBriefingAction}
-        />
-        <DailyMetricsGrid metrics={metrics} />
-        <TrainingTodayCard briefing={trainingBriefing} />
-        <DailyProtocolSummaryCard summary={protocolSummary} />
-        <DailyCloseoutCard
-          summary={closeoutSummary}
-          isAlreadyClosed={isCloseoutSaved}
-          savedNote={savedCloseout?.dayNote}
-          onCloseDay={handleCloseDay}
-          onGoExecute={handleGoExecute}
-        />
+        <EnterStagger index={0}>
+          <TodayBriefingCard
+            progress={progress}
+            nextAction={nextAction}
+            onOpenChecklist={handleBriefingAction}
+          />
+        </EnterStagger>
+        <EnterStagger index={1}>
+          <DailyMetricsGrid metrics={metrics} />
+        </EnterStagger>
+        <EnterStagger index={2}>
+          <TrainingTodayCard briefing={trainingBriefing} />
+        </EnterStagger>
+        <EnterStagger index={3}>
+          <DailyProtocolSummaryCard summary={protocolSummary} />
+        </EnterStagger>
+        <EnterStagger index={4}>
+          <DailyCloseoutCard
+            summary={closeoutSummary}
+            isAlreadyClosed={isCloseoutSaved}
+            savedNote={savedCloseout?.dayNote}
+            onCloseDay={handleCloseDay}
+            onGoExecute={handleGoExecute}
+          />
+        </EnterStagger>
       </View>
     </ScrollView>
   );

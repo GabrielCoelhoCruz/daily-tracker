@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import { theme, withAlpha } from "@/constants/theme";
-import { plano } from "@/data/plano";
+import { useActivePlano, useProtocolStore } from "@/stores/useProtocolStore";
 import { GlassChip } from "@/components/ui/GlassChip";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { PeriodoSection } from "@/components/checklist/PeriodoSection";
@@ -27,6 +27,7 @@ import { getLogicalDayOfWeek } from "@/utils/dateUtils";
 import { useTabContentBottomPadding } from "@/utils/useTabContentPadding";
 
 export default function ProtocolScreen() {
+  const plano = useActivePlano();
   const bottomPadding = useTabContentBottomPadding();
   const checks = useDayStore((s) => s.checks);
   const diaOffManual = useDayStore((s) => s.diaOffManual);
@@ -36,6 +37,7 @@ export default function ProtocolScreen() {
   const usarRefeicaoLivre = useDayStore((s) => s.usarRefeicaoLivre);
   const desfazerRefeicaoLivre = useDayStore((s) => s.desfazerRefeicaoLivre);
   const aguaMl = useDayStore((s) => s.aguaMl);
+  const freeMealEnabled = useProtocolStore((s) => s.freeMealEnabled);
 
   useEffect(() => {
     checkAndReset();
@@ -53,7 +55,7 @@ export default function ProtocolScreen() {
 
   const periodosFiltrados = useMemo(
     () => filtrarItensDoDia(plano.periodos, dayOfWeek, diaOffManual),
-    [dayOfWeek, diaOffManual],
+    [plano, dayOfWeek, diaOffManual],
   );
 
   function handleToggleDiaOff() {
@@ -104,7 +106,7 @@ export default function ProtocolScreen() {
             PROTOCOLO DO DIA
           </Text>
 
-          {isTrainingDay && refeicaoLivreUsada && (
+          {freeMealEnabled && isTrainingDay && refeicaoLivreUsada && (
             <GlassChip
               label="Desfazer livre"
               tone="error"
@@ -120,7 +122,8 @@ export default function ProtocolScreen() {
           <View key={periodo.id} style={{ gap: 8 }}>
             <PeriodoSection periodo={periodo} />
 
-            {isTrainingDay &&
+            {freeMealEnabled &&
+              isTrainingDay &&
               !refeicaoLivreUsada &&
               periodo.itens.some((i) => i.categoria === "refeicao") && (
                 <GlassChip

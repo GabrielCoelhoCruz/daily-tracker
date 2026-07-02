@@ -342,7 +342,7 @@ function countValidPhotos(checkIn: PhysiqueCheckIn): number {
 
 function buildPhotoEvidenceLabel(photoCount: number): string {
   if (photoCount === 0) return "Sem fotos";
-  if (photoCount >= 3) return "Front · Side · Back";
+  if (photoCount >= 3) return "Frontal · Lateral · Costas";
   const labels = PHOTO_LABELS.slice(0, photoCount).join(" · ");
   return labels || `${photoCount} foto${photoCount === 1 ? "" : "s"}`;
 }
@@ -430,9 +430,9 @@ export function getEvidenceSnapshot(
   );
 
   const photoLabel = buildPhotoEvidenceLabel(photoCount);
-  const notesLabel = latest.notes?.trim() ? " · notes" : "";
-  const analysisLabel = hasAnalysis ? " · análise disponível" : " · análise pendente";
-  const evidenceLabel = `Week ${latest.week} · ${latest.weight}kg · ${photoLabel}${notesLabel}${analysisLabel}`;
+  const notesLabel = latest.notes?.trim() ? " · notas" : "";
+  const analysisLabel = hasAnalysis ? " · análise disponível" : "";
+  const evidenceLabel = `Semana ${latest.week} · ${latest.weight}kg · ${photoLabel}${notesLabel}${analysisLabel}`;
 
   const base = {
     hasEvidence: true,

@@ -14,14 +14,11 @@ export function CheckInTimeline({ items, onItemPress }: CheckInTimelineProps) {
     <View style={{ gap: 10 }}>
       <Text
         style={{
-          ...theme.typography.caption,
-          fontWeight: "700",
-          letterSpacing: 0.5,
-          textTransform: "uppercase",
+          ...theme.typography.overline,
           paddingHorizontal: 4,
         }}
       >
-        Timeline
+        Linha do tempo
       </Text>
 
       <View
@@ -79,11 +76,6 @@ export function CheckInTimeline({ items, onItemPress }: CheckInTimelineProps) {
                   Semana {item.week}
                 </Text>
                 <Text style={{ ...theme.typography.footnote }}>{weightLine}</Text>
-                {item.stageReadinessLabel ? (
-                  <Text style={{ ...theme.typography.caption, fontSize: 11 }}>
-                    Prontidão: {item.stageReadinessLabel}
-                  </Text>
-                ) : null}
                 <Text
                   style={{
                     ...theme.typography.caption,
@@ -94,7 +86,6 @@ export function CheckInTimeline({ items, onItemPress }: CheckInTimelineProps) {
                   }}
                 >
                   {item.modeLabel}
-                  {!item.hasAnalysis ? " · Analysis pending" : ""}
                 </Text>
               </View>
             </Pressable>

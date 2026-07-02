@@ -53,6 +53,25 @@ export type HomeAction =
       subtitle: string
       cta: string
     }
+  | {
+      type: "closeout"
+      title: string
+      subtitle: string
+      cta: string
+    }
+
+/**
+ * Estado do fechamento do dia, espelhado do DailyCloseoutSummary,
+ * para o hero nunca divergir do DailyCloseoutCard.
+ */
+export type HomeCloseoutContext = {
+  /** true quando já passamos do closeoutTime do plano ativo. */
+  afterCloseoutTime: boolean
+  /** true quando o fechamento de hoje já foi salvo (closeoutSavedAt). */
+  isDayClosed: boolean
+  /** true quando o dia está sem vazamentos (pronto para fechar). */
+  isReadyToClose: boolean
+}
 
 export type DailyMetricKind = "water" | "cardio" | "diet" | "workout"
 
@@ -222,6 +241,8 @@ export function getNextHomeAction(input: {
   treino: Treino | null
   workoutLogged?: boolean
   trainingBriefing?: TodayTrainingBriefing | null
+  /** Contexto do fechamento — quando presente, o estado final do hero espelha o DailyCloseoutCard. */
+  closeout?: HomeCloseoutContext
 }): HomeAction {
   const {
     periodos,
@@ -236,6 +257,7 @@ export function getNextHomeAction(input: {
     treino,
     workoutLogged = false,
     trainingBriefing,
+    closeout,
   } = input
 
   const hydrationBehind =
@@ -310,6 +332,35 @@ export function getNextHomeAction(input: {
       title: briefing?.title ?? `Treino ${treino.letra}`,
       subtitle,
       cta,
+    }
+  }
+
+  // Dia completo — o estado final do hero espelha o DailyCloseoutCard:
+  // antes do closeoutTime é "Tudo em dia", depois vira "Fechar o dia",
+  // e após salvar o fechamento vira "Dia fechado". Nunca mostra
+  // "Fechar o dia" antes do horário configurado.
+  if (closeout) {
+    if (closeout.isDayClosed) {
+      return {
+        type: "complete",
+        title: "Dia fechado",
+        subtitle: "Fechamento salvo — bom descanso",
+        cta: "Ver checklist",
+      }
+    }
+    if (!closeout.afterCloseoutTime) {
+      return {
+        type: "complete",
+        title: "Tudo em dia",
+        subtitle: "Fechamento libera no horário do plano",
+        cta: "Ver checklist",
+      }
+    }
+    return {
+      type: "closeout",
+      title: "Dia pronto para fechar",
+      subtitle: "Revise e feche o dia no card de fechamento",
+      cta: "Fechar o dia",
     }
   }
 

@@ -25,11 +25,7 @@ export function DailyLeakList({ leaks }: DailyLeakListProps) {
     <View style={{ gap: 10 }}>
       <Text
         style={{
-          ...theme.typography.caption,
-          fontWeight: '700',
-          letterSpacing: 0.5,
-          textTransform: 'uppercase',
-          color: theme.colors.onSurface.variant,
+          ...theme.typography.overline,
         }}
       >
         Pendências

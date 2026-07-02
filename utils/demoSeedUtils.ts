@@ -1,4 +1,4 @@
-import { plano } from "@/data/plano";
+import { getActivePlano } from "@/stores/useProtocolStore";
 import { treinos, type Treino } from "@/data/treinos";
 import type { HistoricoDia } from "@/stores/useHistoryStore";
 import type { PhysiqueCheckIn } from "@/stores/usePhysiqueStore";
@@ -54,7 +54,7 @@ const DEMO_LEAKS_BY_OFFSET: Record<number, string[]> = {
 };
 
 const WEEK4_ANALYSIS =
-  "Upper body appears sharper compared to previous check-in. Waistline is tighter and V-taper reads stronger from the front. Lower back conditioning still needs more separation before stage-ready condition. Keep weekly check-ins consistent and evaluate again after another full adherence week.";
+  "A parte superior aparenta mais definição em comparação com o check-in anterior. A cintura sugere estar mais justa e o V-taper lê mais forte de frente. A lombar ainda aparenta precisar de mais separação. Mantenha os check-ins semanais consistentes e reavalie após mais uma semana de aderência completa.";
 
 const DEMO_SET_LOADS: { loadKg: number; reps: number }[] = [
   { loadKg: 60, reps: 10 },
@@ -107,7 +107,7 @@ export function getDemoHistoryDates(referenceDate: string): string[] {
 }
 
 function collectCheckableItemIds(dayOfWeek: number): string[] {
-  const periodos = filtrarItensDoDia(plano.periodos, dayOfWeek, false);
+  const periodos = filtrarItensDoDia(getActivePlano().periodos, dayOfWeek, false);
   const ids: string[] = [];
 
   for (const periodo of periodos) {
@@ -182,16 +182,17 @@ export function createDemoCheckIns(referenceDate: string): PhysiqueCheckIn[] {
       date,
       weight,
       previousWeight,
-      notes: week === 4 ? "Cutting week 4 — front/side/back captured." : undefined,
+      notes: week === 4 ? "Semana 4 de cutting — frontal/lateral/costas capturadas." : undefined,
       photoPaths: [
         `${DEMO_ID_PREFIX}photo-week-${week}-front`,
         `${DEMO_ID_PREFIX}photo-week-${week}-side`,
         `${DEMO_ID_PREFIX}photo-week-${week}-back`,
       ],
-      analysis: week === 4 ? WEEK4_ANALYSIS : `Demo check-in week ${week} analysis placeholder.`,
+      analysis: week === 4 ? WEEK4_ANALYSIS : `Análise de demonstração do check-in da semana ${week}.`,
       mode: "full" as const,
       targetCategory: "classic_physique" as const,
       weeksToCompetition: 12 - week,
+      // Legacy/demo analysis output, intentionally hidden from MVP UI.
       scores: {
         overallConditioning: conditioning[index],
         stageReadiness: readiness[index],
@@ -451,7 +452,10 @@ export function seedDemoData(referenceDate = getLogicalDate(new Date())): void {
 
   clearDemoData(referenceDate);
 
-  useAthleteStore.getState().updateProfile(payload.athleteProfile);
+  // Não sobrescreve perfil real já configurado — demo só preenche perfil vazio.
+  if (!useAthleteStore.getState().isProfileComplete()) {
+    useAthleteStore.getState().updateProfile(payload.athleteProfile);
+  }
 
   useHistoryStore.setState((state) => ({
     dias: mergeDemoHistory(state.dias, payload.historyDays),

@@ -77,11 +77,8 @@ export function ExerciseProtocolList({
         >
           <Text
             style={{
-              fontSize: 9,
-              fontWeight: "900",
+              ...theme.typography.overline,
               color: theme.colors.onSurface.DEFAULT,
-              letterSpacing: 2,
-              textTransform: "uppercase",
             }}
           >
             {muscleGroup}

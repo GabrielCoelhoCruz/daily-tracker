@@ -5,6 +5,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 type CheckState = {
   checked: boolean;
   timestamp: number;
+  /** Item pulado com motivo (design system v1.1 §8) — vira vazamento nomeado. */
+  skipped?: boolean;
+  skipReason?: string;
+  /** Refeição feita parcialmente — conta como resolvida, com crédito parcial e vazamento leve. */
+  partial?: boolean;
 };
 
 type SessaoCardio = {
@@ -28,6 +33,8 @@ export type DayState = {
 
 type DayActions = {
   toggleCheck: (id: string) => void;
+  skipCheck: (id: string, reason: string) => void;
+  partialCheck: (id: string) => void;
   setDiaOff: (value: boolean) => void;
   setTreinoHoje: (treinoId: string | null) => void;
   addAgua: (ml: number) => void;
@@ -64,16 +71,42 @@ export const useDayStore = create<DayState & DayActions>()(
       toggleCheck: (id: string) =>
         set((state) => {
           const current = state.checks[id];
+          // Toggle limpa qualquer skip anterior.
           return {
             checks: {
               ...state.checks,
               [id]: {
-                checked: !current?.checked,
+                checked: current?.skipped ? false : !current?.checked,
                 timestamp: Date.now(),
               },
             },
           };
         }),
+
+      skipCheck: (id: string, reason: string) =>
+        set((state) => ({
+          checks: {
+            ...state.checks,
+            [id]: {
+              checked: false,
+              skipped: true,
+              skipReason: reason,
+              timestamp: Date.now(),
+            },
+          },
+        })),
+
+      partialCheck: (id: string) =>
+        set((state) => ({
+          checks: {
+            ...state.checks,
+            [id]: {
+              checked: true,
+              partial: true,
+              timestamp: Date.now(),
+            },
+          },
+        })),
 
       setDiaOff: (value: boolean) => set({ diaOffManual: value }),
 
@@ -132,6 +165,10 @@ export const useDayStore = create<DayState & DayActions>()(
     {
       name: "day-store",
       storage: createJSONStorage(() => AsyncStorage),
+      version: 1,
+      // v0 → v1: sem mudança de schema (migração identidade).
+      // Futuras migrações: adicionar casos por versão aqui.
+      migrate: (persistedState) => persistedState as DayState & DayActions,
     }
   )
 );

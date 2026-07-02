@@ -1,9 +1,11 @@
 import { Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import { router } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useProtocolStore } from "@/stores/useProtocolStore";
 import { theme } from "@/constants/theme";
 import { Card } from "@/components/ui/Card";
 import { useConfigStore } from "@/stores/useConfigStore";
-import { plano } from "@/data/plano";
+import { useActivePlano } from "@/stores/useProtocolStore";
 import { DemoModeCard } from "@/components/settings/DemoModeCard";
 
 const INTERVALO_OPTIONS = [1, 2, 3] as const;
@@ -12,10 +14,7 @@ function SectionHeader({ children }: { children: string }) {
   return (
     <Text
       style={{
-        ...theme.typography.footnote,
-        textTransform: "uppercase",
-        letterSpacing: 0.5,
-        color: theme.colors.text.secondary,
+        ...theme.typography.overline,
         paddingHorizontal: 16,
         paddingTop: 24,
         paddingBottom: 8,
@@ -148,7 +147,60 @@ function PeriodoNotificacao({
   );
 }
 
+function CloseoutTimeRow() {
+  const closeoutTime = useProtocolStore((s) => s.closeoutTime);
+  const setPlanPrefs = useProtocolStore((s) => s.setPlanPrefs);
+
+  function handleChange(text: string) {
+    const cleaned = text.replace(/[^0-9:]/g, "");
+    if (cleaned.length === 5 && /^\d{1,2}:\d{2}$/.test(cleaned)) {
+      const [hh, mm] = cleaned.split(":").map(Number);
+      if (hh <= 23 && mm <= 59) setPlanPrefs({ closeoutTime: cleaned });
+    }
+  }
+
+  return (
+    <SettingRow
+      label="Fechamento do dia"
+      subtitle="Depois deste horário o dia pode ser fechado"
+      showDivider={false}
+      right={
+        <TextInput
+          defaultValue={closeoutTime}
+          onChangeText={handleChange}
+          placeholder="HH:MM"
+          placeholderTextColor={theme.colors.text.muted}
+          keyboardType="number-pad"
+          maxLength={5}
+          accessibilityLabel="Horário de fechamento do dia"
+          style={{
+            width: 72,
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            borderRadius: theme.radius.md,
+            borderCurve: "continuous",
+            backgroundColor: theme.colors.bg.elevated,
+            color: theme.colors.text.primary,
+            ...theme.typography.body,
+            textAlign: "center",
+            fontVariant: ["tabular-nums"],
+          }}
+        />
+      }
+    />
+  );
+}
+
 export default function ConfigScreen() {
+  const plano = useActivePlano();
+  const customPlano = useProtocolStore((s) => s.customPlano);
+  const planOrigin = useProtocolStore((s) => s.planOrigin);
+  const planSourceLabel =
+    planOrigin === "manual_base"
+      ? "Plano-base manual"
+      : planOrigin === "coach_import"
+        ? "Plano do coach"
+        : "Plano padrão";
   const hidratacaoLembrete = useConfigStore((s) => s.hidratacaoLembrete);
   const toggleHidratacao = useConfigStore((s) => s.toggleHidratacaoLembrete);
   const setIntervalo = useConfigStore((s) => s.setIntervaloHidratacao);
@@ -159,6 +211,60 @@ export default function ConfigScreen() {
       contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="pb-12"
     >
+      {/* Protocolo */}
+      <SectionHeader>PLANO ATIVO</SectionHeader>
+      <Card className="p-0">
+        <SettingRow
+          label={customPlano ? customPlano.nome : plano.nome}
+          subtitle={planSourceLabel}
+          right={null}
+        />
+        <Pressable
+          onPress={() => router.push("/onboarding")}
+          accessibilityRole="button"
+          accessibilityLabel="Criar novo plano"
+        >
+          <SettingRow
+            label="Criar novo plano"
+            subtitle="Refaz o onboarding — plano do coach ou plano-base manual"
+            right={
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={20}
+                color={theme.colors.text.muted}
+              />
+            }
+          />
+        </Pressable>
+        <Pressable
+          onPress={() => router.push("/import-protocol")}
+          accessibilityRole="button"
+          accessibilityLabel="Importar protocolo do coach"
+        >
+          <SettingRow
+            label="Importar protocolo"
+            subtitle={
+              customPlano
+                ? `Ativo: ${customPlano.nome}`
+                : "Colar plano do coach (WhatsApp, notas)"
+            }
+            right={
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={20}
+                color={theme.colors.text.muted}
+              />
+            }
+            showDivider={false}
+          />
+        </Pressable>
+      </Card>
+
+      <SectionHeader>FECHAMENTO DO DIA</SectionHeader>
+      <Card className="p-0">
+        <CloseoutTimeRow />
+      </Card>
+
       <SectionHeader>DEMO MODE</SectionHeader>
       <View style={{ paddingHorizontal: 16 }}>
         <DemoModeCard />

@@ -1,14 +1,14 @@
 import { Platform, View, type ViewProps } from "react-native";
-import { theme } from "@/constants/theme";
+import { theme, withAlpha } from "@/constants/theme";
 
 type CardProps = ViewProps;
 
 const cardShadow = Platform.select({
   ios: {
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
   },
   android: {
     elevation: 3,
@@ -26,6 +26,9 @@ export function Card({ className = "", style, children, ...props }: CardProps) {
           padding: 16,
           borderRadius: 16,
           borderCurve: "continuous",
+          // Hairline top-light edge — reads as machined metal under the dark UI
+          borderWidth: 1,
+          borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.055),
         },
         cardShadow,
         style,

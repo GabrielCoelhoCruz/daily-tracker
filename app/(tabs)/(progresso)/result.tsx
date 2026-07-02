@@ -14,8 +14,7 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import Markdown from "@ronradtke/react-native-markdown-display";
 import { theme } from "@/constants/theme";
 import { usePhysiqueStore, PHOTO_LABELS, MODE_LABELS } from "@/stores/usePhysiqueStore";
-import { CATEGORY_LABELS, STAGE_READINESS_LABELS, STAGE_READINESS_ORDER } from "@/services/physiqueAnalysis";
-import type { StageReadinessLevel } from "@/services/physiqueAnalysis";
+import { CATEGORY_LABELS } from "@/services/physiqueAnalysis";
 import { WeightDelta } from "@/components/physique/WeightDelta";
 import { GlassButton } from "@/components/ui/GlassButton";
 import { AppIcon } from "@/components/ui/AppIcon";
@@ -176,10 +175,9 @@ export default function ResultScreen() {
             ))}
           </ScrollView>
 
-          {/* Scores */}
+          {/* Scores — stageReadiness é saída legacy/demo, intencionalmente oculta da UI do MVP */}
           {checkIn.scores &&
             (checkIn.scores.overallConditioning != null ||
-              checkIn.scores.stageReadiness != null ||
               checkIn.scores.vTaper != null) && (
               <View className="flex-row" style={{ gap: 8 }}>
                 {/* Condicionamento */}
@@ -199,45 +197,6 @@ export default function ResultScreen() {
                       ? `${checkIn.scores.overallConditioning}/10`
                       : "--"}
                   </Text>
-                </View>
-
-                {/* Stage Ready */}
-                <View
-                  style={{
-                    flex: 1,
-                    backgroundColor: theme.colors.bg.elevated,
-                    borderRadius: theme.radius.lg,
-                    padding: 12,
-                  }}
-                >
-                  <Text style={[theme.typography.caption, { color: theme.colors.text.secondary, marginBottom: 4 }]}>
-                    Stage Ready
-                  </Text>
-                  <Text style={[theme.typography.body, { color: theme.colors.accent.DEFAULT, fontWeight: "700", marginBottom: 6 }]}>
-                    {checkIn.scores.stageReadiness != null
-                      ? STAGE_READINESS_LABELS[checkIn.scores.stageReadiness as StageReadinessLevel] ?? checkIn.scores.stageReadiness
-                      : "--"}
-                  </Text>
-                  <View className="flex-row" style={{ gap: 3 }}>
-                    {STAGE_READINESS_ORDER.map((level, i) => {
-                      const currentIdx = checkIn.scores?.stageReadiness
-                        ? STAGE_READINESS_ORDER.indexOf(checkIn.scores.stageReadiness as StageReadinessLevel)
-                        : -1;
-                      return (
-                        <View
-                          key={level}
-                          style={{
-                            flex: 1,
-                            height: 6,
-                            borderRadius: 3,
-                            backgroundColor: i <= currentIdx
-                              ? theme.colors.accent.DEFAULT
-                              : theme.colors.bg.primary,
-                          }}
-                        />
-                      );
-                    })}
-                  </View>
                 </View>
 
                 {/* V-Taper */}
@@ -260,6 +219,36 @@ export default function ResultScreen() {
                 </View>
               </View>
             )}
+
+          {/* Limitações da análise — sempre visível (design system v1.1 §8) */}
+          <View
+            style={{
+              backgroundColor: theme.colors.bg.elevated,
+              borderRadius: theme.radius.lg,
+              borderWidth: 1,
+              borderColor: theme.colors.border,
+              padding: 12,
+              gap: 6,
+            }}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <AppIcon
+                sf="info.circle"
+                mci="information-outline"
+                size={14}
+                color={theme.colors.text.secondary}
+              />
+              <Text style={theme.typography.caption}>
+                Limitações da análise
+              </Text>
+            </View>
+            <Text style={theme.typography.footnote}>
+              Esta análise é gerada por IA a partir das suas fotos e não
+              substitui a avaliação do seu coach ou juiz. Iluminação, pose e
+              ângulo afetam o resultado. Use como evidência de tendência, não
+              como veredito.
+            </Text>
+          </View>
 
           {/* Analysis */}
           {checkIn.analysis ? (

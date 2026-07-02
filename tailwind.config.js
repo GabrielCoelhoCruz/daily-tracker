@@ -7,57 +7,60 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
+      fontFamily: {
+        mono: ["SpaceMono"],
+      },
       colors: {
-        // Legacy tokens (aliased to M3 hierarchy for visual consistency)
+        // Instrument Panel palette (design system v1.1 §3)
         bg: {
-          primary: "#0f0e0d", // = background
-          card: "#1d1b1a", // = surface.container
-          elevated: "#221f1e", // = surface.containerHigh
+          primary: "#0c0a09", // = background
+          card: "#1c1917", // = surface.container
+          elevated: "#292524", // = surface.containerHigh
         },
         accent: {
           DEFAULT: "#f59e0b", // = primary-m3.container
-          light: "#ffb95f", // = primary-m3.DEFAULT
+          light: "#fbbf24", // = primary-m3.DEFAULT
           dark: "#92400e",
         },
         semantic: {
           success: "#22c55e",
-          warning: "#f59e0b",
+          warning: "#eab308",
           error: "#ef4444",
         },
         txt: {
-          primary: "#e8e1df", // = on-surface.DEFAULT
-          secondary: "#a08e7a", // = on-surface.variant
+          primary: "#fafaf9", // = on-surface.DEFAULT
+          secondary: "#a8a29e", // = on-surface.variant
           muted: "#78716c",
         },
         border: {
-          DEFAULT: "#373433", // = outline.variant
+          DEFAULT: "#292524", // = outline.variant
         },
         // M3-inspired surface hierarchy
-        background: "#0f0e0d",
+        background: "#0c0a09",
         surface: {
-          DEFAULT: "#151312",
-          dim: "#151312",
-          bright: "#3c3837",
-          variant: "#373433",
-          container: "#1d1b1a",
-          "container-low": "#181615",
-          "container-high": "#221f1e",
-          "container-highest": "#2c2928",
-          "container-lowest": "#0a0908",
+          DEFAULT: "#131110",
+          dim: "#131110",
+          bright: "#3c3836",
+          variant: "#292524",
+          container: "#1c1917",
+          "container-low": "#171412",
+          "container-high": "#221f1d",
+          "container-highest": "#292524",
+          "container-lowest": "#0a0807",
         },
         "on-surface": {
-          DEFAULT: "#e8e1df",
-          variant: "#a08e7a",
+          DEFAULT: "#fafaf9",
+          variant: "#a8a29e",
         },
         "primary-m3": {
-          DEFAULT: "#ffb95f",
+          DEFAULT: "#fbbf24",
           container: "#f59e0b",
         },
         outline: {
-          DEFAULT: "#534434",
-          variant: "#373433",
+          DEFAULT: "#57534e",
+          variant: "#292524",
         },
-        tertiary: "#51e77b",
+        tertiary: "#22c55e",
       },
     },
   },

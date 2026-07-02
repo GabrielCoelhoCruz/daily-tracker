@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { Treino } from '@/data/treinos'
 import { useGymStore } from '@/stores/useGymStore'
 import type { GymSession } from '@/stores/slices/gymLogSlice'
@@ -8,14 +8,34 @@ import {
 } from '@/utils/gymLogUtils'
 import { normalizeGymSession } from '@/utils/trainingPerformanceUtils'
 
-export function useGymSessionForToday(treino: Treino | null, date: string) {
-  const session = useGymStore((s) =>
-    treino ? s.getActiveSessionForTreinoAndDate(treino.id, date) : undefined,
-  )
+/** Stable Zustand subscription — never select via getActiveSessionForTreinoAndDate (returns new object). */
+export function useActiveGymSession(
+  treinoId: string | null | undefined,
+  date: string,
+  exercicios?: Treino['exercicios'],
+): GymSession | undefined {
+  const gymSessionsRecord = useGymStore((s) => s.gymSessions)
 
-  const normalizedSession = session && treino
-    ? normalizeGymSession(session, treino.exercicios)
-    : session
+  const rawSession = useMemo(() => {
+    if (!treinoId) return undefined
+    return Object.values(gymSessionsRecord).find(
+      (session) => session.treinoId === treinoId && session.date === date,
+    )
+  }, [gymSessionsRecord, treinoId, date])
+
+  return useMemo(
+    () =>
+      rawSession ? normalizeGymSession(rawSession, exercicios) : undefined,
+    [rawSession, exercicios],
+  )
+}
+
+export function useGymSessionForToday(treino: Treino | null, date: string) {
+  const normalizedSession = useActiveGymSession(
+    treino?.id,
+    date,
+    treino?.exercicios,
+  )
 
   const isLogging = treino !== null
 

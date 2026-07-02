@@ -1,4 +1,4 @@
-import { plano } from "@/data/plano";
+import { getActivePlano } from "@/stores/useProtocolStore";
 import { useDayStore } from "@/stores/useDayStore";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { filtrarItensDoDia } from "@/utils/diaUtils";
@@ -18,7 +18,7 @@ function getItensPerdidos(
   const dayOfWeek = date.getDay();
 
   const periodosFiltrados = filtrarItensDoDia(
-    plano.periodos,
+    getActivePlano().periodos,
     dayOfWeek,
     diaOff
   );
@@ -64,9 +64,17 @@ export function checkAndReset(): void {
     return;
   }
 
+  // Fechamento explícito tem precedência: se o usuário já fechou o dia
+  // (closeoutSavedAt), o rollover nunca sobrescreve esse registro.
+  const existingEntry = useHistoryStore.getState().dias[ultimoReset];
+  if (existingEntry?.closeoutSavedAt) {
+    resetDayState(dayState, logicalToday);
+    return;
+  }
+
   // Day changed — save history for the ultimoReset date
   const periodosFiltrados = filtrarItensDoDia(
-    plano.periodos,
+    getActivePlano().periodos,
     new Date(ultimoReset + "T12:00:00").getDay(),
     dayState.diaOffManual
   );
@@ -105,21 +113,32 @@ export function checkAndReset(): void {
     refeicaoLivrePeriodoId
   );
 
-  useHistoryStore.getState().salvarDia({
-    data: ultimoReset,
-    completados,
-    total,
-    itensPerdidos,
-  });
+  // O rollover só registra dias com execução real (algo foi marcado).
+  // A entrada é marcada como autoRollover e nunca recebe closeoutSavedAt,
+  // portanto não conta como dia fechado, score semanal ou resumo do coach.
+  if (completados > 0) {
+    useHistoryStore.getState().salvarDia({
+      data: ultimoReset,
+      completados,
+      total,
+      itensPerdidos,
+      autoRollover: true,
+    });
+  }
 
-  // Reset day state with logical date (4am boundary)
+  resetDayState(dayState, logicalToday);
+}
+
+type DayStateForReset = {
+  semanaRefeicaoLivre: string;
+};
+
+/** Reseta o dia e, se a semana virou, a refeição livre. */
+function resetDayState(dayState: DayStateForReset, logicalToday: string): void {
   useDayStore.getState().resetDay(logicalToday);
 
-  // If new week, also reset free meal
   const currentWeek = getWeekIdForDate(logicalToday);
-  const previousWeek = dayState.semanaRefeicaoLivre;
-
-  if (currentWeek !== previousWeek) {
+  if (currentWeek !== dayState.semanaRefeicaoLivre) {
     useDayStore.setState({
       refeicaoLivreUsada: false,
       refeicaoLivrePeriodoId: null,

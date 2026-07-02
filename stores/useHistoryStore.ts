@@ -7,11 +7,25 @@ export type HistoricoDia = {
   completados: number;
   total: number;
   itensPerdidos: string[];
+  /** Refeições marcadas como "Parcial" no fechamento — aderência parcial, não pulada. */
+  refeicoesParciais?: number;
   executionScore?: number;
   closeoutSavedAt?: string;
   closeoutEvidence?: string;
   closeoutLeaks?: string[];
   dayNote?: string;
+  /** Métricas congeladas no fechamento — alimentam o resumo semanal. */
+  aguaMl?: number;
+  metaAguaMl?: number;
+  cardioMin?: number;
+  metaCardioMin?: number;
+  treinoAgendado?: boolean;
+  treinoConcluido?: boolean;
+  /**
+   * Registro criado pelo rollover automático da meia-noite — nunca conta
+   * como dia fechado (sem closeoutSavedAt) nem alimenta resumo semanal.
+   */
+  autoRollover?: boolean;
 };
 
 type HistoryState = {
@@ -41,6 +55,10 @@ export const useHistoryStore = create<HistoryState & HistoryActions>()(
     {
       name: "history-store",
       storage: createJSONStorage(() => AsyncStorage),
+      version: 1,
+      // v0 → v1: sem mudança de schema (migração identidade).
+      migrate: (persistedState) =>
+        persistedState as HistoryState & HistoryActions,
     }
   )
 );

@@ -26,7 +26,7 @@ export function CircularProgress({
         justifyContent: "center",
       }}
     >
-      {/* Outer glow ring */}
+      {/* Outer glow rings */}
       <View
         style={{
           position: "absolute",
@@ -34,7 +34,17 @@ export function CircularProgress({
           height: size + 16,
           borderRadius: (size + 16) / 2,
           borderWidth: 1,
-          borderColor: withAlpha(theme.colors.primary.DEFAULT, 0.1),
+          borderColor: withAlpha(theme.colors.primary.DEFAULT, 0.12),
+        }}
+      />
+      <View
+        style={{
+          position: "absolute",
+          width: size + 34,
+          height: size + 34,
+          borderRadius: (size + 34) / 2,
+          borderWidth: 1,
+          borderColor: withAlpha(theme.colors.primary.DEFAULT, 0.05),
         }}
       />
 
@@ -92,10 +102,10 @@ export function CircularProgress({
           </Text>
           <Text
             style={{
-              fontSize: 22,
-              fontWeight: "700",
+              fontFamily: theme.fonts.mono,
+              fontSize: 20,
               color: theme.colors.primary.DEFAULT,
-              marginLeft: 2,
+              marginLeft: 4,
             }}
           >
             %

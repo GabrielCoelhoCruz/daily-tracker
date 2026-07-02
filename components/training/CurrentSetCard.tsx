@@ -189,7 +189,8 @@ export function CurrentSetCard({
         </Text>
         <Text
           style={{
-            ...theme.typography.footnote,
+            ...theme.typography.dataMono,
+            fontSize: 12,
             color: theme.colors.onSurface.variant,
           }}
         >
@@ -198,7 +199,8 @@ export function CurrentSetCard({
         </Text>
         <Text
           style={{
-            ...theme.typography.caption,
+            ...theme.typography.dataMono,
+            fontSize: 11,
             color: withAlpha(theme.colors.onSurface.variant, 0.75),
           }}
         >

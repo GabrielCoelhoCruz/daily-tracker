@@ -221,6 +221,66 @@ describe("getNextHomeAction", () => {
     expect(action.cta).toBe("Continuar treino")
     expect(action.subtitle).toContain("Set 3")
   })
+
+  describe("closeout-aware final state (hero mirrors DailyCloseoutCard)", () => {
+    const { getTreinoDoDia } = require("@/utils/diaUtils")
+    const allIds = mondayPeriodos.flatMap((periodo) =>
+      periodo.itens.flatMap((item) =>
+        item.subItens?.length ? item.subItens.map((s) => s.id) : [item.id]
+      )
+    )
+    const completeInput = {
+      ...baseInput,
+      checks: makeChecks(allIds),
+      aguaMl: 4000,
+      cardioMinutos: 90,
+      treino: getTreinoDoDia(1),
+      workoutLogged: true,
+    }
+
+    it("never shows 'Fechar o dia' before closeoutTime — shows 'Tudo em dia'", () => {
+      const action = getNextHomeAction({
+        ...completeInput,
+        closeout: {
+          afterCloseoutTime: false,
+          isDayClosed: false,
+          isReadyToClose: true,
+        },
+      })
+
+      expect(action.type).toBe("complete")
+      expect(action.title).toBe("Tudo em dia")
+      expect(action.cta).not.toBe("Fechar o dia")
+    })
+
+    it("shows 'Fechar o dia' only after closeoutTime with complete day", () => {
+      const action = getNextHomeAction({
+        ...completeInput,
+        closeout: {
+          afterCloseoutTime: true,
+          isDayClosed: false,
+          isReadyToClose: true,
+        },
+      })
+
+      expect(action.type).toBe("closeout")
+      expect(action.cta).toBe("Fechar o dia")
+    })
+
+    it("shows 'Dia fechado' after the closeout was saved", () => {
+      const action = getNextHomeAction({
+        ...completeInput,
+        closeout: {
+          afterCloseoutTime: true,
+          isDayClosed: true,
+          isReadyToClose: true,
+        },
+      })
+
+      expect(action.type).toBe("complete")
+      expect(action.title).toBe("Dia fechado")
+    })
+  })
 })
 
 describe("getDailyMetricSummaries", () => {

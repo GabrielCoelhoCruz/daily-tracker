@@ -5,9 +5,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { theme, withAlpha } from "@/constants/theme";
 import { useDayStore } from "@/stores/useDayStore";
 import { animateWithHaptic } from "@/utils/animationUtils";
-import { plano } from "@/data/plano";
+import { useActivePlano } from "@/stores/useProtocolStore";
 
 export function CardioCard() {
+  const plano = useActivePlano();
   const sessoesCardio = useDayStore((s) => s.sessoesCardio);
   const addSessaoCardio = useDayStore((s) => s.addSessaoCardio);
   const removeSessaoCardio = useDayStore((s) => s.removeSessaoCardio);
@@ -105,10 +106,8 @@ export function CardioCard() {
             </Text>
             <Text
               style={{
+                ...theme.typography.overline,
                 fontSize: 10,
-                fontWeight: "500",
-                color: theme.colors.onSurface.variant,
-                textTransform: "uppercase",
               }}
             >
               / {metaMinutos}min
@@ -204,11 +203,9 @@ export function CardioCard() {
         <View style={{ flex: 1 }}>
           <Text
             style={{
+              ...theme.typography.overline,
               fontSize: 9,
-              fontWeight: "800",
-              color: theme.colors.onSurface.variant,
               letterSpacing: 2,
-              textTransform: "uppercase",
               marginBottom: 6,
               marginLeft: 4,
             }}
@@ -255,11 +252,9 @@ export function CardioCard() {
       >
         <Text
           style={{
-            fontSize: 10,
-            fontWeight: "800",
+            ...theme.typography.overline,
             color: theme.colors.primary.DEFAULT,
             letterSpacing: 3,
-            textTransform: "uppercase",
           }}
         >
           FINALIZAR ATIVIDADE

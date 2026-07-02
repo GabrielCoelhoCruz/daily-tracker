@@ -52,7 +52,7 @@ describe("createDemoCheckIns", () => {
     expect(checkIns).toHaveLength(4);
     expect(checkIns.every((c) => isDemoId(c.id))).toBe(true);
     expect(checkIns.map((c) => c.weight)).toEqual([84.6, 84.0, 83.8, 83.2]);
-    expect(checkIns[3]?.analysis).toContain("Upper body appears sharper");
+    expect(checkIns[3]?.analysis).toContain("parte superior aparenta mais definição");
     expect(checkIns[3]?.photoPaths.length).toBeGreaterThanOrEqual(3);
     expect(checkIns[3]?.scores?.stageReadiness).toBeTruthy();
   });

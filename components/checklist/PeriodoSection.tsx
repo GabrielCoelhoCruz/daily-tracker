@@ -108,11 +108,8 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
             <View>
               <Text
                 style={{
-                  fontSize: 12,
-                  fontWeight: "700",
+                  ...theme.typography.overline,
                   color: theme.colors.onSurface.DEFAULT,
-                  letterSpacing: 1,
-                  textTransform: "uppercase",
                 }}
               >
                 {periodo.nome}
@@ -237,11 +234,10 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
           <View>
             <Text
               style={{
+                ...theme.typography.overline,
                 fontSize: 13,
-                fontWeight: "900",
-                color: theme.colors.onSurface.DEFAULT,
                 letterSpacing: 2,
-                textTransform: "uppercase",
+                color: theme.colors.onSurface.DEFAULT,
               }}
             >
               {periodo.nome}
@@ -264,11 +260,8 @@ export function PeriodoSection({ periodo }: PeriodoSectionProps) {
               />
               <Text
                 style={{
-                  fontSize: 10,
-                  fontWeight: "800",
+                  ...theme.typography.overline,
                   color: theme.colors.primary.DEFAULT,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
                 }}
               >
                 {checkedItems}/{totalItems}

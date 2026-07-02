@@ -7,8 +7,8 @@ export const PHOTO_LABELS = ["Frontal", "Lateral", "Costas", "Extra"] as const;
 export const MODE_LABELS: Record<PhysiqueCheckIn["mode"], string> = {
   full: "Completa",
   comparative: "Comparativa",
-  quick: "Quick",
-  posing: "Posing",
+  quick: "Rápida",
+  posing: "Poses",
 };
 
 export type TargetCategory =
@@ -95,6 +95,10 @@ export const usePhysiqueStore = create<PhysiqueState & PhysiqueActions>()(
     {
       name: "physique-store",
       storage: createJSONStorage(() => AsyncStorage),
+      version: 1,
+      // v0 → v1: sem mudança de schema (migração identidade).
+      migrate: (persistedState) =>
+        persistedState as PhysiqueState & PhysiqueActions,
     }
   )
 );

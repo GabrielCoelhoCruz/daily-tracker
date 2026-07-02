@@ -27,7 +27,7 @@ export function PhysiqueEmptyState({
         color={theme.colors.onSurface.variant}
       />
       <Text style={{ ...theme.typography.callout, textAlign: "center" }}>
-        No physique data yet
+        Nenhum check-in ainda
       </Text>
       <Text
         style={{
@@ -35,7 +35,8 @@ export function PhysiqueEmptyState({
           textAlign: "center",
         }}
       >
-        Crie seu primeiro check-in para acompanhar a prontidão para o palco.
+        Evidência começa com a primeira foto. Crie seu primeiro check-in para
+        acompanhar a tendência do shape.
       </Text>
 
       <Pressable
@@ -65,7 +66,7 @@ export function PhysiqueEmptyState({
           paddingHorizontal: 12,
         }}
         accessibilityRole="button"
-        accessibilityLabel="Photo guide"
+        accessibilityLabel="Guia de fotos"
       >
         <Text
           style={{
@@ -73,7 +74,7 @@ export function PhysiqueEmptyState({
             color: theme.colors.primary.DEFAULT,
           }}
         >
-          Photo Guide
+          Guia de fotos
         </Text>
       </Pressable>
     </View>

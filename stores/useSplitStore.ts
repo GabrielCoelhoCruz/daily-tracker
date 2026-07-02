@@ -33,6 +33,11 @@ export const useSplitStore = create<SplitWeekState & SplitWeekActions>()(
     {
       name: 'split-week-store',
       storage: createJSONStorage(() => AsyncStorage),
+      version: 1,
+      // v0 → v1: sem mudança de schema (migração identidade);
+      // o merge abaixo já normaliza qualquer plano persistido.
+      migrate: (persistedState) =>
+        persistedState as SplitWeekState & SplitWeekActions,
       merge: (persisted, current) => {
         const persistedState = persisted as Partial<SplitWeekState> | undefined
         return {
