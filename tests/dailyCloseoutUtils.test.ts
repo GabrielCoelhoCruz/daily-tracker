@@ -62,6 +62,7 @@ function makeCompleteTrainingBriefing(): TodayTrainingBriefing {
     currentSetLabel: null,
     isLeak: false,
     workoutLabel: 'Treino A · Peito',
+    statsLabel: '7 exercícios · Peito',
   }
 }
 
@@ -81,6 +82,7 @@ function makePartialTrainingBriefing(
     currentSetLabel: 'Supino inclinado máquina/hammer · Set 3',
     isLeak: false,
     workoutLabel: 'Treino A · Peito',
+    statsLabel: '7 exercícios · Peito',
   }
 }
 

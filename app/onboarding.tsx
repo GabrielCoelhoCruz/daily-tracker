@@ -66,6 +66,26 @@ const OBJECTIVE_OPTIONS = Object.entries(OBJECTIVE_LABELS) as [
   Objective,
   string,
 ][];
+
+type OptionItem = {
+  label: string;
+  icon?: { sf: string; mci: string };
+};
+
+const OBJECTIVE_ICONS: Record<Objective, { sf: string; mci: string }> = {
+  prep: { sf: "trophy.fill", mci: "trophy" },
+  cutting: { sf: "flame.fill", mci: "fire" },
+  offseason: { sf: "calendar", mci: "calendar-outline" },
+  manutencao: { sf: "scalemass.fill", mci: "scale-balance" },
+  evolucao: { sf: "chart.line.uptrend.xyaxis", mci: "chart-line" },
+};
+
+const OBJECTIVE_OPTION_ITEMS: OptionItem[] = OBJECTIVE_OPTIONS.map(
+  ([key, label]) => ({
+    label,
+    icon: OBJECTIVE_ICONS[key],
+  }),
+);
 const EXPERIENCE_OPTIONS = Object.entries(EXPERIENCE_LABELS) as [
   ExperienceLevel,
   string,
@@ -192,6 +212,40 @@ function PrimaryButton({
   );
 }
 
+function TertiaryButton({
+  label,
+  onPress,
+  testID,
+}: {
+  label: string;
+  onPress: () => void;
+  testID?: string;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      testID={testID}
+      style={{
+        minHeight: 44,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Text
+        style={{
+          ...theme.typography.callout,
+          fontWeight: "600",
+          color: theme.colors.accent.DEFAULT,
+        }}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
 function Field({
   label,
   value,
@@ -207,7 +261,14 @@ function Field({
 }) {
   return (
     <View style={{ gap: 6 }}>
-      <Text style={theme.typography.labelMedium}>{label}</Text>
+      <Text
+        style={{
+          ...theme.typography.footnote,
+          color: theme.colors.onSurface.variant,
+        }}
+      >
+        {label}
+      </Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -232,21 +293,21 @@ function OptionRow({
   selected,
   onSelect,
 }: {
-  options: string[];
+  options: OptionItem[];
   selected: string;
   onSelect: (value: string) => void;
 }) {
   return (
     <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
       {options.map((option) => {
-        const active = selected === option;
+        const active = selected === option.label;
         return (
           <Pressable
-            key={option}
-            onPress={() => onSelect(option)}
+            key={option.label}
+            onPress={() => onSelect(option.label)}
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
-            accessibilityLabel={option}
+            accessibilityLabel={option.label}
             style={{
               paddingHorizontal: 16,
               paddingVertical: 10,
@@ -258,8 +319,23 @@ function OptionRow({
               backgroundColor: active
                 ? withAlpha(theme.colors.accent.DEFAULT, 0.15)
                 : theme.colors.bg.card,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 8,
             }}
           >
+            {option.icon ? (
+              <AppIcon
+                sf={option.icon.sf as never}
+                mci={option.icon.mci as never}
+                size={22}
+                color={
+                  active
+                    ? theme.colors.accent.DEFAULT
+                    : theme.colors.onSurface.variant
+                }
+              />
+            ) : null}
             <Text
               style={{
                 ...theme.typography.body,
@@ -269,7 +345,7 @@ function OptionRow({
                 fontWeight: active ? "700" : "400",
               }}
             >
-              {option}
+              {option.label}
             </Text>
           </Pressable>
         );
@@ -284,12 +360,14 @@ function PathCard({
   cta,
   selected,
   onPress,
+  icon,
 }: {
   title: string;
   description: string;
   cta: string;
   selected: boolean;
   onPress: () => void;
+  icon: { sf: string; mci: string };
 }) {
   return (
     <Pressable
@@ -308,7 +386,15 @@ function PathCard({
         gap: 8,
       }}
     >
-      <Text style={theme.typography.title3}>{title}</Text>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+        <AppIcon
+          sf={icon.sf as never}
+          mci={icon.mci as never}
+          size={22}
+          color={theme.colors.accent.DEFAULT}
+        />
+        <Text style={{ ...theme.typography.title3, flex: 1 }}>{title}</Text>
+      </View>
       <Text style={theme.typography.footnote}>{description}</Text>
       <Text
         style={{
@@ -638,6 +724,7 @@ export default function OnboardingScreen() {
               cta="Importar plano"
               selected={path === "coach_import"}
               onPress={() => handlePathSelect("coach_import")}
+              icon={{ sf: "person.2.fill", mci: "account-group-outline" }}
             />
             <PathCard
               title="Estou sem coach"
@@ -645,6 +732,7 @@ export default function OnboardingScreen() {
               cta="Montar plano-base"
               selected={path === "manual_base"}
               onPress={() => handlePathSelect("manual_base")}
+              icon={{ sf: "square.and.pencil", mci: "pencil-outline" }}
             />
             <Text style={theme.typography.caption}>
               O ShapeIQ ajuda na execução e revisão da sua rotina. Ele não
@@ -681,7 +769,7 @@ export default function OnboardingScreen() {
               Isso muda como o app organiza seu painel e suas revisões.
             </Text>
             <OptionRow
-              options={OBJECTIVE_OPTIONS.map(([, label]) => label)}
+              options={OBJECTIVE_OPTION_ITEMS}
               selected={objective ? OBJECTIVE_LABELS[objective] : ""}
               onSelect={(label) => {
                 const found = OBJECTIVE_OPTIONS.find(
@@ -693,13 +781,13 @@ export default function OnboardingScreen() {
             {objective === "prep" && (
               <>
                 <Field
-                  label="DATA DO CAMPEONATO (AAAA-MM-DD, OPCIONAL)"
+                  label="Data do campeonato (opcional)"
                   value={showDate}
                   onChangeText={setShowDate}
                   placeholder="2026-10-15"
                 />
                 <Field
-                  label="CATEGORIA PRETENDIDA (OPCIONAL)"
+                  label="Categoria pretendida (opcional)"
                   value={targetCategory}
                   onChangeText={setTargetCategory}
                   placeholder="Men's Physique"
@@ -717,11 +805,21 @@ export default function OnboardingScreen() {
               Esses dados ajudam a organizar metas e comparações. Não usamos
               isso como diagnóstico.
             </Text>
-            <Field label="NOME" value={name} onChangeText={setName} />
+            <Field label="Nome" value={name} onChangeText={setName} />
             <View style={{ gap: 6 }}>
-              <Text style={theme.typography.labelMedium}>SEXO</Text>
+              <Text
+                style={{
+                  ...theme.typography.footnote,
+                  color: theme.colors.onSurface.variant,
+                }}
+              >
+                Sexo
+              </Text>
               <OptionRow
-                options={["Masculino", "Feminino"]}
+                options={[
+                  { label: "Masculino" },
+                  { label: "Feminino" },
+                ]}
                 selected={
                   gender === "male"
                     ? "Masculino"
@@ -735,21 +833,28 @@ export default function OnboardingScreen() {
               />
             </View>
             <Field
-              label="ALTURA (CM)"
+              label="Altura (cm)"
               value={heightCm}
               onChangeText={setHeightCm}
               keyboardType="numeric"
             />
             <Field
-              label="PESO ATUAL (KG)"
+              label="Peso atual (kg)"
               value={weightKg}
               onChangeText={setWeightKg}
               keyboardType="numeric"
             />
             <View style={{ gap: 6 }}>
-              <Text style={theme.typography.labelMedium}>NÍVEL</Text>
+              <Text
+                style={{
+                  ...theme.typography.footnote,
+                  color: theme.colors.onSurface.variant,
+                }}
+              >
+                Nível
+              </Text>
               <OptionRow
-                options={EXPERIENCE_OPTIONS.map(([, label]) => label)}
+                options={EXPERIENCE_OPTIONS.map(([, label]) => ({ label }))}
                 selected={level ? EXPERIENCE_LABELS[level] : ""}
                 onSelect={(label) => {
                   const found = EXPERIENCE_OPTIONS.find(
@@ -771,11 +876,16 @@ export default function OnboardingScreen() {
               sempre com luz, ângulo e distância parecidos.
             </Text>
             <View style={{ gap: 6 }}>
-              <Text style={theme.typography.labelMedium}>
-                DIA PREFERIDO DO CHECK-IN
+              <Text
+                style={{
+                  ...theme.typography.footnote,
+                  color: theme.colors.onSurface.variant,
+                }}
+              >
+                Dia preferido do check-in
               </Text>
               <OptionRow
-                options={CHECKIN_DAY_OPTIONS.map((o) => o.label)}
+                options={CHECKIN_DAY_OPTIONS.map((o) => ({ label: o.label }))}
                 selected={
                   CHECKIN_DAY_OPTIONS.find((o) => o.value === checkInDay)
                     ?.label ?? "Domingo"
@@ -789,9 +899,25 @@ export default function OnboardingScreen() {
               />
             </View>
             <View style={{ gap: 6 }}>
-              <Text style={theme.typography.labelMedium}>MODO PREFERIDO</Text>
+              <Text
+                style={{
+                  ...theme.typography.footnote,
+                  color: theme.colors.onSurface.variant,
+                }}
+              >
+                Modo preferido
+              </Text>
               <OptionRow
-                options={["Rápido: 1 foto", "Completo: 4 fotos"]}
+                options={[
+                  {
+                    label: "Rápido: 1 foto",
+                    icon: { sf: "camera.fill", mci: "camera-outline" },
+                  },
+                  {
+                    label: "Completo: 4 fotos",
+                    icon: { sf: "square.grid.2x2.fill", mci: "view-grid-outline" },
+                  },
+                ]}
                 selected={
                   checkInMode === "quick"
                     ? "Rápido: 1 foto"
@@ -814,17 +940,17 @@ export default function OnboardingScreen() {
           <View style={{ gap: 16 }}>
             <Text style={theme.typography.title3}>Dados do coach</Text>
             <Field
-              label="NOME DO COACH (OPCIONAL)"
+              label="Nome do coach (opcional)"
               value={coachName}
               onChangeText={setCoachName}
             />
             <Field
-              label="CONTATO (OPCIONAL)"
+              label="Contato (opcional)"
               value={coachContact}
               onChangeText={setCoachContact}
             />
             <Field
-              label="OBSERVAÇÕES (OPCIONAL)"
+              label="Observações (opcional)"
               value={coachNotes}
               onChangeText={setCoachNotes}
             />
@@ -952,15 +1078,20 @@ export default function OnboardingScreen() {
               O ShapeIQ organiza informações do plano. Ele não substitui
               coach, nutricionista ou médico.
             </Text>
-            <PrimaryButton
-              label={customPlano ? "Continuar" : "Continuar sem importar"}
-              onPress={() => {
-                // Sem plano importado, "continuar" também passa pelo
-                // construtor de plano-base para gerar um plano utilizável.
-                setCoachSimpleMode(!customPlano);
+            {customPlano ? (
+              <PrimaryButton label="Continuar" onPress={() => {
+                setCoachSimpleMode(false);
                 next();
-              }}
-            />
+              }} />
+            ) : (
+              <TertiaryButton
+                label="Continuar sem importar"
+                onPress={() => {
+                  setCoachSimpleMode(true);
+                  next();
+                }}
+              />
+            )}
           </View>
         )}
 
@@ -973,19 +1104,19 @@ export default function OnboardingScreen() {
                 : "Você define as metas. O ShapeIQ só organiza a execução."}
             </Text>
             <Field
-              label="ÁGUA (ML)"
+              label="Água (ml)"
               value={aguaMl}
               onChangeText={setAguaMl}
               keyboardType="numeric"
             />
             <Field
-              label="CARDIO (MIN/DIA)"
+              label="Cardio (min/dia)"
               value={cardioMin}
               onChangeText={setCardioMin}
               keyboardType="numeric"
             />
             <Field
-              label="FECHAMENTO DO DIA (HH:MM)"
+              label="Fechamento do dia (hh:mm)"
               value={closeoutTime}
               onChangeText={setCloseoutTime}
               keyboardType="numeric"
@@ -1010,31 +1141,36 @@ export default function OnboardingScreen() {
               Você define as metas. O ShapeIQ só organiza a execução.
             </Text>
             <Field
-              label="ÁGUA POR DIA (ML)"
+              label="Água por dia (ml)"
               value={baseAguaMl}
               onChangeText={setBaseAguaMl}
               keyboardType="numeric"
               placeholder="3000"
             />
             <View style={{ gap: 6 }}>
-              <Text style={theme.typography.labelMedium}>
-                REFEIÇÕES POR DIA
+              <Text
+                style={{
+                  ...theme.typography.footnote,
+                  color: theme.colors.onSurface.variant,
+                }}
+              >
+                Refeições por dia
               </Text>
               <OptionRow
-                options={["3", "4", "5", "6"]}
+                options={["3", "4", "5", "6"].map((label) => ({ label }))}
                 selected={mealsCount}
                 onSelect={setMealsCount}
               />
             </View>
             <Field
-              label="CARDIO (MIN/DIA — 0 SE NÃO TIVER)"
+              label="Cardio (min/dia — 0 se não tiver)"
               value={baseCardioMin}
               onChangeText={setBaseCardioMin}
               keyboardType="numeric"
               placeholder="30"
             />
             <Field
-              label="FECHAMENTO DO DIA (HH:MM)"
+              label="Fechamento do dia (hh:mm)"
               value={closeoutTime}
               onChangeText={setCloseoutTime}
               keyboardType="numeric"
@@ -1054,7 +1190,7 @@ export default function OnboardingScreen() {
             {mealNames.map((mealName, index) => (
               <Field
                 key={index}
-                label={`REFEIÇÃO ${index + 1}`}
+                label={`Refeição ${index + 1}`}
                 value={mealName}
                 onChangeText={(text) =>
                   setMealNames((names) =>
@@ -1085,7 +1221,7 @@ export default function OnboardingScreen() {
               Como é sua semana de treino?
             </Text>
             <OptionRow
-              options={SPLIT_PRESETS.map((p) => p.label)}
+              options={SPLIT_PRESETS.map((p) => ({ label: p.label }))}
               selected={
                 SPLIT_PRESETS.find((p) => p.id === splitPresetId)?.label ?? ""
               }
@@ -1149,7 +1285,10 @@ export default function OnboardingScreen() {
               disso, aparece como vazamento se afetar uma refeição obrigatória.
             </Text>
             <OptionRow
-              options={["Não usar no plano-base", "1x por semana"]}
+              options={[
+                { label: "Não usar no plano-base" },
+                { label: "1x por semana" },
+              ]}
               selected={
                 freeMealChoice === "semanal"
                   ? "1x por semana"

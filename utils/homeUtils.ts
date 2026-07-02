@@ -396,10 +396,6 @@ export function getDailyMetricSummaries(input: {
     metaAguaMl,
     cardioMinutos,
     metaCardioMin,
-    isTrainingDay,
-    diaOffManual,
-    treino,
-    trainingBriefing,
   } = input
 
   const mealPeriods = periodos.filter(isMealPeriod)
@@ -412,23 +408,20 @@ export function getDailyMetricSummaries(input: {
     )
   ).length
 
-  let workoutValue = "Descanso"
-  let workoutDetail = "Sem treino"
-
-  if (diaOffManual) {
-    workoutValue = "Dia off"
-    workoutDetail = "Pausado"
-  } else if (trainingBriefing && trainingBriefing.status !== "no-training") {
-    workoutValue = trainingBriefing.title
-    workoutDetail =
-      formatTodayTrainingEvidence(trainingBriefing) ??
-      trainingBriefing.subtitle
-  } else if (isTrainingDay && treino) {
-    workoutValue = treino.grupoMuscular
-    workoutDetail = `Treino ${treino.letra}`
-  }
-
   const allMetrics: DailyMetricSummary[] = [
+    {
+      kind: "diet",
+      label: "Refeições",
+      value: `${completedMeals} / ${mealPeriods.length}`,
+      detail:
+        mealPeriods.length === 0
+          ? "Sem refeições hoje"
+          : completedMeals === mealPeriods.length
+            ? "Todas concluídas"
+            : `${mealPeriods.length - completedMeals} pendentes`,
+      sf: "fork.knife",
+      mci: "food-apple-outline",
+    },
     {
       kind: "water",
       label: "Água",
@@ -450,27 +443,6 @@ export function getDailyMetricSummaries(input: {
           : `Faltam ${metaCardioMin - cardioMinutos} min`,
       sf: "figure.run",
       mci: "run",
-    },
-    {
-      kind: "diet",
-      label: "Refeições",
-      value: `${completedMeals} / ${mealPeriods.length}`,
-      detail:
-        mealPeriods.length === 0
-          ? "Sem refeições hoje"
-          : completedMeals === mealPeriods.length
-            ? "Todas concluídas"
-            : `${mealPeriods.length - completedMeals} pendentes`,
-      sf: "fork.knife",
-      mci: "food-apple-outline",
-    },
-    {
-      kind: "workout",
-      label: "Treino",
-      value: workoutValue,
-      detail: workoutDetail,
-      sf: "dumbbell.fill",
-      mci: "dumbbell",
     },
   ]
 

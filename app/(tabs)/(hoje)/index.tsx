@@ -235,7 +235,7 @@ export default function HojeScreen() {
         diaOffManual,
         treino,
         trainingBriefing,
-        kinds: ["diet", "workout"],
+        kinds: ["diet", "water", "cardio"],
       }),
     [
       periodosFiltrados,

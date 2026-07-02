@@ -86,9 +86,7 @@ export function TrainingTodayCard({ briefing }: TrainingTodayCardProps) {
         </Text>
       </View>
 
-      {/* Em estados como "pendente" o subtitle repete o workoutLabel; mostrar
-          os dois imprime "Treino D · Ombros" duas vezes no mesmo card. */}
-      {briefing.workoutLabel && briefing.workoutLabel !== briefing.subtitle && (
+      {briefing.workoutLabel && briefing.status !== "pending" && (
         <Text
           style={{
             ...theme.typography.caption,
@@ -104,6 +102,16 @@ export function TrainingTodayCard({ briefing }: TrainingTodayCardProps) {
           {briefing.title}
         </Text>
         <Text style={{ ...theme.typography.footnote }}>{briefing.subtitle}</Text>
+        {briefing.statsLabel ? (
+          <Text
+            style={{
+              ...theme.typography.caption,
+              color: theme.colors.onSurface.variant,
+            }}
+          >
+            {briefing.statsLabel}
+          </Text>
+        ) : null}
       </View>
 
       {evidence && (
@@ -147,35 +155,32 @@ export function TrainingTodayCard({ briefing }: TrainingTodayCardProps) {
       )}
 
       {briefing.nextActionLabel && (
-        <View style={{ gap: 8 }}>
-          <Text style={{ ...theme.typography.overline }}>Próxima ação</Text>
-          <Pressable
-            onPress={handleTrainingAction}
-            accessibilityRole="button"
-            accessibilityLabel={briefing.nextActionLabel}
-            style={({ pressed }) => ({
-              minHeight: 48,
-              borderRadius: theme.radius.lg,
-              backgroundColor: withAlpha(accent, 0.15),
-              borderWidth: 1,
-              borderColor: withAlpha(accent, 0.25),
-              alignItems: "center",
-              justifyContent: "center",
-              paddingHorizontal: 16,
-              opacity: pressed ? 0.85 : 1,
-            })}
+        <Pressable
+          onPress={handleTrainingAction}
+          accessibilityRole="button"
+          accessibilityLabel={briefing.nextActionLabel}
+          style={({ pressed }) => ({
+            minHeight: 48,
+            borderRadius: theme.radius.lg,
+            backgroundColor: withAlpha(accent, 0.15),
+            borderWidth: 1,
+            borderColor: withAlpha(accent, 0.25),
+            alignItems: "center",
+            justifyContent: "center",
+            paddingHorizontal: 16,
+            opacity: pressed ? 0.85 : 1,
+          })}
+        >
+          <Text
+            style={{
+              ...theme.typography.callout,
+              fontWeight: "700",
+              color: accent,
+            }}
           >
-            <Text
-              style={{
-                ...theme.typography.callout,
-                fontWeight: "700",
-                color: accent,
-              }}
-            >
-              {briefing.nextActionLabel}
-            </Text>
-          </Pressable>
-        </View>
+            {briefing.nextActionLabel}
+          </Text>
+        </Pressable>
       )}
     </View>
   )

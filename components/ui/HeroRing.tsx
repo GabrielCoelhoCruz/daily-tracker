@@ -34,12 +34,13 @@ export function HeroRing({
   label,
   caption,
 }: HeroRingProps) {
-  const strokeWidth = 10;
+  const strokeWidth = 12;
   const radius = (size - strokeWidth * 2) / 2;
   const circumference = 2 * Math.PI * radius;
   const clamped = Math.min(100, Math.max(0, percentage));
+  const initialOffset = circumference * (1 - clamped / 100);
 
-  const progress = useSharedValue(0);
+  const progress = useSharedValue(clamped / 100);
 
   useEffect(() => {
     progress.value = withDelay(
@@ -104,7 +105,7 @@ export function HeroRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={withAlpha(theme.colors.onSurface.DEFAULT, 0.07)}
+          stroke={withAlpha(theme.colors.onSurface.DEFAULT, 0.1)}
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -116,6 +117,7 @@ export function HeroRing({
           strokeWidth={strokeWidth}
           fill="none"
           strokeDasharray={`${circumference}`}
+          strokeDashoffset={initialOffset}
           strokeLinecap="round"
           animatedProps={animatedProps}
         />

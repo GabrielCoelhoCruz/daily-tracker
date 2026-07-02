@@ -94,7 +94,14 @@ function MetaField({
 }) {
   return (
     <View style={{ gap: 6 }}>
-      <Text style={theme.typography.labelMedium}>{label}</Text>
+      <Text
+        style={{
+          ...theme.typography.footnote,
+          color: theme.colors.onSurface.variant,
+        }}
+      >
+        {label}
+      </Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -479,7 +486,7 @@ export default function ImportPdfScreen() {
           </Card>
 
           <MetaField
-            label="NOME DO PLANO"
+            label="Nome do plano"
             value={planName}
             onChangeText={setPlanName}
             placeholder="Plano do coach"
@@ -556,13 +563,13 @@ export default function ImportPdfScreen() {
           <Card>
             <View style={{ gap: 12 }}>
               <MetaField
-                label="ÁGUA (ML)"
+                label="Água (ml)"
                 value={waterMl}
                 onChangeText={setWaterMl}
                 placeholder="3000"
               />
               <MetaField
-                label="CARDIO (MIN)"
+                label="Cardio (min)"
                 value={cardioMin}
                 onChangeText={setCardioMin}
                 placeholder="30"
@@ -579,13 +586,13 @@ export default function ImportPdfScreen() {
                 </Text>
               ) : null}
               <MetaField
-                label="TREINO (SPLIT, EX.: ABCDE)"
+                label="Treino (split, ex.: ABCDE)"
                 value={split}
                 onChangeText={setSplit}
                 placeholder="ABCDE"
               />
               <MetaField
-                label="FECHAMENTO DO DIA (HH:MM)"
+                label="Fechamento do dia (hh:mm)"
                 value={closeout}
                 onChangeText={setCloseout}
                 placeholder="21:00"

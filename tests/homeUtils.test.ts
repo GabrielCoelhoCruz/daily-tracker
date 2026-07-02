@@ -205,6 +205,7 @@ describe("getNextHomeAction", () => {
       completedSets: 8,
       totalSets: 18,
       currentSetLabel: "Supino inclinado · Set 3",
+      statsLabel: "7 exercícios · Peito",
     }
 
     const action = getNextHomeAction({
@@ -300,7 +301,7 @@ describe("getDailyMetricSummaries", () => {
       treino: getTreinoDoDia(1),
     })
 
-    expect(summaries).toHaveLength(4)
+    expect(summaries).toHaveLength(3)
 
     const water = summaries.find((s) => s.kind === "water")
     expect(water?.value).toBe("2.25 / 4.0L")
@@ -310,9 +311,6 @@ describe("getDailyMetricSummaries", () => {
 
     const diet = summaries.find((s) => s.kind === "diet")
     expect(diet?.value).toMatch(/\d+ \/ \d+/)
-
-    const workout = summaries.find((s) => s.kind === "workout")
-    expect(workout?.value).toBe("Peito")
   })
 
   it("filters metrics by kinds when provided", () => {
@@ -329,11 +327,11 @@ describe("getDailyMetricSummaries", () => {
       isTrainingDay: true,
       diaOffManual: false,
       treino: getTreinoDoDia(1),
-      kinds: ["diet", "workout"],
+      kinds: ["diet", "water", "cardio"],
     })
 
-    expect(summaries).toHaveLength(2)
-    expect(summaries.map((s) => s.kind)).toEqual(["diet", "workout"])
+    expect(summaries).toHaveLength(3)
+    expect(summaries.map((s) => s.kind)).toEqual(["diet", "water", "cardio"])
   })
 })
 

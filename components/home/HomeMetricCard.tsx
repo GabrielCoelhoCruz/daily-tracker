@@ -13,23 +13,23 @@ export function HomeMetricCard({ metric }: HomeMetricCardProps) {
     <View
       style={{
         flex: 1,
-        minHeight: 100,
+        minHeight: 104,
         borderRadius: theme.radius.xl,
         borderCurve: "continuous",
         backgroundColor: withAlpha(theme.colors.surface.containerLow, 0.85),
         borderWidth: 1,
         borderColor: withAlpha(theme.colors.onSurface.DEFAULT, 0.05),
         padding: 16,
-        gap: 8,
+        gap: 10,
       }}
     >
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         <View
           style={{
-            width: 26,
-            height: 26,
-            borderRadius: 8,
-            backgroundColor: withAlpha(theme.colors.primary.DEFAULT, 0.1),
+            width: 32,
+            height: 32,
+            borderRadius: 10,
+            backgroundColor: withAlpha(theme.colors.primary.DEFAULT, 0.12),
             alignItems: "center",
             justifyContent: "center",
           }}
@@ -37,7 +37,7 @@ export function HomeMetricCard({ metric }: HomeMetricCardProps) {
           <AppIcon
             sf={metric.sf as never}
             mci={metric.mci as keyof typeof MaterialCommunityIcons.glyphMap}
-            size={14}
+            size={16}
             color={theme.colors.primary.DEFAULT}
           />
         </View>
@@ -45,10 +45,10 @@ export function HomeMetricCard({ metric }: HomeMetricCardProps) {
       </View>
       <Text
         style={{
-          ...theme.typography.callout,
-          fontSize: 16,
-          fontWeight: "700",
-          letterSpacing: -0.2,
+          fontSize: 20,
+          fontWeight: "800",
+          letterSpacing: -0.3,
+          color: theme.colors.onSurface.DEFAULT,
         }}
         numberOfLines={1}
       >

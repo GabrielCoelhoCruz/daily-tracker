@@ -84,10 +84,12 @@ describe('getTodayTrainingBriefing — pending', () => {
     })
 
     expect(briefing.status).toBe('pending')
-    expect(briefing.title).toBe('Treino pendente')
+    expect(briefing.title).toContain('Treino A')
+    expect(briefing.subtitle).toBe('Ainda não iniciado')
+    expect(briefing.statsLabel).toContain('exercícios')
     expect(briefing.nextActionLabel).toBe('Iniciar treino')
     expect(briefing.completedSets).toBe(0)
-    expect(briefing.workoutLabel).toContain('Treino A')
+    expect(briefing.workoutLabel).toBeNull()
   })
 })
 

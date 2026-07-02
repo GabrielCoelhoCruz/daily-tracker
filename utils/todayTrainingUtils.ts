@@ -28,6 +28,8 @@ export type TodayTrainingBriefing = {
   currentSetLabel: string | null
   isLeak: boolean
   workoutLabel: string | null
+  /** Exercise count + muscle group — shown once on the card without repeating the title. */
+  statsLabel: string | null
 }
 
 export type TodayTrainingBriefingInput = {
@@ -39,6 +41,10 @@ export type TodayTrainingBriefingInput = {
 
 function formatWorkoutLabel(treino: Treino): string {
   return `Treino ${treino.letra} · ${treino.grupoMuscular}`
+}
+
+function formatWorkoutStats(treino: Treino): string {
+  return `${treino.exercicios.length} exercícios · ${treino.grupoMuscular}`
 }
 
 function formatSetsSubtitle(completedSets: number, totalSets: number): string {
@@ -82,6 +88,7 @@ export function getTodayTrainingBriefing(
       currentSetLabel: null,
       isLeak: false,
       workoutLabel: null,
+      statsLabel: null,
     }
   }
 
@@ -98,16 +105,18 @@ export function getTodayTrainingBriefing(
       currentSetLabel: null,
       isLeak: false,
       workoutLabel: null,
+      statsLabel: null,
     }
   }
 
   const workoutLabel = formatWorkoutLabel(treino)
+  const statsLabel = formatWorkoutStats(treino)
 
   if (!session) {
     return {
       status: 'pending',
-      title: 'Treino pendente',
-      subtitle: workoutLabel,
+      title: workoutLabel,
+      subtitle: 'Ainda não iniciado',
       nextActionLabel: 'Iniciar treino',
       completedSets: 0,
       totalSets: 0,
@@ -115,7 +124,8 @@ export function getTodayTrainingBriefing(
       currentExerciseName: null,
       currentSetLabel: null,
       isLeak: false,
-      workoutLabel,
+      workoutLabel: null,
+      statsLabel,
     }
   }
 
@@ -148,6 +158,7 @@ export function getTodayTrainingBriefing(
           : null,
       isLeak: true,
       workoutLabel,
+      statsLabel,
     }
   }
 
@@ -164,6 +175,7 @@ export function getTodayTrainingBriefing(
       currentSetLabel: null,
       isLeak: false,
       workoutLabel,
+      statsLabel,
     }
   }
 
@@ -185,6 +197,7 @@ export function getTodayTrainingBriefing(
         : null,
     isLeak: false,
     workoutLabel,
+    statsLabel,
   }
 }
 
