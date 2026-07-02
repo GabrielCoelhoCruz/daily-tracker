@@ -14,6 +14,7 @@ export function CardioCard() {
   const removeSessaoCardio = useDayStore((s) => s.removeSessaoCardio);
 
   const [inputMinutos, setInputMinutos] = useState("");
+  const [inputError, setInputError] = useState<string | null>(null);
 
   const metaMinutos = plano.metaCardioMin;
   const totalMinutos = sessoesCardio.reduce((sum, s) => sum + s.minutos, 0);
@@ -24,11 +25,24 @@ export function CardioCard() {
 
   function handleAddSessao() {
     const minutos = parseInt(inputMinutos, 10);
-    if (isNaN(minutos) || minutos <= 0 || minutos > 240) return;
+    if (isNaN(minutos) || minutos <= 0) {
+      setInputError("Informe a duração do cardio antes de finalizar.");
+      return;
+    }
+    if (minutos > 240) {
+      setInputError("Duração máxima por sessão: 240 minutos.");
+      return;
+    }
+    setInputError(null);
     animateWithHaptic(() => {
       addSessaoCardio(minutos);
       setInputMinutos("");
     });
+  }
+
+  function handleChangeMinutos(text: string) {
+    setInputMinutos(text);
+    if (inputError) setInputError(null);
   }
 
   function handleRemoveSessao(index: number) {
@@ -229,17 +243,34 @@ export function CardioCard() {
             placeholderTextColor={theme.colors.surface.containerHighest}
             keyboardType="number-pad"
             value={inputMinutos}
-            onChangeText={setInputMinutos}
+            onChangeText={handleChangeMinutos}
             onSubmitEditing={handleAddSessao}
             returnKeyType="done"
+            accessibilityLabel="Duração do cardio em minutos"
+            testID="cardio-duration-input"
           />
+          {inputError ? (
+            <Text
+              accessibilityLiveRegion="polite"
+              style={{
+                ...theme.typography.footnote,
+                color: theme.colors.semantic.error,
+                marginTop: 6,
+                marginLeft: 4,
+              }}
+            >
+              {inputError}
+            </Text>
+          ) : null}
         </View>
       </View>
 
       {/* Submit */}
       <Pressable
         onPress={handleAddSessao}
+        accessibilityRole="button"
         accessibilityLabel="Finalizar atividade de cardio"
+        testID="cardio-finalize"
         style={{
           marginTop: 16,
           paddingVertical: 16,
