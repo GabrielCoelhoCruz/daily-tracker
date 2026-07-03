@@ -6,12 +6,12 @@ import { AppIcon } from "@/components/ui/AppIcon";
 import { animateWithHaptic } from "@/utils/animationUtils";
 import { resolveTreinoForDay, isTreinoSwappedToday } from "@/utils/diaUtils";
 import {
-  SPLIT_ASSIGNMENT_OPTIONS,
   WEEK_DAY_ORDER,
   areWeekDaySlotsEqual,
   countWeekPlanTreinoDays,
   formatWeekDaySlotShort,
   getInitialWorkoutDay,
+  getSplitAssignmentOptions,
   getWeekDaySlot,
   getWeekDaySlotLetter,
   type SplitWeekPlan,
@@ -40,6 +40,7 @@ export function SplitWeekPlanner({
   onSetWeekDaySlot,
 }: SplitWeekPlannerProps) {
   const [editingDay, setEditingDay] = useState<number | null>(null);
+  const splitAssignmentOptions = getSplitAssignmentOptions();
 
   const isTodayOff = diaOffManual;
   const treinoDayCount = countWeekPlanTreinoDays(splitWeekPlan);
@@ -367,7 +368,7 @@ export function SplitWeekPlanner({
                     paddingBottom: 4,
                   }}
                 >
-                  {SPLIT_ASSIGNMENT_OPTIONS.map((option) => {
+                  {splitAssignmentOptions.map((option) => {
                     const isActive = areWeekDaySlotsEqual(option, slot);
                     return (
                       <Pressable

@@ -1,5 +1,6 @@
 import { Periodo } from "@/data/plano";
-import { treinos, Treino } from "@/data/treinos";
+import type { Treino } from "@/data/treinos";
+import { getActiveTreinos } from "@/stores/useProtocolStore";
 import {
   DEFAULT_SPLIT_WEEK_PLAN,
   getTreinoFromWeekPlan,
@@ -25,11 +26,11 @@ export function isDiaDeTreino(
  */
 export function getTreinoDoDia(dayOfWeek: number): Treino | null {
   if (dayOfWeek < 1 || dayOfWeek > 5) return null;
-  return treinos[dayOfWeek - 1] ?? null;
+  return getActiveTreinos()[dayOfWeek - 1] ?? null;
 }
 
 export function getTreinoById(treinoId: string): Treino | null {
-  return treinos.find((treino) => treino.id === treinoId) ?? null;
+  return getActiveTreinos().find((treino) => treino.id === treinoId) ?? null;
 }
 
 type ResolveTreinoOptions = {

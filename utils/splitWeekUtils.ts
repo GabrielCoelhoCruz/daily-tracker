@@ -1,5 +1,5 @@
-import { treinos } from '@/data/treinos'
 import type { Treino } from '@/data/treinos'
+import { getActiveTreinos } from '@/stores/useProtocolStore'
 
 export type WeekSlotKind = 'treino' | 'cardio' | 'rest'
 
@@ -25,7 +25,7 @@ export const DEFAULT_SPLIT_WEEK_PLAN: SplitWeekPlan = {
 }
 
 function getTreinoById(treinoId: string): Treino | null {
-  return treinos.find((treino) => treino.id === treinoId) ?? null
+  return getActiveTreinos().find((treino) => treino.id === treinoId) ?? null
 }
 
 export function normalizeSplitWeekPlan(
@@ -128,13 +128,24 @@ export function getInitialWorkoutDay(
 }
 
 export const SPLIT_ASSIGNMENT_OPTIONS: WeekDaySlot[] = [
-  ...treinos.map((treino) => ({
+  ...getActiveTreinos().map((treino) => ({
     kind: 'treino' as const,
     treinoId: treino.id,
   })),
   { kind: 'cardio' },
   { kind: 'rest' },
 ]
+
+export function getSplitAssignmentOptions(): WeekDaySlot[] {
+  return [
+    ...getActiveTreinos().map((treino) => ({
+      kind: 'treino' as const,
+      treinoId: treino.id,
+    })),
+    { kind: 'cardio' },
+    { kind: 'rest' },
+  ]
+}
 
 export function areWeekDaySlotsEqual(a: WeekDaySlot, b: WeekDaySlot): boolean {
   if (a.kind !== b.kind) return false

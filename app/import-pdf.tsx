@@ -122,6 +122,7 @@ function MetaField({
 
 export default function ImportPdfScreen() {
   const setCustomPlano = useProtocolStore((s) => s.setCustomPlano);
+  const setCustomTreinos = useProtocolStore((s) => s.setCustomTreinos);
   const setPlanPrefs = useProtocolStore((s) => s.setPlanPrefs);
 
   const [step, setStep] = useState<Step>("select");
@@ -137,6 +138,7 @@ export default function ImportPdfScreen() {
   const [split, setSplit] = useState("");
   const [planName, setPlanName] = useState("");
 
+  const importingRef = useRef(false);
   const cancelledRef = useRef(false);
   useEffect(() => () => {
     cancelledRef.current = true;
@@ -162,39 +164,46 @@ export default function ImportPdfScreen() {
   }
 
   async function handlePickPdf() {
-    setErrorMessage(null);
-    setFallbackText(null);
-    const picked = await DocumentPicker.getDocumentAsync({
-      type: "application/pdf",
-      copyToCacheDirectory: true,
-      multiple: false,
-    });
-    if (picked.canceled || !picked.assets?.[0]) return;
+    // Evita importações duplicadas em voo (toque duplo, re-render do dev).
+    if (importingRef.current) return;
+    importingRef.current = true;
+    try {
+      setErrorMessage(null);
+      setFallbackText(null);
+      const picked = await DocumentPicker.getDocumentAsync({
+        type: "application/pdf",
+        copyToCacheDirectory: true,
+        multiple: false,
+      });
+      if (picked.canceled || !picked.assets?.[0]) return;
 
-    const asset = picked.assets[0];
-    const validationError = validatePickedFile({
-      name: asset.name,
-      mimeType: asset.mimeType,
-      size: asset.size,
-    });
-    if (validationError) {
-      setErrorMessage(validationError);
-      return;
+      const asset = picked.assets[0];
+      const validationError = validatePickedFile({
+        name: asset.name,
+        mimeType: asset.mimeType,
+        size: asset.size,
+      });
+      if (validationError) {
+        setErrorMessage(validationError);
+        return;
+      }
+
+      setStep("processing");
+      const outcome = await importPlanFromPdf(asset.uri);
+      if (cancelledRef.current) return;
+
+      if (outcome.status === "ok") {
+        setProcessingIndex(PROCESSING_LABELS.length - 1);
+        enterReview(outcome.result);
+        return;
+      }
+
+      setErrorMessage(outcome.userMessage);
+      setFallbackText(outcome.extractedText ?? null);
+      setStep("select");
+    } finally {
+      importingRef.current = false;
     }
-
-    setStep("processing");
-    const outcome = await importPlanFromPdf(asset.uri);
-    if (cancelledRef.current) return;
-
-    if (outcome.status === "ok") {
-      setProcessingIndex(PROCESSING_LABELS.length - 1);
-      enterReview(outcome.result);
-      return;
-    }
-
-    setErrorMessage(outcome.userMessage);
-    setFallbackText(outcome.extractedText ?? null);
-    setStep("select");
   }
 
   /** IA falhou mas o texto foi extraído: organiza offline com o parser. */
@@ -265,7 +274,7 @@ export default function ImportPdfScreen() {
       closeoutTime: normalizeCloseoutTime(closeout) ?? parsed.closeoutTime,
       trainingSplit: split.trim() ? split.trim().toUpperCase() : parsed.trainingSplit,
     };
-    const { plano, closeoutTime } = aiPlanToPlano(edited, planName || undefined);
+    const { plano, closeoutTime, treinos } = aiPlanToPlano(edited, planName || undefined);
     if (plano.periodos.length === 0) {
       Alert.alert(
         "Plano vazio",
@@ -274,6 +283,7 @@ export default function ImportPdfScreen() {
       return;
     }
     setCustomPlano(plano, "coach_import");
+    setCustomTreinos(treinos ?? null);
     if (closeoutTime) {
       setPlanPrefs({ closeoutTime });
     }
@@ -601,6 +611,50 @@ export default function ImportPdfScreen() {
           </Card>
 
           {/* Treino detalhado */}
+          {parsed.trainingPlan && parsed.trainingPlan.groups.length > 0 && (
+            <>
+              <SectionTitle title="Treino importado" />
+              <Card>
+                <View style={{ gap: 12 }}>
+                  <Text style={theme.typography.footnote}>
+                    O treino abaixo será usado na aba Treino após ativar o plano.
+                  </Text>
+                  {parsed.trainingPlan.groups.map((group) => (
+                    <View key={group.code} style={{ gap: 4 }}>
+                      <Text style={theme.typography.body}>
+                        Treino {group.code} · {group.label}
+                      </Text>
+                      <Text style={theme.typography.caption}>
+                        {group.exercises.length} exercícios
+                      </Text>
+                      {group.exercises.slice(0, 3).map((exercise) => (
+                        <Text key={exercise.name} style={theme.typography.caption}>
+                          {exercise.name}
+                          {exercise.rawPrescription ? ` · ${exercise.rawPrescription}` : ""}
+                        </Text>
+                      ))}
+                    </View>
+                  ))}
+                </View>
+              </Card>
+            </>
+          )}
+
+          {parsed.trainingPlan && parsed.trainingPlan.guidance.length > 0 && (
+            <>
+              <SectionTitle title="Orientações de treino" />
+              <Card>
+                <View style={{ gap: 8 }}>
+                  {parsed.trainingPlan.guidance.slice(0, 6).map((text, i) => (
+                    <Text key={i} style={theme.typography.footnote}>
+                      {text}
+                    </Text>
+                  ))}
+                </View>
+              </Card>
+            </>
+          )}
+
           {parsed.trainingDays.length > 0 && (
             <>
               <SectionTitle title="Treino" />
@@ -654,6 +708,21 @@ export default function ImportPdfScreen() {
           )}
 
           {/* Observações */}
+          {parsed.coachTips.length > 0 && (
+            <>
+              <SectionTitle title="Dicas do coach" />
+              <Card>
+                <View style={{ gap: 8 }}>
+                  {parsed.coachTips.map((text, i) => (
+                    <Text key={i} style={theme.typography.footnote}>
+                      {text}
+                    </Text>
+                  ))}
+                </View>
+              </Card>
+            </>
+          )}
+
           {parsed.observations.length > 0 && (
             <>
               <SectionTitle title="Observações" />

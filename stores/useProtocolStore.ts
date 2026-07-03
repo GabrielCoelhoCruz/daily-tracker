@@ -2,12 +2,15 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { plano as planoPadrao, type Plano } from "@/data/plano";
+import { treinos as treinosPadrao, type Treino } from "@/data/treinos";
 
 export type PlanOrigin = "coach_import" | "manual_base";
 
 type ProtocolState = {
   /** Plano importado do coach ou plano-base manual — sobrepõe o padrão. */
   customPlano: Plano | null;
+  /** Treinos importados do coach — sobrepõem o catálogo padrão. */
+  customTreinos: Treino[] | null;
   /** Origem do plano ativo — define rótulos ("Plano do coach" / "Plano-base manual"). */
   planOrigin: PlanOrigin | null;
   onboardingComplete: boolean;
@@ -19,6 +22,7 @@ type ProtocolState = {
 
 type ProtocolActions = {
   setCustomPlano: (plano: Plano, origin?: PlanOrigin) => void;
+  setCustomTreinos: (treinos: Treino[] | null) => void;
   clearCustomPlano: () => void;
   setMetas: (metas: {
     aguaMl?: number;
@@ -36,6 +40,7 @@ export const useProtocolStore = create<ProtocolState & ProtocolActions>()(
   persist(
     (set, get) => ({
       customPlano: null,
+      customTreinos: null,
       planOrigin: null,
       onboardingComplete: false,
       closeoutTime: "21:00",
@@ -47,7 +52,11 @@ export const useProtocolStore = create<ProtocolState & ProtocolActions>()(
           planOrigin: origin ?? state.planOrigin ?? "coach_import",
         })),
 
-      clearCustomPlano: () => set({ customPlano: null, planOrigin: null }),
+      setCustomTreinos: (treinos) =>
+        set({ customTreinos: treinos && treinos.length > 0 ? treinos : null }),
+
+      clearCustomPlano: () =>
+        set({ customPlano: null, customTreinos: null, planOrigin: null }),
 
       // Metas editadas fora do import clonam o plano ativo para um custom.
       setMetas: ({ aguaMl, chaMl, cardioMin }) => {
@@ -91,4 +100,13 @@ export function getActivePlano(): Plano {
 /** Plano ativo dentro de componentes React — re-renderiza ao importar plano. */
 export function useActivePlano(): Plano {
   return useProtocolStore((s) => s.customPlano) ?? planoPadrao;
+}
+
+export function getActiveTreinos(): Treino[] {
+  const customTreinos = useProtocolStore.getState().customTreinos;
+  return customTreinos && customTreinos.length > 0 ? customTreinos : treinosPadrao;
+}
+
+export function useActiveTreinos(): Treino[] {
+  return useProtocolStore((s) => s.customTreinos) ?? treinosPadrao;
 }

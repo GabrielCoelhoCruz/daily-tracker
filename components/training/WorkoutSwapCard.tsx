@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { treinos, type Treino } from "@/data/treinos";
+import type { Treino } from "@/data/treinos";
 import { theme, withAlpha } from "@/constants/theme";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { animateWithHaptic } from "@/utils/animationUtils";
 import { isTreinoSwappedToday } from "@/utils/diaUtils";
 import type { SplitWeekPlan } from "@/utils/splitWeekUtils";
+import { useActiveTreinos } from "@/stores/useProtocolStore";
 
 type WorkoutSwapCardProps = {
   todayDay: number;
@@ -25,6 +26,7 @@ export function WorkoutSwapCard({
   onSelectTreino,
 }: WorkoutSwapCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const treinos = useActiveTreinos();
   const isSwapped = isTreinoSwappedToday(todayDay, treinoHojeId, splitWeekPlan);
 
   const handleToggleExpanded = () => {
