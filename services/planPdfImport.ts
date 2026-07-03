@@ -1,4 +1,4 @@
-import { File } from "expo-file-system";
+import { Platform } from "react-native";
 import { MAX_PDF_BYTES, type AiParsedPlan } from "@/utils/aiPlanImport";
 
 /**
@@ -48,6 +48,39 @@ export function getImportPlanEndpoint(
   return `${trimmed.replace(/\/+$/, "")}/api/import-plan`;
 }
 
+export function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  const chunkSize = 0x8000;
+
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  if (typeof btoa === "function") {
+    return btoa(binary);
+  }
+
+  return Buffer.from(binary, "binary").toString("base64");
+}
+
+export async function readPdfBase64FromUri(
+  fileUri: string,
+  platformOs: string = Platform.OS,
+): Promise<string> {
+  if (platformOs === "web") {
+    const response = await fetch(fileUri);
+    if (!response.ok) {
+      throw new Error("Failed to read picked PDF on web");
+    }
+    return arrayBufferToBase64(await response.arrayBuffer());
+  }
+
+  const { File } = await import("expo-file-system");
+  return new File(fileUri).base64();
+}
+
 export function validatePickedFile(file: {
   name?: string;
   mimeType?: string;
@@ -69,7 +102,7 @@ export async function importPlanFromPdf(
 ): Promise<PdfImportOutcome> {
   let pdfBase64: string;
   try {
-    pdfBase64 = await new File(fileUri).base64();
+    pdfBase64 = await readPdfBase64FromUri(fileUri);
   } catch {
     return { status: "failed", userMessage: PDF_IMPORT_MESSAGES.unreadable };
   }
