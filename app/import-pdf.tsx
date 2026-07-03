@@ -22,10 +22,9 @@ import {
 import {
   aiPlanToPlano,
   normalizeCloseoutTime,
-  parserResultToAiPlan,
   type AiParsedPlan,
 } from "@/utils/aiPlanImport";
-import { parseCoachPlan } from "@/utils/planImportUtils";
+import { understandPdfPlan } from "@/utils/pdfPlanUnderstanding";
 import { useProtocolStore } from "@/stores/useProtocolStore";
 
 type Step = "select" | "processing" | "review";
@@ -209,14 +208,12 @@ export default function ImportPdfScreen() {
   /** IA falhou mas o texto foi extraído: organiza offline com o parser. */
   function handleOfflineFallback() {
     if (!fallbackText) return;
-    const result = parseCoachPlan(fallbackText);
-    if (result.plano.periodos.length === 0) {
+    const result = understandPdfPlan(fallbackText).parsedPlan;
+    if (result.mealPeriods.length === 0 && result.trainingPlan === null) {
       setErrorMessage(PDF_IMPORT_MESSAGES.unreadable);
       return;
     }
-    const converted = parserResultToAiPlan(result);
-    converted.source = "paste_parser";
-    enterReview(converted);
+    enterReview(result);
   }
 
   function updateItemTitle(periodIndex: number, itemIndex: number, title: string) {

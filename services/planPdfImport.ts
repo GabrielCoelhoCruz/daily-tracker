@@ -40,6 +40,14 @@ export const PDF_IMPORT_MESSAGES = {
     "Importação com IA precisa de conexão. O restante do app funciona offline.",
 } as const;
 
+export function getImportPlanEndpoint(
+  apiBaseUrl: string | undefined = process.env.EXPO_PUBLIC_API_BASE_URL,
+): string {
+  const trimmed = apiBaseUrl?.trim();
+  if (!trimmed) return "/api/import-plan";
+  return `${trimmed.replace(/\/+$/, "")}/api/import-plan`;
+}
+
 export function validatePickedFile(file: {
   name?: string;
   mimeType?: string;
@@ -70,7 +78,7 @@ export async function importPlanFromPdf(
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const response = await fetch("/api/import-plan", {
+    const response = await fetch(getImportPlanEndpoint(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ pdfBase64 }),
