@@ -28,7 +28,7 @@ export const unstable_settings = {
   initialRouteName: "(tabs)",
 };
 
-SplashScreen.preventAutoHideAsync();
+const splashPreventedPromise = SplashScreen.preventAutoHideAsync().catch(() => false);
 
 const AppDarkTheme = {
   ...DarkTheme,
@@ -54,7 +54,13 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      splashPreventedPromise.then((wasPrevented) => {
+        if (wasPrevented) {
+          SplashScreen.hideAsync().catch(() => {
+            // Expo Go/dev contexts can auto-hide before this view registers a native splash.
+          });
+        }
+      });
     }
   }, [loaded]);
 

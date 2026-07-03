@@ -1,11 +1,13 @@
 import {
   aiPlanToPlano,
+  extractAiJsonPayload,
   isPdfMagic,
   normalizeCardioMin,
   normalizeCloseoutTime,
   normalizeTrainingSplit,
   normalizeWaterMl,
   parserResultToAiPlan,
+  repairTruncatedAiJson,
   validateAiParsedPlan,
   type AiParsedPlan,
 } from "@/utils/aiPlanImport";
@@ -67,6 +69,9 @@ function buildFixtureAiJson(): Record<string, unknown> {
     sensitiveItems: [],
     unmapped: [],
     rawTextPreview: null,
+    trainingPlan: null,
+    coachTips: [],
+    nutritionGuidance: [],
   };
 }
 
@@ -109,6 +114,84 @@ describe("normalizadores", () => {
     expect(isPdfMagic(new TextEncoder().encode("%PDF-1.7"))).toBe(true);
     expect(isPdfMagic(new TextEncoder().encode("PK\x03\x04"))).toBe(false);
     expect(isPdfMagic(new Uint8Array(0))).toBe(false);
+  });
+});
+
+describe("extractAiJsonPayload", () => {
+  it("extrai JSON mesmo quando a IA adiciona prosa ao redor", () => {
+    const payload = extractAiJsonPayload(
+      'Claro, aqui esta:\n{"title":"Plano","summary":"Use {chaves} no texto"}\nFim.',
+    );
+    expect(payload).toBe('{"title":"Plano","summary":"Use {chaves} no texto"}');
+    expect(JSON.parse(payload!)).toEqual({
+      title: "Plano",
+      summary: "Use {chaves} no texto",
+    });
+  });
+
+  it("extrai JSON de markdown fence com label maiusculo", () => {
+    const payload = extractAiJsonPayload(
+      '```JSON\n{"source":"pdf_ai","mealPeriods":[]}\n```',
+    );
+    expect(payload).toBe('{"source":"pdf_ai","mealPeriods":[]}');
+  });
+
+  it("retorna null quando nao ha objeto JSON completo", () => {
+    expect(extractAiJsonPayload("sem json")).toBeNull();
+    expect(extractAiJsonPayload('{"title":"incompleto"')).toBeNull();
+  });
+});
+
+describe("repairTruncatedAiJson", () => {
+  it("fecha objeto truncado no meio de uma string", () => {
+    const repaired = repairTruncatedAiJson(
+      '{"title":"Plano","mealPeriods":[{"name":"Almo',
+    );
+    expect(repaired).not.toBeNull();
+    const parsed = JSON.parse(repaired!) as Record<string, unknown>;
+    expect(parsed.title).toBe("Plano");
+    expect(Array.isArray(parsed.mealPeriods)).toBe(true);
+  });
+
+  it("descarta chave pendurada sem valor no fim", () => {
+    const repaired = repairTruncatedAiJson(
+      '{"title":"Plano","waterTargetMl":3000,"cardioTargetMin":',
+    );
+    expect(repaired).not.toBeNull();
+    const parsed = JSON.parse(repaired!) as Record<string, unknown>;
+    expect(parsed.title).toBe("Plano");
+    expect(parsed.waterTargetMl).toBe(3000);
+    expect("cardioTargetMin" in parsed).toBe(false);
+  });
+
+  it("recupera arrays aninhados cortados por max_tokens", () => {
+    const truncated =
+      '{"mealPeriods":[{"name":"Café da manhã","items":[{"title":"Ovos","required":true},{"title":"Ave';
+    const repaired = repairTruncatedAiJson(truncated);
+    expect(repaired).not.toBeNull();
+    const parsed = JSON.parse(repaired!) as {
+      mealPeriods: { name: string; items: { title: string }[] }[];
+    };
+    expect(parsed.mealPeriods[0].name).toBe("Café da manhã");
+    expect(parsed.mealPeriods[0].items[0].title).toBe("Ovos");
+  });
+
+  it("recupera JSON truncado dentro de fence markdown sem fechamento", () => {
+    const repaired = repairTruncatedAiJson('```json\n{"title":"Plano","unmapped":[');
+    expect(repaired).not.toBeNull();
+    expect(JSON.parse(repaired!)).toEqual({ title: "Plano", unmapped: [] });
+  });
+
+  it("retorna null sem objeto JSON algum", () => {
+    expect(repairTruncatedAiJson("resposta em prosa, sem json")).toBeNull();
+    expect(repairTruncatedAiJson("")).toBeNull();
+  });
+
+  it("nao altera JSON ja completo", () => {
+    const complete = '{"title":"Plano","mealPeriods":[]}';
+    const repaired = repairTruncatedAiJson(complete);
+    expect(repaired).not.toBeNull();
+    expect(JSON.parse(repaired!)).toEqual({ title: "Plano", mealPeriods: [] });
   });
 });
 

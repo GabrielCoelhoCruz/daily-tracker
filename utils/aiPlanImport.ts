@@ -1,4 +1,5 @@
 import type { Categoria, ItemDoPlano, Periodo, Plano } from "@/data/plano";
+import type { Serie, Treino } from "@/data/treinos";
 import type { ParsedPlanResult } from "@/utils/planImportUtils";
 
 /**
@@ -31,6 +32,40 @@ export type AiTrainingDay = {
   weekday: string | null;
   label: string | null;
   muscleGroups: string[];
+  sourceText: string | null;
+  confidence: AiConfidence;
+};
+
+export type AiTrainingSet = {
+  type: "WS" | "TS" | "BS" | "CS" | "unknown";
+  count: number;
+  reps: string | null;
+  notes: string | null;
+  sourceText: string | null;
+};
+
+export type AiTrainingExercise = {
+  name: string;
+  rawPrescription: string | null;
+  sets: AiTrainingSet[];
+  notes: string | null;
+  sourceText: string | null;
+  confidence: AiConfidence;
+};
+
+export type AiTrainingGroup = {
+  code: string;
+  label: string;
+  exercises: AiTrainingExercise[];
+  sourceText: string | null;
+  confidence: AiConfidence;
+};
+
+export type AiTrainingPlan = {
+  split: string | null;
+  groups: AiTrainingGroup[];
+  guidance: string[];
+  glossary: Record<string, string>;
   sourceText: string | null;
   confidence: AiConfidence;
 };
@@ -95,6 +130,9 @@ export type AiParsedPlan = {
   sensitiveItems: AiSensitiveItem[];
   unmapped: AiUnmappedLine[];
   rawTextPreview: string | null;
+  trainingPlan: AiTrainingPlan | null;
+  coachTips: string[];
+  nutritionGuidance: string[];
 };
 
 export const MAX_PDF_BYTES = 10 * 1024 * 1024;
@@ -108,6 +146,117 @@ export function isPdfMagic(bytes: Uint8Array): boolean {
     bytes[2] === 0x44 &&
     bytes[3] === 0x46
   );
+}
+
+export function extractAiJsonPayload(raw: string): string | null {
+  const trimmed = raw.trim().replace(/^\uFEFF/, "");
+  const fenced = trimmed.match(/```(?:json|JSON)?\s*([\s\S]*?)```/);
+  const candidate = (fenced ? fenced[1] : trimmed).trim();
+  const start = candidate.indexOf("{");
+  if (start === -1) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let i = start; i < candidate.length; i += 1) {
+    const char = candidate[i];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (char === "\\") {
+      escaped = true;
+      continue;
+    }
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+
+    if (char === "{") depth += 1;
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        return candidate.slice(start, i + 1).trim();
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Fecha strings/chaves/colchetes abertos de um JSON truncado (ex.: resposta
+ * cortada por max_tokens). Retorna null se o aninhamento estiver corrompido.
+ */
+function closeJsonStructures(text: string): string | null {
+  const stack: string[] = [];
+  let inString = false;
+  let escaped = false;
+
+  for (const char of text) {
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (char === "\\") {
+      if (inString) escaped = true;
+      continue;
+    }
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+
+    if (char === "{") stack.push("}");
+    else if (char === "[") stack.push("]");
+    else if (char === "}" || char === "]") {
+      if (stack.pop() !== char) return null;
+    }
+  }
+
+  let repaired = text;
+  if (inString) repaired += '"';
+  repaired = repaired.replace(/,\s*$/, "");
+  return repaired + stack.reverse().join("");
+}
+
+/**
+ * Recupera um objeto JSON de uma resposta truncada da IA: fecha estruturas
+ * abertas e, se ainda inválido, recua até o último separador e tenta de novo.
+ * Só retorna string que passa em JSON.parse; caso contrário, null.
+ */
+export function repairTruncatedAiJson(raw: string): string | null {
+  const trimmed = raw.trim().replace(/^\uFEFF/, "");
+  const fenced = trimmed.match(/```(?:json|JSON)?\s*([\s\S]*?)(?:```|$)/);
+  const candidate = (fenced ? fenced[1] : trimmed).trim();
+  const start = candidate.indexOf("{");
+  if (start === -1) return null;
+
+  let text = candidate.slice(start);
+  for (let attempt = 0; attempt < 60 && text.length > 1; attempt += 1) {
+    const closed = closeJsonStructures(text);
+    if (closed) {
+      try {
+        JSON.parse(closed);
+        return closed;
+      } catch {
+        // Prefixo ainda inválido (ex.: `"chave":` pendurada) — recua e tenta.
+      }
+    }
+    const cut = Math.max(
+      text.lastIndexOf(","),
+      text.lastIndexOf("{"),
+      text.lastIndexOf("["),
+    );
+    if (cut <= 0) return null;
+    text = text.slice(0, cut);
+  }
+  return null;
 }
 
 // ─── Normalizadores (nunca inventam valores; inválido → null) ────────────────
@@ -189,6 +338,82 @@ function asArray(v: unknown): unknown[] {
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function asStringArray(v: unknown): string[] {
+  return asArray(v)
+    .map((item) => asString(item))
+    .filter((item): item is string => item !== null);
+}
+
+function asTrainingSetType(v: unknown): AiTrainingSet["type"] {
+  return v === "WS" || v === "TS" || v === "BS" || v === "CS" ? v : "unknown";
+}
+
+function asPositiveInteger(v: unknown): number {
+  return typeof v === "number" && Number.isFinite(v) && v > 0
+    ? Math.round(v)
+    : 1;
+}
+
+function asTrainingPlan(v: unknown): AiTrainingPlan | null {
+  if (!isRecord(v)) return null;
+
+  const groups: AiTrainingGroup[] = asArray(v.groups)
+    .filter(isRecord)
+    .map((group) => {
+      const code = (asString(group.code) ?? "").toUpperCase();
+      const exercises: AiTrainingExercise[] = asArray(group.exercises)
+        .filter(isRecord)
+        .map((exercise) => {
+          const sets: AiTrainingSet[] = asArray(exercise.sets)
+            .filter(isRecord)
+            .map((set) => ({
+              type: asTrainingSetType(set.type),
+              count: asPositiveInteger(set.count),
+              reps: asString(set.reps),
+              notes: asString(set.notes),
+              sourceText: asString(set.sourceText),
+            }))
+            .filter((set) => set.type !== "unknown");
+
+          return {
+            name: asString(exercise.name) ?? "",
+            rawPrescription: asString(exercise.rawPrescription),
+            sets,
+            notes: asString(exercise.notes),
+            sourceText: asString(exercise.sourceText),
+            confidence: asConfidence(exercise.confidence),
+          };
+        })
+        .filter((exercise) => exercise.name.length > 0 && exercise.sets.length > 0);
+
+      return {
+        code,
+        label: asString(group.label) ?? `Treino ${code}`,
+        exercises,
+        sourceText: asString(group.sourceText),
+        confidence: asConfidence(group.confidence),
+      };
+    })
+    .filter((group) => /^[A-G]$/.test(group.code) && group.exercises.length > 0);
+
+  if (groups.length === 0) return null;
+
+  return {
+    split: normalizeTrainingSplit(v.split) ?? groups.map((group) => group.code).join(""),
+    groups,
+    guidance: asStringArray(v.guidance),
+    glossary: isRecord(v.glossary)
+      ? Object.fromEntries(
+          Object.entries(v.glossary)
+            .map(([key, value]) => [key, asString(value)])
+            .filter((entry): entry is [string, string] => entry[1] !== null),
+        )
+      : {},
+    sourceText: asString(v.sourceText),
+    confidence: asConfidence(v.confidence),
+  };
 }
 
 /** Linhas de metadado que jamais podem virar item de refeição. */
@@ -332,6 +557,9 @@ export function validateAiParsedPlan(raw: unknown): AiParsedPlan | null {
     sensitiveItems,
     unmapped,
     rawTextPreview: asString(raw.rawTextPreview),
+    trainingPlan: asTrainingPlan(raw.trainingPlan),
+    coachTips: asStringArray(raw.coachTips),
+    nutritionGuidance: asStringArray(raw.nutritionGuidance),
   };
 }
 
@@ -359,7 +587,36 @@ export type AiPlanConversion = {
   warnings: string[];
   treinoSplit?: string;
   closeoutTime?: string;
+  treinos?: Treino[];
 };
+
+function trainingSetToSerie(set: AiTrainingSet): Serie | null {
+  if (set.type === "unknown") return null;
+  return {
+    tipo: set.type,
+    series: set.count,
+    reps: set.reps ?? undefined,
+    observacao: set.notes ?? undefined,
+  };
+}
+
+export function aiTrainingPlanToTreinos(trainingPlan: AiTrainingPlan | null): Treino[] {
+  if (!trainingPlan) return [];
+
+  return trainingPlan.groups.map((group) => ({
+    id: `treino-${group.code.toLowerCase()}`,
+    letra: group.code,
+    grupoMuscular: group.label,
+    exercicios: group.exercises.map((exercise, index) => ({
+      id: `${group.code.toLowerCase()}${index + 1}`,
+      nome: exercise.name,
+      observacao: exercise.notes ?? undefined,
+      series: exercise.sets
+        .map(trainingSetToSerie)
+        .filter((serie): serie is Serie => serie !== null),
+    })),
+  }));
+}
 
 /**
  * Converte o resultado validado da IA no Plano do app.
@@ -431,6 +688,7 @@ export function aiPlanToPlano(parsed: AiParsedPlan, planName?: string): AiPlanCo
       "Itens sensíveis foram separados e não entram no checklist diário.",
     );
   }
+  const treinos = aiTrainingPlanToTreinos(parsed.trainingPlan);
 
   return {
     plano: {
@@ -443,6 +701,7 @@ export function aiPlanToPlano(parsed: AiParsedPlan, planName?: string): AiPlanCo
     warnings,
     treinoSplit: parsed.trainingSplit ?? undefined,
     closeoutTime: parsed.closeoutTime ?? undefined,
+    treinos: treinos.length > 0 ? treinos : undefined,
   };
 }
 
@@ -483,5 +742,8 @@ export function parserResultToAiPlan(result: ParsedPlanResult): AiParsedPlan {
     sensitiveItems: [],
     unmapped: [],
     rawTextPreview: null,
+    trainingPlan: null,
+    coachTips: [],
+    nutritionGuidance: [],
   };
 }
