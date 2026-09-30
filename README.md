@@ -14,7 +14,7 @@
 
 <br/>
 
-<samp><em>Seu prep. Seu shape. Com IA.</em></samp>
+<samp><em>Your prep. Your shape. With AI.</em></samp>
 
 <br/>
 
@@ -87,7 +87,7 @@
 ## <samp>BRAND</samp>
 
 **ShapeIQ**  
-*Seu prep. Seu shape. Com IA.*
+*Your prep. Your shape. With AI.*
 
 ShapeIQ is an iOS-first React Native app that turns bodybuilding prep into daily execution, training performance, adherence review, and AI-powered physique intelligence.
 
